@@ -33,8 +33,33 @@ if(window.Telegram && Telegram.WebApp){
   Telegram.WebApp.expand();
 }
 
-// Backend URL (reklam izleme ve ödül kontrolü için)
-const BACKEND_URL = "https://senin-backend.com/check_reward"; // kendi backend endpoint
+// Ödül fonksiyonu
+function rewardUser() {
+    balance += 0.1; // Ödül miktarı
+    document.getElementById("balance").innerText = balance.toFixed(1);
+    alert("Tebrikler! +0.1 ALGO kazandınız 🎉");
+}
+
+// Buton tıklama fonksiyonu
+function watchAd() {
+    if(typeof show_10483596 !== "function") {
+        alert("Reklam gösterilemiyor. Monetag SDK yüklenmemiş.");
+        return;
+    }
+
+    show_10483596()
+    .then(() => {
+        alert("Reklam izlendi!");
+        rewardUser(); // Ödül ver
+    })
+    .catch((error) => {
+        console.error("Reklam açılmadı:", error);
+    });
+}
+</script>
+
+</body>
+</html>const BACKEND_URL = "https://senin-backend.com/check_reward"; // kendi backend endpoint
 
 // Buton tıklama
 function watchAd(){
