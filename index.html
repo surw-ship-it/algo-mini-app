@@ -42,6 +42,21 @@
       color: #22c55e;
     }
 
+      <script>
+  let tgUser = null;
+
+  if (window.Telegram && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    tgUser = Telegram.WebApp.initDataUnsafe.user;
+
+    if (tgUser) {
+      console.log("User ID:", tgUser.id);
+      console.log("Username:", tgUser.username);
+      console.log("First Name:", tgUser.first_name);
+    }
+  }
+</script>
+
     button {
       width: 100%;
       padding: 14px;
