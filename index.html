@@ -84,6 +84,91 @@
     </div>
   </div>
 
+  <!-- Monetag Rewarded Interstitial function (ZORUNLU) -->
+  <script>
+    function show_10483596() {
+      return window.monetag.invokeRewardedAd(10483596);
+    }
+  </script>
+
+  <script>
+    let balance = 0;
+    let tgUser = null;
+
+    if (window.Telegram && Telegram.WebApp) {
+      Telegram.WebApp.ready();
+      Telegram.WebApp.expand();
+      tgUser = Telegram.WebApp.initDataUnsafe.user;
+
+      if (tgUser) {
+        console.log("User ID:", tgUser.id);
+      }
+    }
+
+    function watchAd() {
+      show_10483596()
+        .then(() => {
+          balance += 0.1;
+          document.getElementById("balance").innerText = balance.toFixed(1);
+          Telegram.WebApp.sendData("reward_ok");
+        })
+        .catch(() => {
+          console.log("Reklam tamamlanmadı veya gösterilmedi");
+        });
+    }
+  </script>
+
+</body>
+</html>    h1 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .balance {
+      font-size: 18px;
+      margin: 15px 0;
+      color: #22c55e;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:active {
+      background: #1d4ed8;
+    }
+
+    .note {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Algo Ads</h1>
+    <p>Reklam izle, Algo kazan</p>
+
+    <div class="balance">
+      Bakiye: <span id="balance">0.0</span> ALGO
+    </div>
+
+    <button onclick="watchAd()">🎬 Reklam İzle</button>
+
+    <div class="note">
+      Günlük sınırlı reklam vardır
+    </div>
+  </div>
+
   <script>
     let balance = 0;
     let tgUser = null;
