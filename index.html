@@ -23,7 +23,6 @@
       align-items: center;
       height: 100vh;
     }
-
     .card {
       width: 90%;
       max-width: 360px;
@@ -31,10 +30,68 @@
       border-radius: 14px;
       padding: 20px;
       text-align: center;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
     }
+    .balance {
+      font-size: 18px;
+      margin: 15px 0;
+      color: #22c55e;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
 
-    h1 {
+<div class="card">
+  <h1>Algo Ads</h1>
+  <p>Reklam izle, Algo kazan</p>
+
+  <div class="balance">
+    Bakiye: <span id="balance">0.0</span> ALGO
+  </div>
+
+  <button onclick="watchAd()">🎬 Reklam İzle</button>
+</div>
+
+<script>
+  let balance = 0;
+
+  if (window.Telegram && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+  }
+
+  function show_10483596() {
+    if (!window.monetag || !window.monetag.invokeRewardedAd) {
+      alert("Monetag SDK çalışmıyor (Telegram WebView uyumsuz)");
+      return Promise.reject();
+    }
+    return window.monetag.invokeRewardedAd(10483596);
+  }
+
+  function watchAd() {
+    show_10483596()
+      .then(() => {
+        balance += 0.1;
+        document.getElementById("balance").innerText = balance.toFixed(1);
+        Telegram.WebApp.sendData("reward_ok");
+        alert("Reklam izlendi, ödül verildi");
+      })
+      .catch(() => {
+        alert("Reklam gösterilemedi, ödül verilmedi");
+      });
+  }
+</script>
+
+</body>
+</html>    h1 {
       font-size: 20px;
       margin-bottom: 10px;
     }
