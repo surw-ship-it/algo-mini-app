@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Algo Ads Mini App</title>
 
   <!-- Telegram Mini App API -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- Monetag SDK -->
-  <script src="https://js.monetag.com/sdk.js"></script>
 
   <style>
     body {
@@ -23,6 +20,7 @@
       align-items: center;
       height: 100vh;
     }
+
     .card {
       width: 90%;
       max-width: 360px;
@@ -30,12 +28,20 @@
       border-radius: 14px;
       padding: 20px;
       text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
     }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
     .balance {
       font-size: 18px;
       margin: 15px 0;
       color: #22c55e;
     }
+
     button {
       width: 100%;
       padding: 14px;
@@ -44,6 +50,17 @@
       color: #fff;
       border: none;
       border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button:active {
+      background: #1d4ed8;
+    }
+
+    .note {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -58,282 +75,46 @@
   </div>
 
   <button onclick="watchAd()">🎬 Reklam İzle</button>
+
+  <div class="note">
+    Günlük sınırlı reklam vardır
+  </div>
 </div>
 
 <script>
-  let balance = 0;
+let balance = 0;
 
-  if (window.Telegram && Telegram.WebApp) {
+// Telegram Mini App hazırla
+if (window.Telegram && Telegram.WebApp) {
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
-  }
+}
 
-  function show_10483596() {
+// Rewarded Interstitial (Monetag zone ID)
+function show_10483596() {
     if (!window.monetag || !window.monetag.invokeRewardedAd) {
-      alert("Monetag SDK çalışmıyor (Telegram WebView uyumsuz)");
-      return Promise.reject();
+        // WebView uyumsuzsa reklam gösterilemez
+        alert("Reklam gösterilemiyor (Telegram Mini App uyumsuz)");
+        return Promise.reject();
     }
     return window.monetag.invokeRewardedAd(10483596);
-  }
+}
 
-  function watchAd() {
+// Buton tıklama fonksiyonu
+function watchAd() {
     show_10483596()
-      .then(() => {
+    .then(() => {
+        // Ödül sadece reklam izlendiğinde
         balance += 0.1;
         document.getElementById("balance").innerText = balance.toFixed(1);
-        Telegram.WebApp.sendData("reward_ok");
-        alert("Reklam izlendi, ödül verildi");
-      })
-      .catch(() => {
-        alert("Reklam gösterilemedi, ödül verilmedi");
-      });
-  }
+        Telegram.WebApp.sendData("reward_ok"); // optional: backend bildirimi
+        alert("Reklam izlendi! +0.1 ALGO");
+    })
+    .catch(() => {
+        console.log("Reklam gösterilemedi veya Mini App uyumsuz.");
+    });
+}
 </script>
-
-</body>
-</html>    h1 {
-      font-size: 20px;
-      margin-bottom: 10px;
-    }
-
-    .balance {
-      font-size: 18px;
-      margin: 15px 0;
-      color: #22c55e;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    button:active {
-      background: #1d4ed8;
-    }
-
-    .note {
-      font-size: 12px;
-      opacity: 0.7;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="card">
-    <h1>Algo Ads</h1>
-    <p>Reklam izle, Algo kazan</p>
-
-    <div class="balance">
-      Bakiye: <span id="balance">0.0</span> ALGO
-    </div>
-
-    <button onclick="watchAd()">🎬 Reklam İzle</button>
-
-    <div class="note">
-      Günlük sınırlı reklam vardır
-    </div>
-  </div>
-
-  <!-- Monetag Rewarded Interstitial function (ZORUNLU) -->
-  <script>
-    function show_10483596() {
-      return window.monetag.invokeRewardedAd(10483596);
-    }
-  </script>
-
-  <script>
-    let balance = 0;
-    let tgUser = null;
-
-    if (window.Telegram && Telegram.WebApp) {
-      Telegram.WebApp.ready();
-      Telegram.WebApp.expand();
-      tgUser = Telegram.WebApp.initDataUnsafe.user;
-
-      if (tgUser) {
-        console.log("User ID:", tgUser.id);
-      }
-    }
-
-    function watchAd() {
-      show_10483596()
-        .then(() => {
-          balance += 0.1;
-          document.getElementById("balance").innerText = balance.toFixed(1);
-          Telegram.WebApp.sendData("reward_ok");
-        })
-        .catch(() => {
-          console.log("Reklam tamamlanmadı veya gösterilmedi");
-        });
-    }
-  </script>
-
-</body>
-</html>    h1 {
-      font-size: 20px;
-      margin-bottom: 10px;
-    }
-
-    .balance {
-      font-size: 18px;
-      margin: 15px 0;
-      color: #22c55e;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    button:active {
-      background: #1d4ed8;
-    }
-
-    .note {
-      font-size: 12px;
-      opacity: 0.7;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="card">
-    <h1>Algo Ads</h1>
-    <p>Reklam izle, Algo kazan</p>
-
-    <div class="balance">
-      Bakiye: <span id="balance">0.0</span> ALGO
-    </div>
-
-    <button onclick="watchAd()">🎬 Reklam İzle</button>
-
-    <div class="note">
-      Günlük sınırlı reklam vardır
-    </div>
-  </div>
-
-  <script>
-    let balance = 0;
-    let tgUser = null;
-
-    // Telegram Mini App hazırla
-    if (window.Telegram && Telegram.WebApp) {
-      Telegram.WebApp.ready();
-      Telegram.WebApp.expand();
-      tgUser = Telegram.WebApp.initDataUnsafe.user;
-
-      if (tgUser) {
-        console.log("User ID:", tgUser.id);
-      }
-    }
-
-    function watchAd() {
-      // MONETAG REWARDED INTERSTITIAL
-      show_10483596().then(() => {
-        // Reklam TAM izlenince
-        balance += 0.1;
-        document.getElementById("balance").innerText = balance.toFixed(1);
-
-        // Bot tarafına bildir
-        Telegram.WebApp.sendData("reward_ok");
-
-      }).catch(() => {
-        console.log("Reklam kapatıldı veya gösterilmedi");
-      });
-    }
-  </script>
-
-</body>
-</html>    }
-
-    .balance {
-      font-size: 18px;
-      margin: 15px 0;
-      color: #22c55e;
-    }
-
-      <script>
-  let tgUser = null;
-
-  if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.ready();
-    tgUser = Telegram.WebApp.initDataUnsafe.user;
-
-    if (tgUser) {
-      console.log("User ID:", tgUser.id);
-      console.log("Username:", tgUser.username);
-      console.log("First Name:", tgUser.first_name);
-    }
-  }
-</script>
-
-    button {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    button:active {
-      background: #1d4ed8;
-    }
-
-    .note {
-      font-size: 12px;
-      opacity: 0.7;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="card">
-    <h1>Algo Ads</h1>
-    <p>Reklam izle, Algo kazan</p>
-
-    <div class="balance">
-      Bakiye: <span id="balance">0.0</span> ALGO
-    </div>
-
-    <button onclick="watchAd()">🎬 Reklam İzle</button>
-
-    <div class="note">
-      Günlük sınırlı reklam vardır
-    </div>
-  </div>
-
-  <script>
-    let balance = 0;
-
-    function watchAd() {
-      balance += 0.1;
-      document.getElementById("balance").innerText = balance.toFixed(1);
-      alert("Reklam izlendi! +0.1 ALGO");
-    }
-
-    // Telegram WebApp hazırla
-    if (window.Telegram && Telegram.WebApp) {
-      Telegram.WebApp.ready();
-    }
-  </script>
 
 </body>
 </html>
