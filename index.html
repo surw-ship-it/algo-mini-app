@@ -33,8 +33,36 @@ if(window.Telegram && Telegram.WebApp){
   Telegram.WebApp.expand();
 }
 
+// Backend URL (reklam izleme ve ödül kontrolü için)
+const BACKEND_URL = "https://senin-backend.com/check_reward"; // kendi backend endpoint
+
 // Buton tıklama
 function watchAd(){
+  // Monetag reklam URL (external browser'da açılacak)
+  const adUrl = "https://monetag.com/rewarded/10483596?ymid=" + encodeURIComponent("user-" + Telegram.WebApp.initDataUnsafe.user.id);
+
+  // External browser'da aç
+  window.open(adUrl, "_blank");
+
+  // Ödül kontrolü için backend polling (10 sn arayla örnek)
+  const interval = setInterval(() => {
+    fetch(`${BACKEND_URL}?user_id=${Telegram.WebApp.initDataUnsafe.user.id}`)
+      .then(res => res.json())
+      .then(data => {
+        if(data.reward_granted){
+          balance += data.amount; // backend ne kadar ALGO verdiyse al
+          document.getElementById("balance").innerText = balance.toFixed(1);
+          alert(`Reklam izlendi! +${data.amount} ALGO`);
+          clearInterval(interval);
+        }
+      })
+      .catch(err => console.log("Backend check hatası", err));
+  }, 5000); // her 5 saniye backend kontrol
+}
+</script>
+
+</body>
+</html>function watchAd(){
   // 1️⃣ Kullanıcıyı external browser açacak URL'ye yönlendir
   // Monetag panelinden reklam linkini al ve buraya koy
   const adUrl = "https://monetag.com/rewarded/10483596?ymid=" + encodeURIComponent("user-"+Telegram.WebApp.initDataUnsafe.user.id);
