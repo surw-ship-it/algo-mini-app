@@ -9,7 +9,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <!-- Monetag SDK (zone ID'nizi değiştirin, örneğin 10483596) -->
-<script async src="https://j.monetag.com/sdk.js?zoneId=10483596"></script>
+<script async src="https://j.monetag.com/sdk.js" data-zone="10483596" data-sdk="show_10483596"></script>
 
 <style>
 body {
@@ -35,6 +35,90 @@ body {
 }
 
 h1 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.balance {
+    font-size: 18px;
+    margin: 15px 0;
+    color: #22c55e;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+button:active {
+    background: #1d4ed8;
+}
+
+.note {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-top: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Algo Ads</h1>
+    <p>Reklam izle, Algo kazan</p>
+
+    <div class="balance">
+        Bakiye: <span id="balance">0.0</span> ALGO
+    </div>
+
+    <button id="adBtn">🎬 Reklam İzle</button>
+
+    <div class="note">
+        Günlük sınırlı reklam vardır
+    </div>
+</div>
+
+<script>
+// Mini App hazırla
+if(window.Telegram && Telegram.WebApp){
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+}
+
+let balance = 0;
+
+// Ödül fonksiyonu
+function rewardUser() {
+    balance += 0.1; // Ödül miktarı
+    document.getElementById("balance").innerText = balance.toFixed(1);
+    alert("Tebrikler! +0.1 ALGO kazandınız 🎉");
+}
+
+// Buton tıklama işlemi
+document.getElementById("adBtn").addEventListener("click", function(){
+    if(typeof show_10483596 !== "function") {
+        alert("Reklam gösterilemiyor. Sistem hazır değil.");
+        return;
+    }
+
+    show_10483596('pop')
+    .then(() => {
+        rewardUser();
+    })
+    .catch((error) => {
+        console.error("Reklam açılamadı:", error);
+    });
+});
+</script>
+
+</body>
+</html>h1 {
     font-size: 20px;
     margin-bottom: 10px;
 }
