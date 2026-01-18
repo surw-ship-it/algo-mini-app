@@ -1,40 +1,61 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Algo Ads Mini App</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algo Ads Mini App</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+body {margin:0;padding:0;background:#0f172a;color:#fff;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;}
+.card{width:90%;max-width:360px;background:#020617;border-radius:14px;padding:20px;text-align:center;box-shadow:0 0 20px rgba(0,0,0,0.6);}
+.balance{font-size:18px;margin:15px 0;color:#22c55e;}
+button{width:100%;padding:14px;font-size:16px;background:#2563eb;color:#fff;border:none;border-radius:10px;cursor:pointer;}
+button:active{background:#1d4ed8;}
+.note{font-size:12px;opacity:0.7;margin-top:10px;}
+</style>
+</head>
+<body>
 
-  <!-- Telegram Mini App API -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<div class="card">
+<h1>Algo Ads</h1>
+<p>Reklam izle, Algo kazan</p>
+<div class="balance">Bakiye: <span id="balance">0.0</span> ALGO</div>
+<button onclick="watchAd()">🎬 Reklam İzle</button>
+<div class="note">Günlük sınırlı reklam vardır</div>
+</div>
 
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #0f172a;
-      color: #ffffff;
-      font-family: Arial, Helvetica, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<script>
+let balance = 0;
 
-    .card {
-      width: 90%;
-      max-width: 360px;
-      background: #020617;
-      border-radius: 14px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-    }
+// Telegram WebApp hazırla
+if(window.Telegram && Telegram.WebApp){
+  Telegram.WebApp.ready();
+  Telegram.WebApp.expand();
+}
 
-    h1 {
-      font-size: 20px;
-      margin-bottom: 10px;
-    }
+// Buton tıklama
+function watchAd(){
+  // 1️⃣ Kullanıcıyı external browser açacak URL'ye yönlendir
+  // Monetag panelinden reklam linkini al ve buraya koy
+  const adUrl = "https://monetag.com/rewarded/10483596?ymid=" + encodeURIComponent("user-"+Telegram.WebApp.initDataUnsafe.user.id);
+  
+  // Telegram Mini App içinden dış tarayıcıda aç
+  window.open(adUrl, "_blank");
+
+  // 2️⃣ Ödül verme kısmı: 
+  // Kullanıcı reklamı izleyip Monetag postback ile backend'e bildirince
+  // backend Mini App’e webhook veya Telegram.WebApp.sendData ile bildirir
+  // Biz test için alert ile simüle edelim:
+  setTimeout(() => {
+    balance += 0.1;
+    document.getElementById("balance").innerText = balance.toFixed(1);
+    alert("Reklam izlendi! +0.1 ALGO");
+  }, 10000); // 10 saniye simülasyon, gerçek sistemde backend callback ile tetiklenir
+}
+</script>
+
+</body>
+</html>    }
 
     .balance {
       font-size: 18px;
