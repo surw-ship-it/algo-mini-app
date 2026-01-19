@@ -178,7 +178,7 @@ async function notifySupabaseAdViewed() {
   try {
     await fetch(SUPABASE_FUNCTION_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify(payload)
     });
   } catch (err) {
@@ -235,35 +235,33 @@ submitWithdraw.addEventListener("click", async () => {
     return;
   }
 
-  // JSON body kesinlikle string
-  const payload = JSON.stringify({
-    telegram_id: tgUser.id,
-    username: tgUser.username ?? null,
-    first_name: tgUser.first_name ?? null,
-    wallet_address: wallet,
-    timestamp: Date.now()
-  });
-
   try {
+    const payload = {
+      telegram_id: tgUser.id,
+      username: tgUser.username ?? null,
+      first_name: tgUser.first_name ?? null,
+      wallet_address: wallet,
+      timestamp: Date.now()
+    };
+
     const res = await fetch(WITHDRAW_FUNCTION_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: payload
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(payload)
     });
 
-    // Önce text al, boşsa {}
-    const text = await res.text();
-    const data = text ? JSON.parse(text) : {};
+    let data = { success: false };
+    try { 
+      data = await res.json(); 
+    } catch(e) {
+      console.error("Withdraw JSON parse hatası:", e, await res.text());
+    }
 
     if (data.success) {
       alert("Çekim talebiniz alındı!");
       withdrawPopup.style.display = "none";
       document.getElementById("walletAddress").value = "";
     } else {
-      console.error("Withdraw request error:", data.error);
       alert("Bir hata oluştu, tekrar deneyin.");
     }
   } catch (err) {
