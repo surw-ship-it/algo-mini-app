@@ -1,72 +1,119 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>USD Ads Rewarded</title>
-  
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algo Ads Mini App</title>
 
-  <script src='//libtl.com/sdk.js' data-zone='10483596' data-sdk='show_10483596'></script>
-  <style>
-    /* CSS TASARIM */
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; padding: 0;
-      background: #0f172a; /* Koyu Lacivert */
-      color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      display: flex; justify-content: center; align-items: center;
-      height: 100vh; overflow: hidden;
-    }
+<!-- Telegram Mini App SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    .card {
-      width: 90%; max-width: 360px;
-      background: #1e293b;
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: #0f172a;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-    h1 { margin: 0 0 10px; font-size: 22px; }
-    p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
+.card {
+    width: 90%;
+    max-width: 360px;
+    background: #020617;
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+}
 
-    .balance-box {
-      background: #0f172a;
-      padding: 12px;
-      border-radius: 12px;
-      margin-top: 10px;
-    }
-  </style>
+h1 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.balance {
+    font-size: 18px;
+    margin: 15px 0;
+    color: #22c55e;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+button:active {
+    background: #1d4ed8;
+}
+
+.note {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-top: 10px;
+}
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>USD Ads Rewarded</h1>
-    <p>Reklam izleyerek kazancınızı görün</p>
-    
-    <div class="balance-box">
-      <p>Kullanıcı başına 1 izleme: <span id="userReward">0.001</span> USD</p>
+
+<div class="card">
+    <h1>Algo Ads</h1>
+    <p>Reklam izle, Algo kazan</p>
+
+    <div class="balance">
+        Bakiye: <span id="balance">0.0</span> ALGO
     </div>
 
-    <button onclick="watchAd()">Watch Ad</button>
-  </div>
+    <button id="adBtn">🎬 Reklam İzle</button>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
+    <div class="note">
+        Günlük sınırlı reklam vardır
+    </div>
+</div>
 
-    // Kazanç sabit
-    const userReward = 0.001; // USD / görüntüleme
+<script>
+// Mini App hazırla
+if(window.Telegram && Telegram.WebApp){
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+}
 
-    // Göster
-    document.getElementById('userReward').textContent = userReward.toFixed(3);
+let balance = 0;
 
-    // Buton fonksiyonu
-    function watchAd() {
-      alert("Reklam gösteriliyor... Kazanç: " + userReward.toFixed(3) + " USD");
-      // Buraya ad SDK callback'i eklenecek
+// Ödül fonksiyonu
+function rewardUser() {
+    balance += 0.1; // Ödül miktarı
+    document.getElementById("balance").innerText = balance.toFixed(1);
+    alert("Tebrikler! +0.1 ALGO kazandınız 🎉");
+}
+
+// Buton tıklama işlemi
+document.getElementById("adBtn").addEventListener("click", function(){
+    if(typeof show_10483596 !== "function") {
+        alert("Reklam gösterilemiyor. Monetag SDK yüklenmemiş.");
+        return;
     }
-  </script>
+
+    show_10483596()
+    .then(() => {
+        alert("Reklam izlendi!");
+        rewardUser();
+    })
+    .catch((error) => {
+        console.error("Reklam açılamadı:", error);
+    });
+});
+</script>
+
 </body>
 </html>
