@@ -11,6 +11,11 @@
 <!-- Monetag SDK -->
 <script src="//libtl.com/sdk.js" data-zone="10483596" data-sdk="show_10483596"></script>
 
+<!-- Supabase Function URL (EKLENDİ) -->
+<script>
+const SUPABASE_FUNCTION_URL = "https://laaozqlespqxqxtejywf.supabase.co/functions/v1/track_ad_view";
+</script>
+
 <style>
 body {
     margin: 0;
@@ -66,14 +71,12 @@ button:active {
     margin-top: 10px;
 }
 
-/* Reklam sayacı stili */
 .counter {
     font-size: 14px;
     margin: 10px 0;
     color: #facc15;
 }
 
-/* Ön bilgi stili */
 .counter-info {
     font-size: 13px;
     margin: 5px 0;
@@ -91,12 +94,10 @@ button:active {
         Bakiye: <span id="balance">0.0</span> USDT
     </div>
 
-    <!-- Ön bilgi -->
     <div class="counter-info">
         5 reklam izle 0.005$ kazan
     </div>
 
-    <!-- Sayaç Alanı -->
     <div class="counter">
         Reklam sayacı: <span id="adCounterDisplay">0</span> / 5
     </div>
@@ -112,7 +113,7 @@ button:active {
 let balance = parseFloat(localStorage.getItem("usdtBalance")) || 0;
 let adCounter = parseInt(localStorage.getItem("adCounter")) || 0;    
 const adsPerReward = 5;       
-const rewardAmount = 0.005;   // Güncel ödül miktarı
+const rewardAmount = 0.005;
 
 // Sayfa açıldığında bakiye ve sayaç göster
 document.getElementById("balance").innerText = balance.toFixed(3);
@@ -127,7 +128,7 @@ if(window.Telegram && Telegram.WebApp){
 // Ödül fonksiyonu
 function rewardUser() {
     balance += rewardAmount;
-    localStorage.setItem("usdtBalance", balance); // Bakiye kaydet
+    localStorage.setItem("usdtBalance", balance);
     document.getElementById("balance").innerText = balance.toFixed(3);
     alert(`Tebrikler! +${rewardAmount} USDT kazandınız 🎉`);
 }
@@ -135,6 +136,29 @@ function rewardUser() {
 // Sayaç güncelleme
 function updateCounterDisplay() {
     document.getElementById("adCounterDisplay").innerText = adCounter;
+}
+
+// ✅ Supabase bildirimi (EKLENDİ)
+async function notifySupabaseAdViewed() {
+    try {
+        if (!window.Telegram || !Telegram.WebApp || !Telegram.WebApp.initDataUnsafe?.user) {
+            return;
+        }
+
+        const user = Telegram.WebApp.initDataUnsafe.user;
+
+        await fetch(SUPABASE_FUNCTION_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                telegram_id: user.id,
+                username: user.username || null,
+                first_name: user.first_name || null
+            })
+        });
+    } catch (e) {
+        console.error("Supabase bildirimi başarısız:", e);
+    }
 }
 
 // Buton tıklama
@@ -147,15 +171,18 @@ document.getElementById("adBtn").addEventListener("click", function(){
     show_10483596()
     .then(() => {
         adCounter++;
-        localStorage.setItem("adCounter", adCounter); // Sayaç kaydet
-        updateCounterDisplay(); // Ekranı güncelle
+        localStorage.setItem("adCounter", adCounter);
+        updateCounterDisplay();
 
         if(adCounter >= adsPerReward){
             rewardUser();     
             adCounter = 0;    
-            localStorage.setItem("adCounter", adCounter); // Sayaç sıfırla
-            updateCounterDisplay(); // Sıfırladıktan sonra güncelle
+            localStorage.setItem("adCounter", adCounter);
+            updateCounterDisplay();
         }
+
+        // ✅ reklam izlendi bildirimi (EKLENDİ)
+        notifySupabaseAdViewed();
     })
     .catch((error) => {
         console.error("Reklam açılamadı:", error);
