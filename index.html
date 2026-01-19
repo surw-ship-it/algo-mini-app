@@ -248,7 +248,13 @@ submitWithdraw.addEventListener("click", async () => {
       })
     });
 
-    const data = await res.json();
+    let data = { success: false };
+    try { 
+      data = await res.json(); 
+    } catch(e) {
+      console.error("Withdraw JSON parse hatası:", e);
+    }
+
     if (data.success) {
       alert("Çekim talebiniz alındı!");
       withdrawPopup.style.display = "none";
