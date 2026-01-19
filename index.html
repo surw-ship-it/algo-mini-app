@@ -46,7 +46,7 @@
     <p>Reklam izleyerek kazancınızı görün</p>
     
     <div class="balance-box">
-      <p>Kullanıcı başına 1 izleme: <span id="userReward">0.001</span> $</p>
+      <p>Kullanıcı başına 1 izleme: <span id="userReward">0.001</span> USD</p>
     </div>
 
     <button onclick="watchAd()">Watch Ad</button>
@@ -57,14 +57,14 @@
     tg.ready();
 
     // Kazanç sabit
-    const userReward = 0.001; // $ / görüntüleme
+    const userReward = 0.001; // USD / görüntüleme
 
     // Göster
     document.getElementById('userReward').textContent = userReward.toFixed(3);
 
     // Buton fonksiyonu
     function watchAd() {
-      alert("Reklam gösteriliyor... Kazanç: " + userReward.toFixed(3) + " $");
+      alert("Reklam gösteriliyor... Kazanç: " + userReward.toFixed(3) + " USD");
       // Buraya ad SDK callback'i eklenecek
     }
   </script>
