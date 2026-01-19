@@ -3,121 +3,126 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Algo Ads Mini App</title>
-
+  <title>Algo Ads Rewarded</title>
+  
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+  <script src='//libtl.com/sdk.js' data-zone='10483596' data-sdk='show_10483596'></script>
   <style>
-    /* CSS: Sayfa Tasarımı */
-    * {
-      box-sizing: border-box;
-    }
-
+    /* CSS TASARIM */
+    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      padding: 0;
-      background: #0f172a;
+      margin: 0; padding: 0;
+      background: #0f172a; /* Koyu Lacivert */
       color: #ffffff;
-      font-family: Arial, Helvetica, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden; /* Kaydırmayı engelle */
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh; overflow: hidden;
     }
 
     .card {
-      width: 90%;
-      max-width: 360px;
-      background: #020617;
-      border-radius: 14px;
-      padding: 20px;
+      width: 90%; max-width: 360px;
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 24px;
       text-align: center;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-      flex-shrink: 0; 
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
 
-    h1 {
-      font-size: 20px;
-      margin-bottom: 10px;
-      margin-top: 0;
-    }
+    h1 { margin: 0 0 10px; font-size: 22px; }
+    p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
 
-    .balance {
-      font-size: 18px;
-      margin: 15px 0;
-      color: #22c55e;
-      font-weight: bold;
+    .balance-box {
+      background: #0f172a;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #334155;
     }
-
+    .balance-val { color: #22c55e; font-size: 24px; font-weight: bold; }
+    
     button {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.2s;
+      width: 100%; padding: 16px;
+      font-size: 16px; font-weight: 600;
+      background: #3b82f6; color: white;
+      border: none; border-radius: 12px;
+      cursor: pointer; transition: 0.2s;
     }
-
-    button:active {
-      background: #1d4ed8;
-      transform: scale(0.98);
-    }
-
-    .note {
-      font-size: 12px;
-      opacity: 0.7;
-      margin-top: 15px;
-    }
+    button:active { transform: scale(0.98); background: #2563eb; }
+    button:disabled { background: #64748b; cursor: not-allowed; opacity: 0.7; }
   </style>
 </head>
 <body>
 
   <div class="card">
     <h1>Algo Ads</h1>
-    <p>Reklam izle, Algo kazan</p>
+    <p>Videoyu sonuna kadar izle, ödülü kazan.</p>
 
-    <div class="balance">
-      Bakiye: <span id="balance">0.0</span> ALGO
+    <div class="balance-box">
+      Bakiye: <span class="balance-val" id="balance">0.0</span> ALGO
     </div>
 
-    <button onclick="watchAd()">🎬 Reklam İzle</button>
-
-    <div class="note">
-      Günlük sınırlı reklam vardır
-    </div>
+    <button id="adBtn" onclick="watchRewardedAd()">🎬 Reklam İzle & Kazan</button>
   </div>
 
   <script>
-    // 1. Telegram WebApp'i başlat
+    // 1. Telegram Başlatma
     if (window.Telegram && Telegram.WebApp) {
       Telegram.WebApp.ready();
-      Telegram.WebApp.expand(); // Tam ekran yap
+      Telegram.WebApp.expand();
     }
 
-    // 2. Senin Monetag Reklam Linkin
-    const REKLAM_LINKI = "https://otieu.com/4/10484834"; 
-
-    // 3. Bakiyeyi hafızadan (localStorage) çek, eğer yoksa 0 yap
+    // 2. Bakiye Yükleme
     let balance = parseFloat(localStorage.getItem('userBalance')) || 0;
-    
-    // Uygulama açılınca bakiyeyi ekrana yaz
-    document.getElementById("balance").innerText = balance.toFixed(1);
+    const balanceEl = document.getElementById("balance");
+    const adBtn = document.getElementById("adBtn");
+    balanceEl.innerText = balance.toFixed(1);
 
-    function watchAd() {
-      // TELEGRAM İÇİN REKLAM AÇMA KODU
-      // Bu fonksiyon linki güvenli bir şekilde açar
-      Telegram.WebApp.openLink(REKLAM_LINKI);
+    // 3. REKLAM İZLEME VE ÖDÜL FONKSİYONU
+    function watchRewardedAd() {
+      
+      // Butonu kilitle (Çift tıklamayı önlemek için)
+      adBtn.disabled = true;
+      adBtn.innerText = "Reklam Yükleniyor...";
 
-      // BAKİYE GÜNCELLEME İŞLEMİ
-      balance += 0.1; // 0.1 puan ekle
-      document.getElementById("balance").innerText = balance.toFixed(1); // Ekrana yaz
-      localStorage.setItem('userBalance', balance); // Telefona kaydet (Kalıcı olsun)
+      // Script yüklenmiş mi kontrol et
+      if (typeof show_10483596 === 'function') {
+        
+        // --- REKLAMI BAŞLAT ---
+        show_10483596().then(() => {
+            // +++ BURASI REKLAM BİTİNCE ÇALIŞIR +++
+            
+            // 1. Ödülü Ver
+            balance += 0.1;
+            balanceEl.innerText = balance.toFixed(1);
+            localStorage.setItem('userBalance', balance);
+
+            // 2. Kullanıcıyı Bilgilendir
+            Telegram.WebApp.showPopup({
+                title: 'Tebrikler!',
+                message: 'Reklamı başarıyla izledin. +0.1 ALGO hesabına eklendi.',
+                buttons: [{type: 'ok'}]
+            });
+
+            // 3. Butonu Sıfırla
+            adBtn.disabled = false;
+            adBtn.innerText = "🎬 Reklam İzle & Kazan";
+        })
+        .catch((e) => {
+            // Reklam kapatılırsa veya hata olursa
+            console.error(e);
+            adBtn.disabled = false;
+            adBtn.innerText = "🎬 Reklam İzle & Kazan";
+            // İstersen burada "Reklamı tamamlamadınız" uyarısı verebilirsin.
+        });
+
+      } else {
+        // Script henüz yüklenemediyse
+        alert("Reklam servisi bağlanıyor... Lütfen 2-3 saniye bekleyip tekrar deneyin.");
+        adBtn.disabled = false;
+        adBtn.innerText = "🎬 Reklam İzle & Kazan";
+      }
     }
   </script>
-
 </body>
 </html>
