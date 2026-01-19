@@ -65,6 +65,13 @@ button:active {
     opacity: 0.7;
     margin-top: 10px;
 }
+
+/* Reklam sayacı stili */
+.counter {
+    font-size: 14px;
+    margin: 10px 0;
+    color: #facc15;
+}
 </style>
 </head>
 <body>
@@ -77,6 +84,11 @@ button:active {
         Bakiye: <span id="balance">0.0</span> USDT
     </div>
 
+    <!-- Sayaç Alanı -->
+    <div class="counter">
+        Reklam sayacı: <span id="adCounterDisplay">0</span> / 5
+    </div>
+
     <button id="adBtn">🎬 Reklam İzle</button>
 
     <div class="note">
@@ -85,10 +97,14 @@ button:active {
 </div>
 
 <script>
-let balance = 0;
-let adCounter = 0;          // İzlenen reklam sayacı
-const adsPerReward = 5;     // Kaç reklamda bir ödül verilecek
-const rewardAmount = 0.001; // Her 5 reklam için kazanılacak USDT
+let balance = parseFloat(localStorage.getItem("usdtBalance")) || 0;
+let adCounter = parseInt(localStorage.getItem("adCounter")) || 0;  
+const adsPerReward = 5;     
+const rewardAmount = 0.001; 
+
+// Sayfa açıldığında bakiye ve sayaç göster
+document.getElementById("balance").innerText = balance.toFixed(3);
+document.getElementById("adCounterDisplay").innerText = adCounter;
 
 // Telegram WebApp hazırla
 if(window.Telegram && Telegram.WebApp){
@@ -99,8 +115,14 @@ if(window.Telegram && Telegram.WebApp){
 // Ödül fonksiyonu
 function rewardUser() {
     balance += rewardAmount;
+    localStorage.setItem("usdtBalance", balance); // Bakiye kaydet
     document.getElementById("balance").innerText = balance.toFixed(3);
     alert(`Tebrikler! +${rewardAmount} USDT kazandınız 🎉`);
+}
+
+// Sayaç güncelleme
+function updateCounterDisplay() {
+    document.getElementById("adCounterDisplay").innerText = adCounter;
 }
 
 // Buton tıklama
@@ -110,15 +132,17 @@ document.getElementById("adBtn").addEventListener("click", function(){
         return;
     }
 
-    // Rewarded interstitial reklamı göster
     show_10483596()
     .then(() => {
-        adCounter++; // Sayaç artır
+        adCounter++;
+        localStorage.setItem("adCounter", adCounter); // Sayaç kaydet
+        updateCounterDisplay(); // Ekranı güncelle
 
-        // Kaç reklamda bir ödül verileceğini kontrol et
         if(adCounter >= adsPerReward){
-            rewardUser();   // Ödülü ver
-            adCounter = 0;  // Sayaç sıfırla
+            rewardUser();   
+            adCounter = 0;  
+            localStorage.setItem("adCounter", adCounter); // Sayaç sıfırla
+            updateCounterDisplay(); // Sıfırladıktan sonra güncelle
         }
     })
     .catch((error) => {
