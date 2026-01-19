@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Algo Ads Rewarded</title>
+  <title>USD Ads Rewarded</title>
   
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -34,94 +34,38 @@
 
     .balance-box {
       background: #0f172a;
-      padding: 15px;
+      padding: 12px;
       border-radius: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #334155;
+      margin-top: 10px;
     }
-    .balance-val { color: #22c55e; font-size: 24px; font-weight: bold; }
-    
-    button {
-      width: 100%; padding: 16px;
-      font-size: 16px; font-weight: 600;
-      background: #3b82f6; color: white;
-      border: none; border-radius: 12px;
-      cursor: pointer; transition: 0.2s;
-    }
-    button:active { transform: scale(0.98); background: #2563eb; }
-    button:disabled { background: #64748b; cursor: not-allowed; opacity: 0.7; }
   </style>
 </head>
 <body>
-
   <div class="card">
-    <h1>Algo Ads</h1>
-    <p>Videoyu sonuna kadar izle, ödülü kazan.</p>
-
+    <h1>USD Ads Rewarded</h1>
+    <p>Reklam izleyerek kazancınızı görün</p>
+    
     <div class="balance-box">
-      Bakiye: <span class="balance-val" id="balance">0.0</span> ALGO
+      <p>Kullanıcı başına 1 izleme: <span id="userReward">0.001</span> $</p>
     </div>
 
-    <button id="adBtn" onclick="watchRewardedAd()">🎬 Reklam İzle & Kazan</button>
+    <button onclick="watchAd()">Watch Ad</button>
   </div>
 
   <script>
-    // 1. Telegram Başlatma
-    if (window.Telegram && Telegram.WebApp) {
-      Telegram.WebApp.ready();
-      Telegram.WebApp.expand();
-    }
+    const tg = window.Telegram.WebApp;
+    tg.ready();
 
-    // 2. Bakiye Yükleme
-    let balance = parseFloat(localStorage.getItem('userBalance')) || 0;
-    const balanceEl = document.getElementById("balance");
-    const adBtn = document.getElementById("adBtn");
-    balanceEl.innerText = balance.toFixed(1);
+    // Kazanç sabit
+    const userReward = 0.001; // $ / görüntüleme
 
-    // 3. REKLAM İZLEME VE ÖDÜL FONKSİYONU
-    function watchRewardedAd() {
-      
-      // Butonu kilitle (Çift tıklamayı önlemek için)
-      adBtn.disabled = true;
-      adBtn.innerText = "Reklam Yükleniyor...";
+    // Göster
+    document.getElementById('userReward').textContent = userReward.toFixed(3);
 
-      // Script yüklenmiş mi kontrol et
-      if (typeof show_10483596 === 'function') {
-        
-        // --- REKLAMI BAŞLAT ---
-        show_10483596().then(() => {
-            // +++ BURASI REKLAM BİTİNCE ÇALIŞIR +++
-            
-            // 1. Ödülü Ver
-            balance += 0.1;
-            balanceEl.innerText = balance.toFixed(1);
-            localStorage.setItem('userBalance', balance);
-
-            // 2. Kullanıcıyı Bilgilendir
-            Telegram.WebApp.showPopup({
-                title: 'Tebrikler!',
-                message: 'Reklamı başarıyla izledin. +0.1 ALGO hesabına eklendi.',
-                buttons: [{type: 'ok'}]
-            });
-
-            // 3. Butonu Sıfırla
-            adBtn.disabled = false;
-            adBtn.innerText = "🎬 Reklam İzle & Kazan";
-        })
-        .catch((e) => {
-            // Reklam kapatılırsa veya hata olursa
-            console.error(e);
-            adBtn.disabled = false;
-            adBtn.innerText = "🎬 Reklam İzle & Kazan";
-            // İstersen burada "Reklamı tamamlamadınız" uyarısı verebilirsin.
-        });
-
-      } else {
-        // Script henüz yüklenemediyse
-        alert("Reklam servisi bağlanıyor... Lütfen 2-3 saniye bekleyip tekrar deneyin.");
-        adBtn.disabled = false;
-        adBtn.innerText = "🎬 Reklam İzle & Kazan";
-      }
+    // Buton fonksiyonu
+    function watchAd() {
+      alert("Reklam gösteriliyor... Kazanç: " + userReward.toFixed(3) + " $");
+      // Buraya ad SDK callback'i eklenecek
     }
   </script>
 </body>
