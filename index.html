@@ -72,6 +72,13 @@ button:active {
     margin: 10px 0;
     color: #facc15;
 }
+
+/* Ön bilgi stili */
+.counter-info {
+    font-size: 13px;
+    margin: 5px 0;
+    color: #f87171;
+}
 </style>
 </head>
 <body>
@@ -82,6 +89,11 @@ button:active {
 
     <div class="balance">
         Bakiye: <span id="balance">0.0</span> USDT
+    </div>
+
+    <!-- Ön bilgi -->
+    <div class="counter-info">
+        5 reklam izle 0.005$ kazan
     </div>
 
     <!-- Sayaç Alanı -->
@@ -98,9 +110,9 @@ button:active {
 
 <script>
 let balance = parseFloat(localStorage.getItem("usdtBalance")) || 0;
-let adCounter = parseInt(localStorage.getItem("adCounter")) || 0;  
-const adsPerReward = 5;     
-const rewardAmount = 0.001; 
+let adCounter = parseInt(localStorage.getItem("adCounter")) || 0;    
+const adsPerReward = 5;       
+const rewardAmount = 0.005;   // Güncel ödül miktarı
 
 // Sayfa açıldığında bakiye ve sayaç göster
 document.getElementById("balance").innerText = balance.toFixed(3);
@@ -139,8 +151,8 @@ document.getElementById("adBtn").addEventListener("click", function(){
         updateCounterDisplay(); // Ekranı güncelle
 
         if(adCounter >= adsPerReward){
-            rewardUser();   
-            adCounter = 0;  
+            rewardUser();     
+            adCounter = 0;    
             localStorage.setItem("adCounter", adCounter); // Sayaç sıfırla
             updateCounterDisplay(); // Sıfırladıktan sonra güncelle
         }
