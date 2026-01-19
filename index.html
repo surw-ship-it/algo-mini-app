@@ -31,7 +31,6 @@ body {
   height: 100vh;
   position: relative;
 }
-
 .card {
   width: 90%;
   max-width: 360px;
@@ -42,7 +41,6 @@ body {
   box-shadow: 0 0 20px rgba(0,0,0,0.6);
   position: relative;
 }
-
 h1 { font-size: 20px; margin-bottom: 10px; }
 .balance { font-size: 18px; margin: 15px 0; color: #22c55e; }
 button {
@@ -82,7 +80,8 @@ button:active { background: #1d4ed8; }
   border-radius: 12px;
   box-shadow: 0 0 15px rgba(0,0,0,0.8);
   z-index: 1000;
-  width: 300px;
+  width: 90%;
+  max-width: 300px;
   text-align: center;
 }
 #withdrawPopup input {
@@ -95,6 +94,8 @@ button:active { background: #1d4ed8; }
 #withdrawPopup button {
   width: 48%;
   margin: 5px 1%;
+  padding: 10px;
+  font-size: 14px;
 }
 </style>
 </head>
@@ -118,7 +119,7 @@ button:active { background: #1d4ed8; }
   </div>
 
   <button id="adBtn">🎬 Reklam İzle</button>
-  <button id="withdrawBtn">Çekim Talebi</button>
+  <button id="withdrawBtn">💰 Çekim Talebi</button>
 
   <div class="note">
     Günlük sınırlı reklam vardır
@@ -229,13 +230,17 @@ submitWithdraw.addEventListener("click", async () => {
   }
 
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || {};
+  if (!tgUser.id) {
+    alert("Kullanıcı bilgisi alınamadı!");
+    return;
+  }
 
   try {
     const res = await fetch(WITHDRAW_FUNCTION_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        telegram_id: tgUser.id ?? null,
+        telegram_id: tgUser.id,
         username: tgUser.username ?? null,
         first_name: tgUser.first_name ?? null,
         wallet_address: wallet,
