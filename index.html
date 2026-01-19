@@ -1,66 +1,178 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-<title>Algo Ads Mini App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Algo Ads Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<!-- Telegram Mini App SDK -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0f172a; /* Koyu Lacivert Arka Plan */
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            user-select: none; /* Metin seçimini engelle */
+        }
 
-<!-- Monetag SDK: Zone ID'nizi Monetag panelinizden kopyalayın ve buraya koyun (örneğin ?zoneId=10483596) -->
-<script async src="https://j.monetag.com/sdk.js?zoneId=10483596"></script>
+        .card {
+            width: 90%;
+            max-width: 360px;
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid #334155;
+        }
 
-<style>
-body {
-    margin: 0;
-    padding: 0;
-    background: #0f172a;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+        h1 {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
 
-.card {
-    width: 90%;
-    max-width: 360px;
-    background: #020617;
-    border-radius: 14px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 0 20px rgba(0,0,0,0.6);
-}
+        p {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
 
-h1 {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
+        .balance-box {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #334155;
+        }
 
-.balance {
-    font-size: 18px;
-    margin: 15px 0;
-    color: #22c55e;
-}
+        .balance-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+            display: block;
+        }
 
-button {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-}
+        .balance-amount {
+            font-size: 32px;
+            color: #22c55e; /* Yeşil Renk */
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
 
-button:active {
-    background: #1d4ed8;
-}
+        .currency {
+            font-size: 16px;
+            color: #fff;
+        }
 
-.note {
+        button {
+            width: 100%;
+            padding: 18px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .note {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 20px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Algo Ads</h1>
+    <p>Reklamlara göz at, ödülünü kap!</p>
+
+    <div class="balance-box">
+        <span class="balance-label">TOPLAM BAKİYE</span>
+        <span class="balance-amount" id="balance">0.00</span>
+        <span class="currency">ALGO</span>
+    </div>
+
+    <button onclick="watchAd()">
+        <span>🎬</span> Reklam İzle (+0.1)
+    </button>
+
+    <div class="note">
+        Not: Ödül, reklam sayfasını ziyaret ettikten sonra hesabınıza yansıtılır.
+    </div>
+</div>
+
+<script>
+    // 1. Telegram Mini App Başlatma
+    if (window.Telegram && Telegram.WebApp) {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand(); // Uygulamayı tam ekran yap
+        
+        // Tema renklerini ayarla (Header rengi)
+        Telegram.WebApp.setHeaderColor('#1e293b');
+        Telegram.WebApp.setBackgroundColor('#0f172a');
+    }
+
+    // Senin gönderdiğin Monetag Direct Link'i
+    const AD_LINK = "https://otieu.com/4/10484834";
+    
+    let balance = 0.00;
+    let isAdProcessing = false;
+
+    function watchAd() {
+        if (isAdProcessing) return; // Arka arkaya tıklamayı engelle
+        isAdProcessing = true;
+
+        // Telegram'ın kendi tarayıcısında linki aç
+        Telegram.WebApp.openLink(AD_LINK);
+
+        // Kullanıcı reklamdayken ödül işlemini simüle et
+        // Gerçek bir uygulamada burada "postback" kontrolü yapılmalıdır.
+        // Şimdilik 3 saniye sonra ödülü veriyoruz.
+        setTimeout(() => {
+            addReward();
+            isAdProcessing = false;
+        }, 3000);
+    }
+
+    function addReward() {
+        balance += 0.10;
+        
+        // Ekrana yazdır
+        document.getElementById("balance").innerText = balance.toFixed(2);
+
+        // Başarılı işlem bildirimi (Haptic Feedback - Titreşim)
+        if (Telegram.WebApp.HapticFeedback) {
+            Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+
+        // Opsiyonel: Kullanıcıya küçük bir popup göster
+        // Telegram.WebApp.showAlert("Tebrikler! +0.10 ALGO kazandınız.");
+    }
+</script>
+
+</body>
+</html>
     font-size: 12px;
     opacity: 0.7;
     margin-top: 10px;
