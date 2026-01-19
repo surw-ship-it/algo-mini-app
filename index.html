@@ -71,10 +71,10 @@ button:active {
 
 <div class="card">
     <h1>Algo Ads</h1>
-    <p>Reklam izle, Algo kazan</p>
+    <p>Reklam izle, USDT kazan</p>
 
     <div class="balance">
-        Bakiye: <span id="balance">0.0</span> ALGO
+        Bakiye: <span id="balance">0.0</span> USDT
     </div>
 
     <button id="adBtn">🎬 Reklam İzle</button>
@@ -95,9 +95,9 @@ if(window.Telegram && Telegram.WebApp){
 
 // Ödül fonksiyonu
 function rewardUser() {
-    balance += 0.1;
-    document.getElementById("balance").innerText = balance.toFixed(1);
-    alert("Tebrikler! +0.1 ALGO kazandınız 🎉");
+    balance += 0.001;
+    document.getElementById("balance").innerText = balance.toFixed(3);
+    alert("Tebrikler! +0.001 USDT kazandınız 🎉");
 }
 
 // Buton tıklama
