@@ -14,10 +14,8 @@
         data-sdk="show_10483596"></script>
 
 <script>
-const SUPABASE_FUNCTION_URL =
-  "https://laaozqlespqxqxtejywf.supabase.co/functions/v1/track_ad_view";
-const SUPABASE_WITHDRAW_URL =
-  "https://laaozqlespqxqxtejywf.supabase.co/functions/v1/withdraw_request";
+const SUPABASE_FUNCTION_URL = "https://laaozqlespqxqxtejywf.supabase.co/functions/v1/track_ad_view";
+const WITHDRAW_FUNCTION_URL = "https://laaozqlespqxqxtejywf.supabase.co/functions/v1/withdraw_request";
 </script>
 
 <style>
@@ -33,6 +31,7 @@ body {
   height: 100vh;
   position: relative;
 }
+
 .card {
   width: 90%;
   max-width: 360px;
@@ -43,6 +42,7 @@ body {
   box-shadow: 0 0 20px rgba(0,0,0,0.6);
   position: relative;
 }
+
 h1 { font-size: 20px; margin-bottom: 10px; }
 .balance { font-size: 18px; margin: 15px 0; color: #22c55e; }
 button {
@@ -66,39 +66,35 @@ button:active { background: #1d4ed8; }
   top: 10px;
   right: 10px;
   width: auto;
-  padding: 8px 12px;
+  padding: 6px 12px;
   font-size: 14px;
-  background: #f59e0b;
 }
 
-/* Modal (pop-up) */
-#withdrawModal {
+/* Popup */
+#withdrawPopup {
   display: none;
   position: fixed;
-  top: 0; left: 0; right:0; bottom:0;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-}
-#withdrawModal .modal-content {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: #020617;
   padding: 20px;
   border-radius: 12px;
-  width: 90%;
-  max-width: 320px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.8);
+  z-index: 1000;
+  width: 300px;
   text-align: center;
 }
-#withdrawModal input {
-  width: 90%;
+#withdrawPopup input {
+  width: 100%;
   padding: 10px;
   margin: 10px 0;
   border-radius: 8px;
-  border: 1px solid #333;
-  background: #0f172a;
-  color: #fff;
+  border: none;
 }
-#withdrawModal button {
-  margin: 5px;
+#withdrawPopup button {
+  width: 48%;
+  margin: 5px 1%;
 }
 </style>
 </head>
@@ -122,22 +118,20 @@ button:active { background: #1d4ed8; }
   </div>
 
   <button id="adBtn">🎬 Reklam İzle</button>
-  <button id="withdrawBtn">💰 Çekim Talebi</button>
+  <button id="withdrawBtn">Çekim Talebi</button>
 
   <div class="note">
     Günlük sınırlı reklam vardır
   </div>
 </div>
 
-<!-- Modal -->
-<div id="withdrawModal">
-  <div class="modal-content">
-    <h3>Çekim Talebi</h3>
-    <input type="text" id="walletAddress" placeholder="Cüzdan adresinizi girin" />
-    <div>
-      <button id="submitWithdraw">Gönder</button>
-      <button id="cancelWithdraw">İptal</button>
-    </div>
+<!-- Çekim Talep Popup -->
+<div id="withdrawPopup">
+  <h3>Çekim Talebi</h3>
+  <input type="text" id="walletAddress" placeholder="Cüzdan adresi girin" />
+  <div>
+    <button id="submitWithdraw">Gönder</button>
+    <button id="cancelWithdraw">İptal</button>
   </div>
 </div>
 
@@ -170,7 +164,7 @@ function rewardUser() {
   alert(`Tebrikler! +${rewardAmount} USDT kazandınız 🎉`);
 }
 
-/* ===== SUPABASE NOTIFY ===== */
+/* ===== SUPABASE AD VIEW ===== */
 async function notifySupabaseAdViewed() {
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || {};
   const payload = {
@@ -180,7 +174,6 @@ async function notifySupabaseAdViewed() {
     first_name: tgUser.first_name ?? null,
     timestamp: Date.now()
   };
-  console.log("SUPABASE GÖNDERİLEN BODY:", payload);
   try {
     await fetch(SUPABASE_FUNCTION_URL, {
       method: "POST",
@@ -198,15 +191,12 @@ document.getElementById("adBtn").addEventListener("click", () => {
     alert("Reklam sistemi hazır değil.");
     return;
   }
-
   show_10483596()
     .then(() => {
       adCounter++;
       localStorage.setItem("adCounter", adCounter);
       updateCounterDisplay();
-
       notifySupabaseAdViewed();
-
       if (adCounter >= adsPerReward) {
         rewardUser();
         adCounter = 0;
@@ -214,53 +204,55 @@ document.getElementById("adBtn").addEventListener("click", () => {
         updateCounterDisplay();
       }
     })
-    .catch(err => {
-      console.error("Reklam açılamadı:", err);
-    });
+    .catch(err => console.error("Reklam açılamadı:", err));
 });
 
-/* ===== WITHDRAW MODAL ===== */
+/* ===== ÇEKİM TALEBİ ===== */
 const withdrawBtn = document.getElementById("withdrawBtn");
-const withdrawModal = document.getElementById("withdrawModal");
-const cancelWithdraw = document.getElementById("cancelWithdraw");
+const withdrawPopup = document.getElementById("withdrawPopup");
 const submitWithdraw = document.getElementById("submitWithdraw");
+const cancelWithdraw = document.getElementById("cancelWithdraw");
 
 withdrawBtn.addEventListener("click", () => {
-  withdrawModal.style.display = "flex";
+  withdrawPopup.style.display = "block";
 });
 
 cancelWithdraw.addEventListener("click", () => {
-  withdrawModal.style.display = "none";
+  withdrawPopup.style.display = "none";
 });
 
 submitWithdraw.addEventListener("click", async () => {
   const wallet = document.getElementById("walletAddress").value.trim();
   if (!wallet) {
-    alert("Lütfen cüzdan adresinizi girin!");
+    alert("Cüzdan adresi boş olamaz!");
     return;
   }
 
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || {};
 
-  const payload = {
-    telegram_id: tgUser.id ?? null,
-    username: tgUser.username ?? null,
-    first_name: tgUser.first_name ?? null,
-    wallet_address: wallet,
-    timestamp: Date.now()
-  };
-
   try {
-    await fetch(SUPABASE_WITHDRAW_URL, {
+    const res = await fetch(WITHDRAW_FUNCTION_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        telegram_id: tgUser.id ?? null,
+        username: tgUser.username ?? null,
+        first_name: tgUser.first_name ?? null,
+        wallet_address: wallet,
+        timestamp: Date.now()
+      })
     });
-    alert("Çekim talebiniz alındı!");
-    withdrawModal.style.display = "none";
-    document.getElementById("walletAddress").value = "";
+
+    const data = await res.json();
+    if (data.success) {
+      alert("Çekim talebiniz alındı!");
+      withdrawPopup.style.display = "none";
+      document.getElementById("walletAddress").value = "";
+    } else {
+      alert("Bir hata oluştu, tekrar deneyin.");
+    }
   } catch (err) {
-    console.error("Çekim talebi başarısız:", err);
+    console.error("Withdraw request başarısız:", err);
     alert("Bir hata oluştu, tekrar deneyin.");
   }
 });
