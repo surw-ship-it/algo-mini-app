@@ -11,9 +11,9 @@
 <!-- Monetag SDK -->
 <script src="//libtl.com/sdk.js" data-zone="10483596" data-sdk="show_10483596"></script>
 
-<!-- Supabase Function URL (EKLENDİ) -->
 <script>
-const SUPABASE_FUNCTION_URL = "https://laaozqlespqxqxtejywf.supabase.co/functions/v1/track_ad_view";
+const SUPABASE_FUNCTION_URL =
+  "https://laaozqlespqxqxtejywf.supabase.co/functions/v1/track_ad_view";
 </script>
 
 <style>
@@ -28,7 +28,6 @@ body {
     align-items: center;
     height: 100vh;
 }
-
 .card {
     width: 90%;
     max-width: 360px;
@@ -38,18 +37,8 @@ body {
     text-align: center;
     box-shadow: 0 0 20px rgba(0,0,0,0.6);
 }
-
-h1 {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
-
-.balance {
-    font-size: 18px;
-    margin: 15px 0;
-    color: #22c55e;
-}
-
+h1 { font-size: 20px; margin-bottom: 10px; }
+.balance { font-size: 18px; margin: 15px 0; color: #22c55e; }
 button {
     width: 100%;
     padding: 14px;
@@ -60,30 +49,13 @@ button {
     border-radius: 10px;
     cursor: pointer;
 }
-
-button:active {
-    background: #1d4ed8;
-}
-
-.note {
-    font-size: 12px;
-    opacity: 0.7;
-    margin-top: 10px;
-}
-
-.counter {
-    font-size: 14px;
-    margin: 10px 0;
-    color: #facc15;
-}
-
-.counter-info {
-    font-size: 13px;
-    margin: 5px 0;
-    color: #f87171;
-}
+button:active { background: #1d4ed8; }
+.note { font-size: 12px; opacity: 0.7; margin-top: 10px; }
+.counter { font-size: 14px; margin: 10px 0; color: #facc15; }
+.counter-info { font-size: 13px; margin: 5px 0; color: #f87171; }
 </style>
 </head>
+
 <body>
 
 <div class="card">
@@ -111,21 +83,18 @@ button:active {
 
 <script>
 let balance = parseFloat(localStorage.getItem("usdtBalance")) || 0;
-let adCounter = parseInt(localStorage.getItem("adCounter")) || 0;    
-const adsPerReward = 5;       
+let adCounter = parseInt(localStorage.getItem("adCounter")) || 0;
+const adsPerReward = 5;
 const rewardAmount = 0.005;
 
-// Sayfa açıldığında bakiye ve sayaç göster
 document.getElementById("balance").innerText = balance.toFixed(3);
 document.getElementById("adCounterDisplay").innerText = adCounter;
 
-// Telegram WebApp hazırla
-if(window.Telegram && Telegram.WebApp){
+if (window.Telegram && Telegram.WebApp) {
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
 }
 
-// Ödül fonksiyonu
 function rewardUser() {
     balance += rewardAmount;
     localStorage.setItem("usdtBalance", balance);
@@ -133,27 +102,25 @@ function rewardUser() {
     alert(`Tebrikler! +${rewardAmount} USDT kazandınız 🎉`);
 }
 
-// Sayaç güncelleme
 function updateCounterDisplay() {
     document.getElementById("adCounterDisplay").innerText = adCounter;
 }
 
-// ✅ Supabase bildirimi (EKLENDİ)
+/* 🔒 GUARANTEED JSON GÖNDERİM */
 async function notifySupabaseAdViewed() {
     try {
-        if (!window.Telegram || !Telegram.WebApp || !Telegram.WebApp.initDataUnsafe?.user) {
-            return;
-        }
-
-        const user = Telegram.WebApp.initDataUnsafe.user;
+        const user =
+          window.Telegram?.WebApp?.initDataUnsafe?.user ?? null;
 
         await fetch(SUPABASE_FUNCTION_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                telegram_id: user.id,
-                username: user.username || null,
-                first_name: user.first_name || null
+                event: "ad_viewed",
+                telegram_id: user?.id ?? null,
+                username: user?.username ?? null,
+                first_name: user?.first_name ?? null,
+                ts: Date.now()
             })
         });
     } catch (e) {
@@ -161,32 +128,30 @@ async function notifySupabaseAdViewed() {
     }
 }
 
-// Buton tıklama
-document.getElementById("adBtn").addEventListener("click", function(){
-    if(typeof show_10483596 !== "function") {
+document.getElementById("adBtn").addEventListener("click", function () {
+    if (typeof show_10483596 !== "function") {
         alert("Reklam gösterilemiyor. Monetag SDK yüklenmemiş.");
         return;
     }
 
     show_10483596()
-    .then(() => {
-        adCounter++;
-        localStorage.setItem("adCounter", adCounter);
-        updateCounterDisplay();
-
-        if(adCounter >= adsPerReward){
-            rewardUser();     
-            adCounter = 0;    
+        .then(() => {
+            adCounter++;
             localStorage.setItem("adCounter", adCounter);
             updateCounterDisplay();
-        }
 
-        // ✅ reklam izlendi bildirimi (EKLENDİ)
-        notifySupabaseAdViewed();
-    })
-    .catch((error) => {
-        console.error("Reklam açılamadı:", error);
-    });
+            if (adCounter >= adsPerReward) {
+                rewardUser();
+                adCounter = 0;
+                localStorage.setItem("adCounter", adCounter);
+                updateCounterDisplay();
+            }
+
+            notifySupabaseAdViewed();
+        })
+        .catch((error) => {
+            console.error("Reklam açılamadı:", error);
+        });
 });
 </script>
 
