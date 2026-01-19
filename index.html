@@ -86,6 +86,9 @@ button:active {
 
 <script>
 let balance = 0;
+let adCounter = 0;          // İzlenen reklam sayacı
+const adsPerReward = 5;     // Kaç reklamda bir ödül verilecek
+const rewardAmount = 0.001; // Her 5 reklam için kazanılacak USDT
 
 // Telegram WebApp hazırla
 if(window.Telegram && Telegram.WebApp){
@@ -95,9 +98,9 @@ if(window.Telegram && Telegram.WebApp){
 
 // Ödül fonksiyonu
 function rewardUser() {
-    balance += 0.001;
+    balance += rewardAmount;
     document.getElementById("balance").innerText = balance.toFixed(3);
-    alert("Tebrikler! +0.001 USDT kazandınız 🎉");
+    alert(`Tebrikler! +${rewardAmount} USDT kazandınız 🎉`);
 }
 
 // Buton tıklama
@@ -110,7 +113,13 @@ document.getElementById("adBtn").addEventListener("click", function(){
     // Rewarded interstitial reklamı göster
     show_10483596()
     .then(() => {
-        rewardUser(); // Ödül ver
+        adCounter++; // Sayaç artır
+
+        // Kaç reklamda bir ödül verileceğini kontrol et
+        if(adCounter >= adsPerReward){
+            rewardUser();   // Ödülü ver
+            adCounter = 0;  // Sayaç sıfırla
+        }
     })
     .catch((error) => {
         console.error("Reklam açılamadı:", error);
