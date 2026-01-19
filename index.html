@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>USDT ADS Mini App</title>
 
 <!-- Telegram Mini App SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <!-- Monetag SDK -->
-<script src="//libtl.com/sdk.js" data-zone="10483596" data-sdk="show_10483596"></script>
+<script src="//libtl.com/sdk.js"
+        data-zone="10483596"
+        data-sdk="show_10483596"></script>
 
 <script>
 const SUPABASE_FUNCTION_URL =
@@ -18,36 +20,36 @@ const SUPABASE_FUNCTION_URL =
 
 <style>
 body {
-    margin: 0;
-    padding: 0;
-    background: #0f172a;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #0f172a;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 .card {
-    width: 90%;
-    max-width: 360px;
-    background: #020617;
-    border-radius: 14px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+  width: 90%;
+  max-width: 360px;
+  background: #020617;
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6);
 }
 h1 { font-size: 20px; margin-bottom: 10px; }
 .balance { font-size: 18px; margin: 15px 0; color: #22c55e; }
 button {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
 }
 button:active { background: #1d4ed8; }
 .note { font-size: 12px; opacity: 0.7; margin-top: 10px; }
@@ -59,99 +61,110 @@ button:active { background: #1d4ed8; }
 <body>
 
 <div class="card">
-    <h1>USDT ADS</h1>
-    <p>Reklam izle, USDT kazan</p>
+  <h1>USDT ADS</h1>
+  <p>Reklam izle, USDT kazan</p>
 
-    <div class="balance">
-        Bakiye: <span id="balance">0.0</span> USDT
-    </div>
+  <div class="balance">
+    Bakiye: <span id="balance">0.000</span> USDT
+  </div>
 
-    <div class="counter-info">
-        5 reklam izle 0.005$ kazan
-    </div>
+  <div class="counter-info">
+    5 reklam izle 0.005$ kazan
+  </div>
 
-    <div class="counter">
-        Reklam sayacı: <span id="adCounterDisplay">0</span> / 5
-    </div>
+  <div class="counter">
+    Reklam sayacı: <span id="adCounterDisplay">0</span> / 5
+  </div>
 
-    <button id="adBtn">🎬 Reklam İzle</button>
+  <button id="adBtn">🎬 Reklam İzle</button>
 
-    <div class="note">
-        Günlük sınırlı reklam vardır
-    </div>
+  <div class="note">
+    Günlük sınırlı reklam vardır
+  </div>
 </div>
 
 <script>
+/* ===== LOCAL STATE ===== */
 let balance = parseFloat(localStorage.getItem("usdtBalance")) || 0;
 let adCounter = parseInt(localStorage.getItem("adCounter")) || 0;
+
 const adsPerReward = 5;
 const rewardAmount = 0.005;
 
+/* ===== UI INIT ===== */
 document.getElementById("balance").innerText = balance.toFixed(3);
 document.getElementById("adCounterDisplay").innerText = adCounter;
 
-if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
+/* ===== TELEGRAM INIT ===== */
+if (window.Telegram?.WebApp) {
+  Telegram.WebApp.ready();
+  Telegram.WebApp.expand();
+}
+
+/* ===== HELPERS ===== */
+function updateCounterDisplay() {
+  document.getElementById("adCounterDisplay").innerText = adCounter;
 }
 
 function rewardUser() {
-    balance += rewardAmount;
-    localStorage.setItem("usdtBalance", balance);
-    document.getElementById("balance").innerText = balance.toFixed(3);
-    alert(`Tebrikler! +${rewardAmount} USDT kazandınız 🎉`);
+  balance += rewardAmount;
+  localStorage.setItem("usdtBalance", balance);
+  document.getElementById("balance").innerText = balance.toFixed(3);
+  alert(`Tebrikler! +${rewardAmount} USDT kazandınız 🎉`);
 }
 
-function updateCounterDisplay() {
-    document.getElementById("adCounterDisplay").innerText = adCounter;
-}
-
-/* 🔒 GUARANTEED JSON GÖNDERİM */
+/* ===== SUPABASE NOTIFY ===== */
 async function notifySupabaseAdViewed() {
-    try {
-        const user =
-          window.Telegram?.WebApp?.initDataUnsafe?.user ?? null;
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || {};
 
-        await fetch(SUPABASE_FUNCTION_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                event: "ad_viewed",
-                telegram_id: user?.id ?? null,
-                username: user?.username ?? null,
-                first_name: user?.first_name ?? null,
-                ts: Date.now()
-            })
-        });
-    } catch (e) {
-        console.error("Supabase bildirimi başarısız:", e);
-    }
+  const payload = {
+    event: "ad_viewed",
+    telegram_id: tgUser.id ?? null,
+    username: tgUser.username ?? null,
+    first_name: tgUser.first_name ?? null,
+    timestamp: Date.now()
+  };
+
+  console.log("SUPABASE GÖNDERİLEN BODY:", payload);
+
+  try {
+    await fetch(SUPABASE_FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (err) {
+    console.error("Supabase isteği başarısız:", err);
+  }
 }
 
-document.getElementById("adBtn").addEventListener("click", function () {
-    if (typeof show_10483596 !== "function") {
-        alert("Reklam gösterilemiyor. Monetag SDK yüklenmemiş.");
-        return;
-    }
+/* ===== AD BUTTON ===== */
+document.getElementById("adBtn").addEventListener("click", () => {
+  if (typeof show_10483596 !== "function") {
+    alert("Reklam sistemi hazır değil.");
+    return;
+  }
 
-    show_10483596()
-        .then(() => {
-            adCounter++;
-            localStorage.setItem("adCounter", adCounter);
-            updateCounterDisplay();
+  show_10483596()
+    .then(() => {
+      adCounter++;
+      localStorage.setItem("adCounter", adCounter);
+      updateCounterDisplay();
 
-            if (adCounter >= adsPerReward) {
-                rewardUser();
-                adCounter = 0;
-                localStorage.setItem("adCounter", adCounter);
-                updateCounterDisplay();
-            }
+      notifySupabaseAdViewed();
 
-            notifySupabaseAdViewed();
-        })
-        .catch((error) => {
-            console.error("Reklam açılamadı:", error);
-        });
+      if (adCounter >= adsPerReward) {
+        rewardUser();
+        adCounter = 0;
+        localStorage.setItem("adCounter", adCounter);
+        updateCounterDisplay();
+      }
+    })
+    .catch(err => {
+      console.error("Reklam açılamadı:", err);
+    });
 });
 </script>
 
