@@ -8,7 +8,7 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    /* CSS Başlangıcı */
+    /* CSS: Sayfa Tasarımı */
     * {
       box-sizing: border-box;
     }
@@ -34,7 +34,6 @@
       padding: 20px;
       text-align: center;
       box-shadow: 0 0 20px rgba(0,0,0,0.6);
-      /* Flex item olarak davranmasını garantiye alalım */
       flex-shrink: 0; 
     }
 
@@ -93,27 +92,30 @@
   </div>
 
   <script>
-    // Telegram WebApp'i hemen başlat
+    // 1. Telegram WebApp'i başlat
     if (window.Telegram && Telegram.WebApp) {
       Telegram.WebApp.ready();
-      Telegram.WebApp.expand(); // Uygulamayı tam ekran yap
+      Telegram.WebApp.expand(); // Tam ekran yap
     }
 
-    let balance = 0;
+    // 2. Senin Monetag Reklam Linkin
+    const REKLAM_LINKI = "https://otieu.com/4/10484834"; 
+
+    // 3. Bakiyeyi hafızadan (localStorage) çek, eğer yoksa 0 yap
+    let balance = parseFloat(localStorage.getItem('userBalance')) || 0;
+    
+    // Uygulama açılınca bakiyeyi ekrana yaz
+    document.getElementById("balance").innerText = balance.toFixed(1);
 
     function watchAd() {
-      // Reklam izleme simülasyonu
-      Telegram.WebApp.HapticFeedback.impactOccurred('light'); // Titreşim efekti (Telefonda çalışır)
-      
-      balance += 0.1;
-      document.getElementById("balance").innerText = balance.toFixed(1);
-      
-      // Kullanıcıya bildirim (Telegram popup'ı kullanmak daha şık olur)
-      Telegram.WebApp.showPopup({
-        title: 'Başarılı!',
-        message: 'Reklam izlendi, +0.1 ALGO kazandın.',
-        buttons: [{type: 'ok'}]
-      });
+      // TELEGRAM İÇİN REKLAM AÇMA KODU
+      // Bu fonksiyon linki güvenli bir şekilde açar
+      Telegram.WebApp.openLink(REKLAM_LINKI);
+
+      // BAKİYE GÜNCELLEME İŞLEMİ
+      balance += 0.1; // 0.1 puan ekle
+      document.getElementById("balance").innerText = balance.toFixed(1); // Ekrana yaz
+      localStorage.setItem('userBalance', balance); // Telefona kaydet (Kalıcı olsun)
     }
   </script>
 
