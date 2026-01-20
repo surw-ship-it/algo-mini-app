@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>USDT ADS</title>
 
+<!-- Telegram Mini App SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+<!-- Monetag SDK -->
 <script src="//libtl.com/sdk.js"
         data-zone="10483596"
         data-sdk="show_10483596"></script>
 
+<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -64,6 +67,7 @@ button {
 </div>
 
 <script>
+/* ===== SUPABASE ===== */
 const SUPABASE_URL = "https://laaozqlespqxqxtejywf.supabase.co";
 const SUPABASE_KEY = "ANON_KEYİN_DEĞİŞMEDİ";
 
@@ -72,23 +76,26 @@ const supabase = window.supabase.createClient(
   SUPABASE_KEY
 );
 
+/* ===== TELEGRAM ===== */
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
 
 const tg = Telegram.WebApp.initDataUnsafe.user;
 if (!tg) {
   alert("Telegram user yok");
-  throw "";
+  throw new Error("Telegram user yok");
 }
 
 const telegram_id = tg.id.toString();
 const username = tg.username ?? null;
 
+/* ===== STATE ===== */
 let adCount = 0;
 let balance = 0;
 
+/* ===== INIT USER ===== */
 async function init() {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("users")
     .select("*")
     .eq("telegram_id", telegram_id)
@@ -116,46 +123,57 @@ function updateUI() {
   document.getElementById("counter").innerText = adCount;
 }
 
+/* ===== AD BUTTON (TELEGRAM UYUMLU) ===== */
 document.getElementById("adBtn").onclick = async () => {
-  if (typeof show_10483596 !== "function") {
-    alert("Reklam yüklenmedi");
+
+  // Monetag reklamı yeni pencerede aç
+  const adWindow = window.open(
+    "https://libtl.com/sdk/10483596",
+    "_blank"
+  );
+
+  if (!adWindow) {
+    alert("Reklam açılamadı");
     return;
   }
 
-  try {
-    await show_10483596();
-  } catch {
-    alert("Reklam kapatıldı");
-    return;
-  }
+  // Pencere kapatılınca ödül ver
+  const watcher = setInterval(async () => {
+    if (adWindow.closed) {
+      clearInterval(watcher);
 
-  adCount++;
+      adCount++;
 
-  await supabase.from("ad_views").insert({ telegram_id });
+      await supabase.from("ad_views").insert({
+        telegram_id
+      });
 
-  const { data } = await supabase
-    .from("users")
-    .select("balance,total_ads")
-    .eq("telegram_id", telegram_id)
-    .single();
+      const { data } = await supabase
+        .from("users")
+        .select("balance,total_ads")
+        .eq("telegram_id", telegram_id)
+        .single();
 
-  let totalAds = data.total_ads + 1;
-  balance = Number(data.balance);
+      let totalAds = data.total_ads + 1;
+      balance = Number(data.balance);
 
-  if (adCount >= 5) {
-    balance += 0.005;
-    adCount = 0;
-    alert("+0.005 USDT");
-  }
+      if (adCount >= 5) {
+        balance += 0.005;
+        adCount = 0;
+        alert("+0.005 USDT kazandın 🎉");
+      }
 
-  await supabase.from("users").update({
-    balance,
-    total_ads: totalAds
-  }).eq("telegram_id", telegram_id);
+      await supabase.from("users").update({
+        balance,
+        total_ads: totalAds
+      }).eq("telegram_id", telegram_id);
 
-  updateUI();
+      updateUI();
+    }
+  }, 500);
 };
 
+/* ===== WITHDRAW ===== */
 document.getElementById("withdrawBtn").onclick = async () => {
   const wallet = prompt("Cüzdan adresi:");
   if (!wallet) return;
@@ -173,11 +191,12 @@ document.getElementById("withdrawBtn").onclick = async () => {
   });
 
   balance = 0;
-  await supabase.from("users").update({ balance: 0 })
+  await supabase.from("users")
+    .update({ balance: 0 })
     .eq("telegram_id", telegram_id);
 
   updateUI();
-  alert("Talep alındı");
+  alert("Çekim talebi alındı ✅");
 };
 
 init();
