@@ -1,66 +1,53 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>USDT ADS Mini App</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USDT ADS</title>
 
-<!-- Telegram Mini App SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<!-- Monetag -->
 <script src="//libtl.com/sdk.js"
         data-zone="10483596"
         data-sdk="show_10483596"></script>
 
-<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 body {
-  margin: 0;
-  padding: 0;
-  background: #0f172a;
-  color: #fff;
-  font-family: Arial, Helvetica, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  background:#0f172a;
+  color:#fff;
+  font-family:Arial;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
 }
 .card {
-  width: 90%;
-  max-width: 360px;
-  background: #020617;
-  border-radius: 14px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 0 20px rgba(0,0,0,0.6);
-  position: relative;
+  background:#020617;
+  padding:20px;
+  width:320px;
+  border-radius:12px;
+  text-align:center;
+  position:relative;
 }
-h1 { font-size: 20px; margin-bottom: 10px; }
-.balance { font-size: 18px; margin: 15px 0; color: #22c55e; }
 button {
-  width: 100%;
-  padding: 14px;
-  font-size: 16px;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
 }
-button:active { background: #1d4ed8; }
-.note { font-size: 12px; opacity: 0.7; margin-top: 10px; }
-.counter { font-size: 14px; margin: 10px 0; color: #facc15; }
-
+#adBtn { background:#2563eb; color:#fff; }
 #withdrawBtn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: auto;
-  padding: 6px 12px;
-  font-size: 14px;
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:auto;
+  padding:6px 10px;
+  font-size:13px;
 }
 </style>
 </head>
@@ -68,161 +55,132 @@ button:active { background: #1d4ed8; }
 <body>
 
 <div class="card">
-  <h1>USDT ADS</h1>
-  <p>Reklam izle, USDT kazan</p>
-
-  <div class="balance">
-    Bakiye: <span id="balance">0.000</span> USDT
-  </div>
-
-  <div class="counter">
-    Reklam sayacı: <span id="adCounter">0</span> / 5
-  </div>
+  <h2>USDT ADS</h2>
+  <div>Bakiye: <b><span id="balance">0.000</span> USDT</b></div>
+  <div>Reklam: <span id="counter">0</span> / 5</div>
 
   <button id="adBtn">🎬 Reklam İzle</button>
-  <button id="withdrawBtn">💰 Çekim Talebi</button>
-
-  <div class="note">
-    5 reklam = 0.005 USDT
-  </div>
+  <button id="withdrawBtn">💰 Çekim</button>
 </div>
 
 <script>
-/* ===== SUPABASE ===== */
 const SUPABASE_URL = "https://laaozqlespqxqxtejywf.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxhYW96cWxlc3BxeHF4dGVqeXdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4Mzc2NDgsImV4cCI6MjA4NDQxMzY0OH0.Nok9aCWtUawkgvsWm27qUiAkYhL_YPZpTSw5efqMVqo";
+const SUPABASE_KEY = "ANON_KEYİN_DEĞİŞMEDİ";
 
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
-  SUPABASE_ANON_KEY
+  SUPABASE_KEY
 );
 
-/* ===== TELEGRAM INIT ===== */
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
 
-if (!Telegram.WebApp.initDataUnsafe?.user) {
-  alert("Telegram kullanıcı bilgisi alınamadı");
-  throw new Error("Telegram user yok");
+const tg = Telegram.WebApp.initDataUnsafe.user;
+if (!tg) {
+  alert("Telegram user yok");
+  throw "";
 }
 
-const tgUser = Telegram.WebApp.initDataUnsafe.user;
-const telegram_id = tgUser.id.toString();
-const username = tgUser.username ?? null;
-const first_name = tgUser.first_name ?? null;
+const telegram_id = tg.id.toString();
+const username = tg.username ?? null;
 
-/* ===== STATE ===== */
-let adCounter = 0;
-const ADS_PER_REWARD = 5;
-const REWARD = 0.005;
+let adCount = 0;
+let balance = 0;
 
-/* ===== INIT USER ===== */
-async function initUser() {
+async function init() {
   const { data, error } = await supabase
     .from("users")
     .select("*")
     .eq("telegram_id", telegram_id)
     .maybeSingle();
 
-  if (error) {
-    console.error("User select error:", error);
-    return;
-  }
-
   if (!data) {
-    const { error: insertError } = await supabase.from("users").insert({
+    await supabase.from("users").insert({
       telegram_id,
       username,
-      first_name,
       balance: 0,
       total_ads: 0
     });
-
-    if (insertError) {
-      console.error("User insert error:", insertError);
-      return;
-    }
-
-    document.getElementById("balance").innerText = "0.000";
-    document.getElementById("adCounter").innerText = "0";
+    balance = 0;
+    adCount = 0;
   } else {
-    document.getElementById("balance").innerText = Number(data.balance).toFixed(3);
-    adCounter = data.total_ads % ADS_PER_REWARD;
-    document.getElementById("adCounter").innerText = adCounter;
+    balance = Number(data.balance);
+    adCount = data.total_ads % 5;
   }
+
+  updateUI();
 }
 
-initUser();
+function updateUI() {
+  document.getElementById("balance").innerText = balance.toFixed(3);
+  document.getElementById("counter").innerText = adCount;
+}
 
-/* ===== AD WATCH ===== */
-document.getElementById("adBtn").onclick = () => {
+document.getElementById("adBtn").onclick = async () => {
   if (typeof show_10483596 !== "function") {
-    alert("Reklam hazır değil");
+    alert("Reklam yüklenmedi");
     return;
   }
 
-  show_10483596().then(async () => {
-    adCounter++;
+  try {
+    await show_10483596();
+  } catch {
+    alert("Reklam kapatıldı");
+    return;
+  }
 
-    await supabase.from("ad_views").insert({
-      telegram_id
-    });
+  adCount++;
 
-    const { data: user } = await supabase
-      .from("users")
-      .select("balance,total_ads")
-      .eq("telegram_id", telegram_id)
-      .single();
+  await supabase.from("ad_views").insert({ telegram_id });
 
-    let newBalance = Number(user.balance);
-    let newTotalAds = user.total_ads + 1;
-
-    if (adCounter >= ADS_PER_REWARD) {
-      newBalance += REWARD;
-      adCounter = 0;
-      alert("+0.005 USDT kazandın 🎉");
-    }
-
-    await supabase.from("users").update({
-      balance: newBalance,
-      total_ads: newTotalAds
-    }).eq("telegram_id", telegram_id);
-
-    document.getElementById("balance").innerText = newBalance.toFixed(3);
-    document.getElementById("adCounter").innerText = adCounter;
-  });
-};
-
-/* ===== WITHDRAW ===== */
-document.getElementById("withdrawBtn").onclick = async () => {
-  const wallet = prompt("USDT cüzdan adresini gir:");
-  if (!wallet) return;
-
-  const { data: user } = await supabase
+  const { data } = await supabase
     .from("users")
-    .select("balance")
+    .select("balance,total_ads")
     .eq("telegram_id", telegram_id)
     .single();
 
-  if (!user || user.balance <= 0) {
-    alert("Yetersiz bakiye");
+  let totalAds = data.total_ads + 1;
+  balance = Number(data.balance);
+
+  if (adCount >= 5) {
+    balance += 0.005;
+    adCount = 0;
+    alert("+0.005 USDT");
+  }
+
+  await supabase.from("users").update({
+    balance,
+    total_ads: totalAds
+  }).eq("telegram_id", telegram_id);
+
+  updateUI();
+};
+
+document.getElementById("withdrawBtn").onclick = async () => {
+  const wallet = prompt("Cüzdan adresi:");
+  if (!wallet) return;
+
+  if (balance <= 0) {
+    alert("Bakiye yok");
     return;
   }
 
   await supabase.from("withdrawals").insert({
     telegram_id,
     wallet_address: wallet,
-    amount: user.balance,
+    amount: balance,
     status: "pending"
   });
 
-  await supabase.from("users").update({
-    balance: 0
-  }).eq("telegram_id", telegram_id);
+  balance = 0;
+  await supabase.from("users").update({ balance: 0 })
+    .eq("telegram_id", telegram_id);
 
-  document.getElementById("balance").innerText = "0.000";
-  alert("Çekim talebi alındı ✅");
+  updateUI();
+  alert("Talep alındı");
 };
+
+init();
 </script>
 
 </body>
