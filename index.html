@@ -5,10 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>USDT ADS Mini App</title>
 
-<!-- Telegram Mini App SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<!-- Monetag SDK -->
 <script src="//libtl.com/sdk.js"
         data-zone="10483596"
         data-sdk="show_10483596"></script>
@@ -24,7 +22,6 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  position: relative;
 }
 .card {
   width: 90%;
@@ -36,7 +33,7 @@ body {
   box-shadow: 0 0 20px rgba(0,0,0,0.6);
   position: relative;
 }
-h1 { font-size: 20px; margin-bottom: 10px; }
+h1 { font-size: 20px; }
 .balance { font-size: 18px; margin: 15px 0; color: #22c55e; }
 button {
   width: 100%;
@@ -47,11 +44,14 @@ button {
   border: none;
   border-radius: 10px;
   cursor: pointer;
+  margin-top: 8px;
 }
-button:active { background: #1d4ed8; }
-.note { font-size: 12px; opacity: 0.7; margin-top: 10px; }
+button:disabled {
+  background: #334155;
+  cursor: not-allowed;
+}
 .counter { font-size: 14px; margin: 10px 0; color: #facc15; }
-.counter-info { font-size: 13px; margin: 5px 0; color: #f87171; }
+.counter-info { font-size: 13px; color: #f87171; }
 
 #withdrawBtn {
   position: absolute;
@@ -62,33 +62,36 @@ button:active { background: #1d4ed8; }
   font-size: 14px;
 }
 
-#withdrawPopup {
+.popup {
   display: none;
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.popup-content {
   background: #020617;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.8);
-  z-index: 1000;
   width: 90%;
   max-width: 300px;
   text-align: center;
 }
-#withdrawPopup input {
+
+.popup-content input {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
   border-radius: 8px;
   border: none;
 }
-#withdrawPopup button {
-  width: 48%;
-  margin: 5px 1%;
-  padding: 10px;
-  font-size: 14px;
+
+.small {
+  font-size: 12px;
+  color: #22c55e;
+  margin-bottom: 10px;
 }
 </style>
 </head>
@@ -103,100 +106,114 @@ button:active { background: #1d4ed8; }
     Bakiye: <span id="balance">0.000</span> USDT
   </div>
 
-  <div class="counter-info">
-    5 reklam izle 0.005$ kazan
-  </div>
-
-  <div class="counter">
-    Reklam sayacı: <span id="adCounterDisplay">0</span> / 5
-  </div>
+  <div class="counter-info">5 reklam izle 0.005$ kazan</div>
+  <div class="counter">Reklam sayacı: <span id="adCounterDisplay">0</span> / 5</div>
 
   <button id="adBtn">🎬 Reklam İzle</button>
+  <button id="linkScreenBtn">🔗 Linke Tıkla Para Kazan</button>
   <button id="withdrawBtn">💰 Çekim Talebi</button>
+</div>
 
-  <div class="note">
-    Günlük sınırlı reklam vardır
+<!-- Withdraw -->
+<div id="withdrawPopup" class="popup">
+  <div class="popup-content">
+    <h3>Çekim Talebi</h3>
+    <input type="text" id="walletAddress" placeholder="Cüzdan adresi girin" />
+    <button id="submitWithdraw">Gönder</button>
+    <button onclick="closeWithdraw()">İptal</button>
   </div>
 </div>
 
-<div id="withdrawPopup">
-  <h3>Çekim Talebi</h3>
-  <input type="text" id="walletAddress" placeholder="Cüzdan adresi girin" />
-  <div>
-    <button id="submitWithdraw">Gönder</button>
-    <button id="cancelWithdraw">İptal</button>
+<!-- Link Screen -->
+<div id="linkPopup" class="popup">
+  <div class="popup-content">
+    <h3>Link Görevleri</h3>
+    <div class="small">Her link tıklamasında 0.005 USDT kazanırsın</div>
+    <button onclick="handleLink(1, 'https://otieu.com/4/10498415')">Link 1</button>
+    <button onclick="handleLink(2, 'https://otieu.com/4/10498414')">Link 2</button>
+    <button onclick="handleLink(3, 'https://otieu.com/4/10498413')">Link 3</button>
+    <button onclick="handleLink(4, 'https://otieu.com/4/10498410')">Link 4</button>
+    <button onclick="handleLink(5, 'https://otieu.com/4/10484834')">Link 5</button>
+    <button onclick="closeLinks()">Kapat</button>
   </div>
 </div>
 
 <script>
 let balance = parseFloat(localStorage.getItem("usdtBalance")) || 0;
 let adCounter = parseInt(localStorage.getItem("adCounter")) || 0;
+
 const adsPerReward = 5;
 const rewardAmount = 0.005;
+const LINK_REWARD = 0.005;
+const COOLDOWN = 12 * 60 * 60 * 1000;
 
 document.getElementById("balance").innerText = balance.toFixed(3);
 document.getElementById("adCounterDisplay").innerText = adCounter;
 
-if (window.Telegram?.WebApp) {
-  Telegram.WebApp.ready();
-  Telegram.WebApp.expand();
-}
+Telegram?.WebApp?.ready();
+Telegram?.WebApp?.expand();
 
-function updateCounterDisplay() {
-  document.getElementById("adCounterDisplay").innerText = adCounter;
-}
-
-function rewardUser() {
-  balance += rewardAmount;
+function rewardUser(amount) {
+  balance += amount;
   localStorage.setItem("usdtBalance", balance);
   document.getElementById("balance").innerText = balance.toFixed(3);
-  alert(`Tebrikler! +${rewardAmount} USDT kazandınız 🎉`);
 }
 
-document.getElementById("adBtn").addEventListener("click", () => {
-  if (typeof show_10483596 !== "function") {
-    alert("Reklam sistemi hazır değil.");
-    return;
-  }
-  show_10483596()
-    .then(() => {
-      adCounter++;
+document.getElementById("adBtn").onclick = () => {
+  if (typeof show_10483596 !== "function") return alert("Reklam hazır değil");
+  show_10483596().then(() => {
+    adCounter++;
+    localStorage.setItem("adCounter", adCounter);
+    document.getElementById("adCounterDisplay").innerText = adCounter;
+    if (adCounter >= adsPerReward) {
+      rewardUser(rewardAmount);
+      adCounter = 0;
       localStorage.setItem("adCounter", adCounter);
-      updateCounterDisplay();
-      if (adCounter >= adsPerReward) {
-        rewardUser();
-        adCounter = 0;
-        localStorage.setItem("adCounter", adCounter);
-        updateCounterDisplay();
-      }
-    })
-    .catch(err => console.error("Reklam açılamadı:", err));
-});
+      document.getElementById("adCounterDisplay").innerText = 0;
+      alert("+0.005 USDT kazandın 🎉");
+    }
+  });
+};
 
-const withdrawBtn = document.getElementById("withdrawBtn");
-const withdrawPopup = document.getElementById("withdrawPopup");
-const submitWithdraw = document.getElementById("submitWithdraw");
-const cancelWithdraw = document.getElementById("cancelWithdraw");
+// Withdraw
+document.getElementById("withdrawBtn").onclick = () =>
+  document.getElementById("withdrawPopup").style.display = "flex";
 
-withdrawBtn.addEventListener("click", () => {
-  withdrawPopup.style.display = "block";
-});
+function closeWithdraw() {
+  document.getElementById("withdrawPopup").style.display = "none";
+}
 
-cancelWithdraw.addEventListener("click", () => {
-  withdrawPopup.style.display = "none";
-});
+document.getElementById("submitWithdraw").onclick = () => {
+  if (!walletAddress.value.trim()) return alert("Adres boş");
+  alert("Çekim talebi alındı (backend kapalı)");
+  walletAddress.value = "";
+  closeWithdraw();
+};
 
-submitWithdraw.addEventListener("click", () => {
-  const wallet = document.getElementById("walletAddress").value.trim();
-  if (!wallet) {
-    alert("Cüzdan adresi boş olamaz!");
+// Links
+document.getElementById("linkScreenBtn").onclick = () =>
+  document.getElementById("linkPopup").style.display = "flex";
+
+function closeLinks() {
+  document.getElementById("linkPopup").style.display = "none";
+}
+
+function handleLink(id, url) {
+  const key = "link_" + id;
+  const last = localStorage.getItem(key);
+  const now = Date.now();
+
+  if (last && now - last < COOLDOWN) {
+    const remaining = Math.ceil((COOLDOWN - (now - last)) / 3600000);
+    alert(`Bu link ${remaining} saat kilitli`);
     return;
   }
 
-  alert("Çekim talebiniz alındı (backend kapalı).");
-  withdrawPopup.style.display = "none";
-  document.getElementById("walletAddress").value = "";
-});
+  localStorage.setItem(key, now);
+  rewardUser(LINK_REWARD);
+  alert("+0.005 USDT kazandın 🎉");
+  window.open(url, "_blank");
+}
 </script>
 
 </body>
