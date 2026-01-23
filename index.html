@@ -13,9 +13,6 @@
         data-zone="10483596"
         data-sdk="show_10483596"></script>
 
-<!-- Bolt Database SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/Bolt Database-js@2"></script>
-
 <style>
 body {
   margin: 0;
@@ -50,11 +47,10 @@ button {
   cursor: pointer;
   margin-top: 8px;
 }
-button:active {
-  background: #1d4ed8;
-}
+button:active { background: #1d4ed8; }
 .counter { font-size: 14px; margin: 10px 0; color: #facc15; }
 .counter-info { font-size: 13px; color: #f87171; }
+
 #withdrawBtn {
   position: absolute;
   top: 10px;
@@ -63,6 +59,7 @@ button:active {
   padding: 6px 12px;
   font-size: 14px;
 }
+
 #withdrawPopup {
   display: none;
   position: fixed;
@@ -70,36 +67,22 @@ button:active {
   background: rgba(0,0,0,0.6);
   justify-content: center;
   align-items: center;
-  z-index: 999;
 }
-.popup-content {
+.popup {
   background: #020617;
   padding: 20px;
   border-radius: 12px;
   width: 90%;
   max-width: 300px;
 }
-.popup-content input {
+.popup input {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
-  box-sizing: border-box;
   background: #1e293b;
   border: 1px solid #334155;
   color: #fff;
   border-radius: 6px;
-}
-.popup-content h3 {
-  margin-top: 0;
-}
-.debug {
-  font-size: 12px;
-  color: #ef4444;
-  margin-top: 10px;
-  text-align: left;
-  background: #1e1b4b;
-  padding: 8px;
-  border-radius: 4px;
 }
 </style>
 </head>
@@ -114,207 +97,84 @@ button:active {
     Bakiye: <span id="balance">0.000</span> USDT
   </div>
 
-  <div class="counter-info">5 reklam izle 0.005$ kazan</div>
+  <div class="counter-info">5 reklam izle → 0.005 USDT</div>
   <div class="counter">
-    Reklam sayacı: <span id="adCounterDisplay">0</span> / 5
+    Reklam sayacı: <span id="counter">0</span> / 5
   </div>
 
-  <button id="adBtn">🎬 Reklam İzle</button>
-  <button id="withdrawBtn">💰 Çekim Talebi</button>
-  
-  <div class="debug" id="debug"></div>
+  <button id="watchAd">🎬 Reklam İzle</button>
+  <button id="withdrawBtn">💰 Çekim</button>
 </div>
 
 <div id="withdrawPopup">
-  <div class="popup-content">
+  <div class="popup">
     <h3>Çekim Talebi</h3>
-    <input id="walletAddress" placeholder="Cüzdan adresi" />
-    <button id="submitWithdraw">Gönder</button>
-    <button id="cancelWithdraw">İptal</button>
+    <input id="wallet" placeholder="Cüzdan adresi">
+    <button id="sendWithdraw">Gönder</button>
+    <button id="closeWithdraw">İptal</button>
   </div>
 </div>
 
 <script>
-/* ================== DEBUG ================== */
-const debugEl = document.getElementById("debug");
-function debug(msg) {
-  console.log(msg);
-  debugEl.innerText = msg;
-}
+Telegram.WebApp.ready();
+Telegram.WebApp.expand();
 
-try {
-  debug("Başlatılıyor...");
+/* ================== STATE ================== */
+let balance = 0;
+let counter = 0;
+const ADS_REQUIRED = 5;
+const REWARD = 0.005;
 
-  /* ================== TELEGRAM ================== */
-  Telegram.WebApp.ready();
-  Telegram.WebApp.expand();
+/* ================== ELEMENTS ================== */
+const balanceEl = document.getElementById("balance");
+const counterEl = document.getElementById("counter");
+const adBtn = document.getElementById("watchAd");
+const withdrawBtn = document.getElementById("withdrawBtn");
+const popup = document.getElementById("withdrawPopup");
+const sendWithdraw = document.getElementById("sendWithdraw");
+const closeWithdraw = document.getElementById("closeWithdraw");
 
-  const tgUser = Telegram.WebApp.initDataUnsafe.user;
-  if (!tgUser) {
-    debug("❌ Telegram kullanıcısı alınamadı!");
-    throw new Error("Telegram user not found");
-  }
-  
-  const telegramId = tgUser.id;
-  debug(`✓ Telegram ID: ${telegramId}`);
-
-  /* ================== Bolt Database ================== */
-  const Bolt Database = window.supabase.createClient(
-    "https://slfiayhyouktjoakvhcu.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsZmlheWh5b3VrdGpvYWt2aGN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxODg5ODEsImV4cCI6MjA4NDc2NDk4MX0.d1aEuVzcaf_4l8YTvbdv0cy0S32tniK3N1QzK4a8GpM"
-  );
-  debug("✓ Bolt Database bağlandı");
-
-  /* ================== ELEMENTLER ================== */
-  const adBtn = document.getElementById("adBtn");
-  const withdrawBtn = document.getElementById("withdrawBtn");
-  const withdrawPopup = document.getElementById("withdrawPopup");
-  const submitWithdraw = document.getElementById("submitWithdraw");
-  const cancelWithdraw = document.getElementById("cancelWithdraw");
-  const walletAddress = document.getElementById("walletAddress");
-  const balanceEl = document.getElementById("balance");
-  const counterEl = document.getElementById("adCounterDisplay");
-
-  /* ================== STATE ================== */
-  let balance = 0;
-  let totalAds = 0;
-  let adCounter = 0;
-  const adsPerReward = 5;
-  const rewardAmount = 0.005;
-
-  /* ================== USER INIT ================== */
-  async function initUser() {
-    try {
-      debug("Kullanıcı verisi yükleniyor...");
-      
-      const { data, error } = await Bolt Database
-        .from("users")
-        .select("*")
-        .eq("telegram_id", telegramId)
-        .maybeSingle();
-
-      if (error) {
-        debug(`❌ Hata: ${error.message}`);
-        return;
-      }
-
-      if (!data) {
-        debug("Yeni kullanıcı oluşturuluyor...");
-        const { error: insertError } = await supabase.from("users").insert({
-          telegram_id: telegramId,
-          username: tgUser.username || "",
-          first_name: tgUser.first_name || "",
-          balance: 0,
-          total_ads: 0
-        });
-        
-        if (insertError) {
-          debug(`❌ Insert hatası: ${insertError.message}`);
-          return;
-        }
-      } else {
-        balance = data.balance;
-        totalAds = data.total_ads;
-        adCounter = totalAds % adsPerReward;
-        debug(`✓ Kullanıcı yüklendi (Bakiye: ${balance} USDT)`);
-      }
-
-      balanceEl.innerText = balance.toFixed(3);
-      counterEl.innerText = adCounter;
-    } catch (err) {
-      debug(`❌ Hata: ${err.message}`);
-    }
+/* ================== AD BUTTON ================== */
+adBtn.onclick = async () => {
+  if (typeof show_10483596 !== "function") {
+    alert("Reklam sistemi yüklenmedi");
+    return;
   }
 
-  /* ================== BUTTON EVENTS ================== */
-  adBtn.addEventListener("click", async () => {
-    try {
-      if (typeof show_10483596 !== "function") {
-        debug("❌ Reklam sistemi yüklenmedi");
-        alert("Reklam sistemi hazır değil");
-        return;
-      }
+  await show_10483596();
 
-      debug("Reklam açılıyor...");
-      
-      await show_10483596();
-      
-      totalAds++;
-      adCounter++;
+  counter++;
+  if (counter >= ADS_REQUIRED) {
+    balance += REWARD;
+    counter = 0;
+    alert("🎉 Ödül kazandın!");
+  }
 
-      if (adCounter >= adsPerReward) {
-        balance += rewardAmount;
-        adCounter = 0;
-        debug(`✓ Ödül kazanıldı! +${rewardAmount} USDT`);
-      }
+  balanceEl.innerText = balance.toFixed(3);
+  counterEl.innerText = counter;
+};
 
-      const { error } = await supabase.from("users").update({
-        balance: balance,
-        total_ads: totalAds
-      }).eq("telegram_id", telegramId);
+/* ================== WITHDRAW ================== */
+withdrawBtn.onclick = () => {
+  popup.style.display = "flex";
+};
 
-      if (error) {
-        debug(`❌ Update hatası: ${error.message}`);
-        return;
-      }
+closeWithdraw.onclick = () => {
+  popup.style.display = "none";
+};
 
-      balanceEl.innerText = balance.toFixed(3);
-      counterEl.innerText = adCounter;
-      debug("✓ Veriler güncellendi");
-    } catch (err) {
-      debug(`❌ Reklam hatası: ${err.message}`);
-    }
-  });
+sendWithdraw.onclick = () => {
+  const wallet = document.getElementById("wallet").value.trim();
+  if (!wallet) {
+    alert("Cüzdan adresi gir");
+    return;
+  }
 
-  withdrawBtn.addEventListener("click", () => {
-    debug("Çekim popup açılıyor...");
-    withdrawPopup.style.display = "flex";
-  });
-
-  cancelWithdraw.addEventListener("click", () => {
-    withdrawPopup.style.display = "none";
-    debug("İptal");
-  });
-
-  submitWithdraw.addEventListener("click", async () => {
-    try {
-      const wallet = walletAddress.value.trim();
-      if (!wallet) {
-        debug("❌ Cüzdan adresi boş");
-        alert("Cüzdan adresi girin");
-        return;
-      }
-
-      debug("Çekim talebi gönderiliyor...");
-
-      const { error } = await supabase.from("withdraw_requests").insert({
-        telegram_id: telegramId,
-        wallet: wallet,
-        amount: balance
-      });
-
-      if (error) {
-        debug(`❌ Çekim hatası: ${error.message}`);
-        return;
-      }
-
-      debug("✓ Çekim talebi alındı");
-      alert("Çekim talebi gönderildi!");
-      walletAddress.value = "";
-      withdrawPopup.style.display = "none";
-      balance = 0;
-      balanceEl.innerText = balance.toFixed(3);
-    } catch (err) {
-      debug(`❌ Hatası: ${err.message}`);
-    }
-  });
-
-  /* ================== START ================== */
-  initUser();
-
-} catch (err) {
-  debug(`❌ KRITIK HATA: ${err.message}`);
-}
+  alert("Çekim talebin alındı (demo)");
+  balance = 0;
+  balanceEl.innerText = "0.000";
+  popup.style.display = "none";
+};
 </script>
 
 </body>
