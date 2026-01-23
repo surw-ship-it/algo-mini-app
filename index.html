@@ -10,111 +10,109 @@
 
 <!-- Monetag SDK -->
 <script src="//libtl.com/sdk.js"
-        data-zone="10483596"
-        data-sdk="show_10483596"></script>
+data-zone="10483596"
+data-sdk="show_10483596"></script>
 
 <style>
 body {
-  margin: 0;
-  padding: 0;
-  background: #0f172a;
-  color: #fff;
-  font-family: Arial, Helvetica, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+margin: 0;
+padding: 0;
+background: #0f172a;
+color: #fff;
+font-family: Arial, Helvetica, sans-serif;
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100vh;
 }
 .card {
-  width: 90%;
-  max-width: 360px;
-  background: #020617;
-  border-radius: 14px;
-  padding: 20px;
-  text-align: center;
-  position: relative;
+width: 90%;
+max-width: 360px;
+background: #020617;
+border-radius: 14px;
+padding: 20px;
+text-align: center;
+position: relative;
 }
 h1 { font-size: 20px; }
 .balance { font-size: 18px; margin: 15px 0; color: #22c55e; }
 button {
-  width: 100%;
-  padding: 14px;
-  font-size: 16px;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-top: 8px;
+width: 100%;
+padding: 14px;
+font-size: 16px;
+background: #2563eb;
+color: #fff;
+border: none;
+border-radius: 10px;
+cursor: pointer;
+margin-top: 8px;
 }
 button:active { background: #1d4ed8; }
 .counter { font-size: 14px; margin: 10px 0; color: #facc15; }
 .counter-info { font-size: 13px; color: #f87171; }
 
 #withdrawBtn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: auto;
-  padding: 6px 12px;
-  font-size: 14px;
+position: absolute;
+top: 10px;
+right: 10px;
+width: auto;
+padding: 6px 12px;
+font-size: 14px;
 }
 
 #withdrawPopup {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.6);
+justify-content: center;
+align-items: center;
 }
 .popup {
-  background: #020617;
-  padding: 20px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 300px;
+background: #020617;
+padding: 20px;
+border-radius: 12px;
+width: 90%;
+max-width: 300px;
 }
 .popup input {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  background: #1e293b;
-  border: 1px solid #334155;
-  color: #fff;
-  border-radius: 6px;
+width: 100%;
+padding: 10px;
+margin: 10px 0;
+background: #1e293b;
+border: 1px solid #334155;
+color: #fff;
+border-radius: 6px;
 }
 </style>
 </head>
 
-<body id="app">
+<body>
 
 <div class="card">
-  <h1 style="font-size: 20px;">USDT ADS</h1>
-  <p>Reklam izle, USDT kazan</p>
+<h1>USDT ADS</h1>
+<p>Reklam izle, USDT kazan</p>
 
-  <div class="balance" style="font-size: 18px; margin: 15px 0; color: #22c55e;">
-    Bakiye: <span id="balance">0.000</span> USDT
-  </div>
+<div class="balance">
+Bakiye: <span id="balance">0.000</span> USDT
+</div>
 
-  <div class="counter-info" style="font-size: 13px; color: #f87171;">
-    5 reklam izle → 0.005 USDT
-  </div>
-  <div class="counter">
-    Reklam sayacı: <span id="counter">0</span> / 5
-  </div>
+<div class="counter-info">5 reklam izle → 0.005 USDT</div>
+<div class="counter">
+Reklam sayacı: <span id="counter">0</span> / 5
+</div>
 
-  <button id="watchAd" style="width: 100%;">🎬 Reklam İzle</button>
-  <button id="withdrawBtn" style="width: 100%;">💰 Çekim</button>
+<button id="watchAd">🎬 Reklam İzle</button>
+<button id="withdrawBtn">💰 Çekim</button>
 </div>
 
 <div id="withdrawPopup">
-  <div class="popup">
-    <h3 style="font-size: 16px;">Çekim Talebi</h3>
-    <input id="wallet" placeholder="Cüzdan adresi" style="width: 100%;">
-    <button id="sendWithdraw" style="width: 100%;">Gönder</button>
-    <button id="closeWithdraw" style="width: 100%;">İptal</button>
-  </div>
+<div class="popup">
+<h3>Çekim Talebi</h3>
+<input id="wallet" placeholder="Cüzdan adresi">
+<button id="sendWithdraw">Gönder</button>
+<button id="closeWithdraw">İptal</button>
+</div>
 </div>
 
 <script>
@@ -135,48 +133,47 @@ const withdrawBtn = document.getElementById("withdrawBtn");
 const popup = document.getElementById("withdrawPopup");
 const sendWithdraw = document.getElementById("sendWithdraw");
 const closeWithdraw = document.getElementById("closeWithdraw");
-const app = document.getElementById("app"); // Add this line
 
 /* ================== AD BUTTON ================== */
 adBtn.onclick = async () => {
-  if (typeof show_10483596 !== "function") {
-    alert("Reklam sistemi yüklenmedi");
-    return;
-  }
+if (typeof show_10483596 !== "function") {
+alert("Reklam sistemi yüklenmedi");
+return;
+}
 
-  await show_10483596();
+await show_10483596();
 
-  counter++;
-  if (counter >= ADS_REQUIRED) {
-    balance += REWARD;
-    counter = 0;
-    alert("🎉 Ödül kazandın!");
-  }
+counter++;
+if (counter >= ADS_REQUIRED) {
+balance += REWARD;
+counter = 0;
+alert("🎉 Ödül kazandın!");
+}
 
-  balanceEl.innerText = balance.toFixed(3);
-  counterEl.innerText = counter;
+balanceEl.innerText = balance.toFixed(3);
+counterEl.innerText = counter;
 };
 
 /* ================== WITHDRAW ================== */
 withdrawBtn.onclick = () => {
-  popup.style.display = "flex";
+popup.style.display = "flex";
 };
 
 closeWithdraw.onclick = () => {
-  popup.style.display = "none";
+popup.style.display = "none";
 };
 
 sendWithdraw.onclick = () => {
-  const wallet = document.getElementById("wallet").value.trim();
-  if (!wallet) {
-    alert("Cüzdan adresi gir");
-    return;
-  }
+const wallet = document.getElementById("wallet").value.trim();
+if (!wallet) {
+alert("Cüzdan adresi gir");
+return;
+}
 
-  alert("Çekim talebi gönderildi (demo)");
-  balance = 0;
-  balanceEl.innerText = "0.000";
-  popup.style.display = "none";
+alert("Çekim talebin alındı (demo)");
+balance = 0;
+balanceEl.innerText = "0.000";
+popup.style.display = "none";
 };
 </script>
 
