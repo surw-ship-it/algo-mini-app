@@ -5,17 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>USDT ADS Mini App</title>
 
+<!-- Telegram Mini App SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+<!-- Monetag SDK (AYNEN) -->
 <script src="//libtl.com/sdk.js"
         data-zone="10483596"
         data-sdk="show_10483596"></script>
 
-<!-- Supabase Client -->
+<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-/* CSS AYNEN KORUNDU */
 body {
   margin: 0;
   padding: 0;
@@ -46,6 +47,7 @@ button {
   border: none;
   border-radius: 10px;
   cursor: pointer;
+  margin-top: 6px;
 }
 .counter { font-size: 14px; margin: 10px 0; color: #facc15; }
 .counter-info { font-size: 13px; color: #f87171; }
@@ -93,7 +95,9 @@ button {
   </div>
 
   <div class="counter-info">5 reklam izle 0.005$ kazan</div>
-  <div class="counter">Reklam sayacı: <span id="adCounterDisplay">0</span> / 5</div>
+  <div class="counter">
+    Reklam sayacı: <span id="adCounterDisplay">0</span> / 5
+  </div>
 
   <button id="adBtn">🎬 Reklam İzle</button>
   <button id="withdrawBtn">💰 Çekim Talebi</button>
@@ -104,29 +108,40 @@ button {
     <h3>Çekim Talebi</h3>
     <input id="walletAddress" placeholder="Cüzdan adresi" />
     <button id="submitWithdraw">Gönder</button>
-    <button onclick="withdrawPopup.style.display='none'">İptal</button>
+    <button id="cancelWithdraw">İptal</button>
   </div>
 </div>
 
 <script>
-/* 🔗 SUPABASE */
+/* ===== SUPABASE ===== */
 const supabase = window.supabase.createClient(
   "https://slfiayhyouktjoakvhcu.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsZmlheWh5b3VrdGpvYWt2aGN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkxODg5ODEsImV4cCI6MjA4NDc2NDk4MX0.d1aEuVzcaf_4l8YTvbdv0cy0S32tniK3N1QzK4a8GpM"
 );
 
-/* 🔑 TELEGRAM USER */
+/* ===== TELEGRAM ===== */
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
 const tgUser = Telegram.WebApp.initDataUnsafe.user;
 const telegramId = tgUser.id;
 
+/* ===== ELEMENTS ===== */
+const adBtn = document.getElementById("adBtn");
+const withdrawBtn = document.getElementById("withdrawBtn");
+const withdrawPopup = document.getElementById("withdrawPopup");
+const submitWithdraw = document.getElementById("submitWithdraw");
+const cancelWithdraw = document.getElementById("cancelWithdraw");
+const walletAddress = document.getElementById("walletAddress");
+
+/* ===== STATE ===== */
 let balance = 0;
+let totalAds = 0;
 let adCounter = 0;
+
 const adsPerReward = 5;
 const rewardAmount = 0.005;
 
-/* 👤 USER INIT */
+/* ===== USER INIT ===== */
 async function initUser() {
   const { data } = await supabase
     .from("users")
@@ -144,7 +159,8 @@ async function initUser() {
     });
   } else {
     balance = data.balance;
-    adCounter = data.total_ads % adsPerReward;
+    totalAds = data.total_ads;
+    adCounter = totalAds % adsPerReward;
   }
 
   document.getElementById("balance").innerText = balance.toFixed(3);
@@ -152,37 +168,48 @@ async function initUser() {
 }
 initUser();
 
-/* 🎬 REKLAM */
-document.getElementById("adBtn").onclick = async () => {
-  if (typeof show_10483596 !== "function") return alert("Reklam hazır değil");
+/* ===== REKLAM (BOZULMADI) ===== */
+adBtn.onclick = async () => {
+  if (typeof show_10483596 !== "function") {
+    alert("Reklam hazır değil");
+    return;
+  }
 
   await show_10483596();
 
+  totalAds++;
   adCounter++;
 
-  let newBalance = balance;
   if (adCounter >= adsPerReward) {
-    newBalance += rewardAmount;
+    balance += rewardAmount;
     adCounter = 0;
     alert("+0.005 USDT kazandın 🎉");
   }
 
   await supabase.from("users").update({
-    balance: newBalance,
-    total_ads: supabase.rpc("increment_ads", { uid: telegramId })
+    balance: balance,
+    total_ads: totalAds
   }).eq("telegram_id", telegramId);
 
-  balance = newBalance;
   document.getElementById("balance").innerText = balance.toFixed(3);
   document.getElementById("adCounterDisplay").innerText = adCounter;
 };
 
-/* 💰 WITHDRAW */
-withdrawBtn.onclick = () => withdrawPopup.style.display = "flex";
+/* ===== WITHDRAW ===== */
+withdrawBtn.onclick = () => {
+  withdrawPopup.style.display = "flex";
+};
+
+cancelWithdraw.onclick = () => {
+  withdrawPopup.style.display = "none";
+};
 
 submitWithdraw.onclick = async () => {
   const wallet = walletAddress.value.trim();
-  if (!wallet) return alert("Adres boş");
+  if (!wallet) {
+    alert("Cüzdan adresi boş");
+    return;
+  }
 
   await supabase.from("withdraw_requests").insert({
     telegram_id: telegramId,
@@ -191,8 +218,8 @@ submitWithdraw.onclick = async () => {
   });
 
   alert("Çekim talebi alındı");
-  withdrawPopup.style.display = "none";
   walletAddress.value = "";
+  withdrawPopup.style.display = "none";
 };
 </script>
 
