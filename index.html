@@ -13,6 +13,38 @@
 data-zone="10483596"
 data-sdk="show_10483596"></script>
 
+<!-- Firebase SDK -->
+<script type="module">
+  // Firebase App
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCLU-wrfQ2pfPudEFEVyt0wYM-CwkojM5E",
+    authDomain: "telegram-ads-63488.firebaseapp.com",
+    projectId: "telegram-ads-63488",
+    storageBucket: "telegram-ads-63488.firebasestorage.app",
+    messagingSenderId: "859459051780",
+    appId: "1:859459051780:web:3c0db7bce5a526b1273051",
+    measurementId: "G-D4BPSC1BGS"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Anonymous sign-in (test için)
+  signInAnonymously(auth)
+    .then(() => {
+      console.log("Kullanıcı giriş yaptı:", auth.currentUser.uid);
+    })
+    .catch((error) => {
+      console.error("Giriş hatası:", error.code, error.message);
+    });
+</script>
+
 <style>
 body {
 margin: 0;
