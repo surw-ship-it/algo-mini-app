@@ -87,31 +87,33 @@ button:active { background: #1d4ed8; }
 </style>
 </head>
 
-<body>
+<body id="app">
 
 <div class="card">
-  <h1>USDT ADS</h1>
+  <h1 style="font-size: 20px;">USDT ADS</h1>
   <p>Reklam izle, USDT kazan</p>
 
-  <div class="balance">
+  <div class="balance" style="font-size: 18px; margin: 15px 0; color: #22c55e;">
     Bakiye: <span id="balance">0.000</span> USDT
   </div>
 
-  <div class="counter-info">5 reklam izle → 0.005 USDT</div>
+  <div class="counter-info" style="font-size: 13px; color: #f87171;">
+    5 reklam izle → 0.005 USDT
+  </div>
   <div class="counter">
     Reklam sayacı: <span id="counter">0</span> / 5
   </div>
 
-  <button id="watchAd">🎬 Reklam İzle</button>
-  <button id="withdrawBtn">💰 Çekim</button>
+  <button id="watchAd" style="width: 100%;">🎬 Reklam İzle</button>
+  <button id="withdrawBtn" style="width: 100%;">💰 Çekim</button>
 </div>
 
 <div id="withdrawPopup">
   <div class="popup">
-    <h3>Çekim Talebi</h3>
-    <input id="wallet" placeholder="Cüzdan adresi">
-    <button id="sendWithdraw">Gönder</button>
-    <button id="closeWithdraw">İptal</button>
+    <h3 style="font-size: 16px;">Çekim Talebi</h3>
+    <input id="wallet" placeholder="Cüzdan adresi" style="width: 100%;">
+    <button id="sendWithdraw" style="width: 100%;">Gönder</button>
+    <button id="closeWithdraw" style="width: 100%;">İptal</button>
   </div>
 </div>
 
@@ -133,6 +135,7 @@ const withdrawBtn = document.getElementById("withdrawBtn");
 const popup = document.getElementById("withdrawPopup");
 const sendWithdraw = document.getElementById("sendWithdraw");
 const closeWithdraw = document.getElementById("closeWithdraw");
+const app = document.getElementById("app"); // Add this line
 
 /* ================== AD BUTTON ================== */
 adBtn.onclick = async () => {
@@ -170,7 +173,7 @@ sendWithdraw.onclick = () => {
     return;
   }
 
-  alert("Çekim talebin alındı (demo)");
+  alert("Çekim talebi gönderildi (demo)");
   balance = 0;
   balanceEl.innerText = "0.000";
   popup.style.display = "none";
