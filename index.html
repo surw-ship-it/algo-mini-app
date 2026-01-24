@@ -19,10 +19,7 @@ html,body{
   color:#fff;
 }
 
-#app{
-  min-height:100vh;
-  padding:16px 0 80px;
-}
+#app{min-height:100vh;padding:16px 0 80px}
 
 .card{
   width:92%;
@@ -57,10 +54,7 @@ html,body{
   align-items:center;
   gap:8px;
 }
-.balance-amount{
-  font-size:34px;
-  font-weight:800;
-}
+.balance-amount{font-size:34px;font-weight:800}
 
 .withdraw-btn{
   margin-top:12px;
@@ -71,6 +65,7 @@ html,body{
 .section{margin-top:18px}
 .section h3{margin:0 0 10px;font-size:15px}
 
+/* BUTTONS */
 button{
   width:100%;
   padding:14px;
@@ -81,10 +76,7 @@ button{
   cursor:pointer;
   background:linear-gradient(135deg,#3b82f6,#2563eb);
 }
-button:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
+button:disabled{opacity:.5;cursor:not-allowed}
 
 .counter{
   margin-top:8px;
@@ -94,17 +86,26 @@ button:disabled{
 }
 
 /* LINKS */
-.links{display:grid;gap:12px}
+.links{display:grid;gap:10px}
+
 .link-wrap{
   background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.12);
-  border-radius:14px;
-  padding:10px;
+  border-radius:12px;
+  padding:8px;
 }
+
+.link-wrap button{
+  padding:10px;
+  font-size:14px;
+  border-radius:12px;
+  background:rgba(255,255,255,.08);
+}
+
 .timer{
   margin-top:6px;
   font-size:12px;
-  color:#94a3b8;
+  color:#facc15;
   text-align:center;
 }
 
@@ -138,15 +139,10 @@ button:disabled{
   color:#fff;
 }
 
-.popup-warn{
-  font-size:12px;
-  color:#facc15;
-  margin-top:6px;
-}
+.popup-warn{font-size:12px;color:#facc15;margin-top:6px}
 
 .reward-logo{
-  width:56px;
-  height:56px;
+  width:56px;height:56px;
   background:#fff;
   border-radius:50%;
   display:flex;
@@ -163,51 +159,47 @@ button:disabled{
 <div id="app">
 <div class="card">
 
-  <div class="brand">
-    <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
-    Algorand Earn
-  </div>
+<div class="brand">
+  <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
+  Algorand Earn
+</div>
 
-  <!-- BALANCE -->
-  <div class="balance-box">
-    <div>Toplam Bakiye</div>
-    <div class="balance-row">
-      <div class="balance-amount" id="balance">0.000</div>
-      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" width="22">
-    </div>
-    <button class="withdraw-btn" id="openWithdraw">💸 Çekim Yap</button>
+<div class="balance-box">
+  <div>Toplam Bakiye</div>
+  <div class="balance-row">
+    <div class="balance-amount" id="balance">0.000</div>
+    <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" width="22">
   </div>
+  <button class="withdraw-btn" id="openWithdraw">💸 Çekim Yap</button>
+</div>
 
-  <!-- ADS -->
-  <div class="section">
-    <h3>🎬 Reklam İzleyerek Kazan</h3>
-    <button id="watchAd">Reklam İzle (+0.1 ALGO)</button>
-    <div class="counter" id="adCounter"></div>
-  </div>
+<div class="section">
+  <h3>🎬 Reklam İzleyerek Kazan</h3>
+  <button id="watchAd">Reklam İzle (+0.1 ALGO)</button>
+  <div class="counter" id="adCounter"></div>
+</div>
 
-  <!-- LINKS -->
-  <div class="section">
-    <h3>🔗 Ödüllü Linkler</h3>
-    <div class="links" id="links"></div>
-  </div>
+<div class="section">
+  <h3>🔗 Ödüllü Linkler</h3>
+  <div class="links" id="links"></div>
+</div>
 
 </div>
 </div>
 
-<!-- WITHDRAW POPUP -->
 <div class="popup" id="withdrawPopup">
-  <div class="popup-card">
-    <div class="reward-logo">
-      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
-    </div>
-    <h3>Çekim Talebi</h3>
-    <p>Mevcut bakiye: <b id="popupBalance">0.000 ALGO</b></p>
-    <input id="wallet" placeholder="Algorand cüzdan adresi">
-    <input id="amount" type="number" step="0.001" placeholder="Çekilecek miktar">
-    <div class="popup-warn">Minimum çekim: 12 ALGO</div>
-    <button onclick="sendWithdraw()">Gönder</button>
-    <button onclick="closeWithdraw()" style="margin-top:8px;background:#334155">İptal</button>
+<div class="popup-card">
+  <div class="reward-logo">
+    <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
   </div>
+  <h3>Çekim Talebi</h3>
+  <p>Mevcut bakiye: <b id="popupBalance">0.000 ALGO</b></p>
+  <input id="wallet" placeholder="Algorand cüzdan adresi">
+  <input id="amount" type="number" step="0.001" placeholder="Çekilecek miktar">
+  <div class="popup-warn">Minimum çekim: 12 ALGO</div>
+  <button onclick="sendWithdraw()">Gönder</button>
+  <button onclick="closeWithdraw()" style="margin-top:8px;background:#334155">İptal</button>
+</div>
 </div>
 
 <script>
@@ -219,7 +211,6 @@ let dailyAds=Number(localStorage.getItem("dailyAds"))||30;
 let lastDay=localStorage.getItem("lastAdDay")||new Date().toDateString();
 
 const balanceEl=document.getElementById("balance");
-const adCounter=document.getElementById("adCounter");
 balanceEl.innerText=balance.toFixed(3);
 
 /* ADS */
@@ -247,42 +238,26 @@ watchAd.onclick=async()=>{
 };
 
 /* WITHDRAW */
-const withdrawPopup=document.getElementById("withdrawPopup");
 openWithdraw.onclick=()=>{
-  document.getElementById("popupBalance").innerText=balance.toFixed(3)+" ALGO";
+  popupBalance.innerText=balance.toFixed(3)+" ALGO";
   withdrawPopup.style.display="flex";
 };
 function closeWithdraw(){withdrawPopup.style.display="none";}
-
-function isAlgorandAddress(addr){
-  return /^[A-Z2-7]{58}$/.test(addr);
-}
-
+function isAlgorandAddress(a){return /^[A-Z2-7]{58}$/.test(a);}
 function sendWithdraw(){
-  const wallet=document.getElementById("wallet").value.trim();
-  const amount=parseFloat(document.getElementById("amount").value);
-
-  if(!isAlgorandAddress(wallet)){
-    alert("Girdiğiniz adres yanlış, lütfen yalnızca Algorand adresi giriniz");
-    return;
-  }
-  if(isNaN(amount) || amount<12){
-    alert("Minimum çekim 12 ALGO'dur");
-    return;
-  }
-  if(amount>balance){
-    alert("Yetersiz bakiye");
-    return;
-  }
-
-  alert("Çekim talebiniz alındı (demo)");
-  balance-=amount;
+  const w=wallet.value.trim();
+  const a=parseFloat(amount.value);
+  if(!isAlgorandAddress(w)){alert("Yalnızca Algorand adresi giriniz");return;}
+  if(isNaN(a)||a<12){alert("Minimum çekim 12 ALGO");return;}
+  if(a>balance){alert("Yetersiz bakiye");return;}
+  balance-=a;
   localStorage.setItem("balance",balance);
   balanceEl.innerText=balance.toFixed(3);
   closeWithdraw();
+  alert("Çekim talebi alındı (demo)");
 }
 
-/* LINKS */
+/* LINKS + 12 SAAT SAYAÇ */
 const links=[
 "https://otieu.com/4/10484834",
 "https://otieu.com/4/10498410",
@@ -297,28 +272,57 @@ const links=[
 ];
 
 const linksDiv=document.getElementById("links");
+const COOLDOWN=43200000;
+
+function format(ms){
+  const t=Math.max(0,ms);
+  const h=Math.floor(t/3600000);
+  const m=Math.floor((t%3600000)/60000);
+  return `${h}sa ${m}dk`;
+}
+
 function renderLinks(){
   linksDiv.innerHTML="";
-  links.forEach((u,i)=>{
-    const last=localStorage.getItem("link_"+i);
+  links.forEach((url,i)=>{
     const wrap=document.createElement("div");
     wrap.className="link-wrap";
     const btn=document.createElement("button");
+    const timer=document.createElement("div");
+    timer.className="timer";
+
+    const last=Number(localStorage.getItem("link_"+i));
+    const left=last?COOLDOWN-(Date.now()-last):0;
+
     btn.innerText=`🔗 Link ${i+1} (+0.025 ALGO)`;
 
-    if(last && Date.now()-last<43200000){
+    if(left>0){
       btn.disabled=true;
+      timer.innerText="Kalan süre: "+format(left);
     }else{
       btn.onclick=()=>{
-        localStorage.setItem("pendingLink",i);
-        location.href=u;
+        localStorage.setItem("link_"+i,Date.now());
+        localStorage.setItem("pendingReward",i);
+        location.href=url;
       };
     }
+
     wrap.appendChild(btn);
+    if(left>0) wrap.appendChild(timer);
     linksDiv.appendChild(wrap);
   });
 }
+
+setInterval(renderLinks,60000);
 renderLinks();
+
+/* LINK DÖNÜŞ ÖDÜLÜ */
+const pending=localStorage.getItem("pendingReward");
+if(pending){
+  balance+=0.025;
+  localStorage.setItem("balance",balance);
+  balanceEl.innerText=balance.toFixed(3);
+  localStorage.removeItem("pendingReward");
+}
 </script>
 
 </body>
