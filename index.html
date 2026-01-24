@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Algorand Ads</title>
+<title>Algorand Earn</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="//libtl.com/sdk.js"
@@ -13,9 +13,10 @@ data-sdk="show_10483596"></script>
 <style>
 :root{
   --bg:#020617;
-  --card:rgba(255,255,255,.06);
-  --border:rgba(255,255,255,.08);
+  --glass:rgba(255,255,255,.08);
+  --border:rgba(255,255,255,.12);
   --muted:#94a3b8;
+  --green:#22c55e;
 }
 
 *{box-sizing:border-box}
@@ -33,11 +34,11 @@ body{
 
 .card{
   width:92%;
-  max-width:380px;
-  background:var(--card);
+  max-width:390px;
+  background:var(--glass);
   backdrop-filter:blur(18px);
   border:1px solid var(--border);
-  border-radius:24px;
+  border-radius:26px;
   padding:22px;
 }
 
@@ -69,7 +70,7 @@ body{
   margin:20px 0;
   padding:18px;
   border-radius:18px;
-  background:rgba(255,255,255,.08);
+  background:rgba(255,255,255,.12);
   text-align:center;
 }
 
@@ -80,16 +81,46 @@ body{
   gap:8px;
 }
 
-.balance-amount{font-size:32px;font-weight:700}
+.balance-amount{
+  font-size:34px;
+  font-weight:800;
+}
+
+.section{
+  margin-top:18px;
+}
+
+.section h3{
+  margin:0 0 10px;
+  font-size:15px;
+  color:#e5e7eb;
+}
+
+button.main{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  font-size:16px;
+  background:linear-gradient(135deg,#3b82f6,#2563eb);
+  color:#fff;
+  cursor:pointer;
+}
+
+.counter{
+  margin-top:8px;
+  font-size:13px;
+  color:#facc15;
+  text-align:center;
+}
 
 .links{
-  margin-top:16px;
   display:grid;
   gap:10px;
 }
 
 .link-btn{
-  padding:14px;
+  padding:13px;
   border-radius:14px;
   border:1px solid var(--border);
   background:rgba(255,255,255,.06);
@@ -104,7 +135,7 @@ body{
 
 .timer{
   font-size:12px;
-  color:#94a3b8;
+  color:var(--muted);
   margin-top:4px;
 }
 
@@ -116,6 +147,33 @@ body{
   padding:10px;
   border-radius:999px;
 }
+
+#popup{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  justify-content:center;
+  align-items:center;
+}
+
+.popup-card{
+  background:#020617;
+  padding:20px;
+  border-radius:18px;
+  width:90%;
+  max-width:320px;
+}
+
+.popup-card input{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:#020617;
+  color:#fff;
+}
 </style>
 </head>
 
@@ -126,9 +184,9 @@ body{
   <div class="header">
     <div class="brand">
       <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
-      Algorand Ads
+      Algorand Earn
     </div>
-    <button class="withdraw-btn">💸 Çekim</button>
+    <button class="withdraw-btn" id="withdrawBtn">💸 Çekim</button>
   </div>
 
   <div class="balance-box">
@@ -139,86 +197,163 @@ body{
     </div>
   </div>
 
-  <div class="links" id="links"></div>
+  <!-- REKLAM -->
+  <div class="section">
+    <h3>🎬 Reklam İzleyerek Kazan</h3>
+    <button class="main" id="watchAd">Reklam İzle (+0.1 ALGO)</button>
+    <div class="counter" id="adCounter"></div>
+  </div>
+
+  <!-- LINKLER -->
+  <div class="section">
+    <h3>🔗 Ödüllü Linkler</h3>
+    <div class="links" id="links"></div>
+  </div>
 
   <div id="toast"></div>
 
+</div>
+
+<!-- ÇEKİM POPUP -->
+<div id="popup">
+  <div class="popup-card">
+    <h3>Çekim Talebi</h3>
+    <div>Mevcut Bakiye: <b><span id="popupBalance"></span> ALGO</b></div>
+    <div style="color:#f87171;font-size:13px;margin-top:6px">
+      Minimum çekim 12 ALGO’dur
+    </div>
+    <input id="wallet" placeholder="Algorand adresi">
+    <input id="amount" placeholder="Çekim miktarı">
+    <button class="main" id="sendWithdraw" style="margin-top:10px">Gönder</button>
+  </div>
 </div>
 
 <script>
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
 
+/* ===== STATE ===== */
 let balance = Number(localStorage.getItem("balance")) || 0;
+let dailyAds = Number(localStorage.getItem("dailyAds")) || 30;
+let lastAdDay = localStorage.getItem("lastAdDay") || new Date().toDateString();
+
+/* ===== ELEMENTS ===== */
 const balanceEl = document.getElementById("balance");
-balanceEl.innerText = balance.toFixed(2);
-
-const linksData = [
-  "https://otieu.com/4/10484834",
-  "https://otieu.com/4/10498410",
-  "https://otieu.com/4/10498413",
-  "https://otieu.com/4/10498415",
-  "https://otieu.com/4/10498414"
-];
-
-const linksContainer = document.getElementById("links");
+const adCounter = document.getElementById("adCounter");
 const toast = document.getElementById("toast");
 
-function showToast(text){
-  toast.innerText = text;
+/* ===== UTILS ===== */
+function showToast(t){
+  toast.innerText=t;
   toast.style.display="block";
   setTimeout(()=>toast.style.display="none",2500);
 }
 
-function formatTime(ms){
-  const h = Math.floor(ms/3600000);
-  const m = Math.floor(ms%3600000/60000);
-  return `${h}s ${m}dk`;
+function resetDailyAds(){
+  const today = new Date().toDateString();
+  if(today !== lastAdDay){
+    dailyAds = 30;
+    lastAdDay = today;
+    localStorage.setItem("dailyAds",dailyAds);
+    localStorage.setItem("lastAdDay",lastAdDay);
+  }
 }
 
+resetDailyAds();
+balanceEl.innerText = balance.toFixed(2);
+adCounter.innerText = `Günlük reklam hakkınız: ${dailyAds} / 30`;
+
+/* ===== REKLAM ===== */
+watchAd.onclick = async ()=>{
+  if(dailyAds<=0){
+    alert("Günlük reklam limitiniz dolmuştur, yarın tekrar deneyin");
+    return;
+  }
+  if(typeof show_10483596 !== "function"){
+    alert("Reklam yüklenemedi");
+    return;
+  }
+  await show_10483596();
+  dailyAds--;
+  balance+=0.1;
+  localStorage.setItem("balance",balance);
+  localStorage.setItem("dailyAds",dailyAds);
+  balanceEl.innerText=balance.toFixed(2);
+  adCounter.innerText = dailyAds>0
+    ? `Günlük reklam hakkınız: ${dailyAds} / 30`
+    : "Günlük reklam limitiniz dolmuştur";
+  showToast("🎉 Tebrikler! 0.1 ALGO bakiyenize eklendi");
+};
+
+/* ===== LINKLER ===== */
+const linkUrls=[
+"https://otieu.com/4/10484834",
+"https://otieu.com/4/10498410",
+"https://otieu.com/4/10498413",
+"https://otieu.com/4/10498415",
+"https://otieu.com/4/10498414"
+];
+
+const linksDiv=document.getElementById("links");
+
 function renderLinks(){
-  linksContainer.innerHTML = "";
-  linksData.forEach((url,i)=>{
-    const key = `link_${i}`;
-    const last = localStorage.getItem(key);
-    const now = Date.now();
-
-    const btn = document.createElement("button");
+  linksDiv.innerHTML="";
+  linkUrls.forEach((url,i)=>{
+    const key="link_"+i;
+    const last=localStorage.getItem(key);
+    const now=Date.now();
+    const btn=document.createElement("button");
     btn.className="link-btn";
-
-    const timer = document.createElement("div");
-    timer.className="timer";
-
-    if(last && now - last < 12*60*60*1000){
-      const left = 12*60*60*1000 - (now-last);
-      btn.disabled = true;
-      btn.innerText = `🔒 Link ${i+1}`;
-      timer.innerText = `Tekrar: ${formatTime(left)}`;
+    if(last && now-last<43200000){
+      btn.disabled=true;
+      btn.innerText=`🔒 Link ${i+1}`;
     }else{
-      btn.innerText = `🔗 Link ${i+1} (+0.05 ALGO)`;
-      btn.onclick = ()=>{
-        localStorage.setItem("pendingLink", i);
-        window.location.href = url;
+      btn.innerText=`🔗 Link ${i+1} (+0.05 ALGO)`;
+      btn.onclick=()=>{
+        localStorage.setItem("pendingLink",i);
+        location.href=url;
       };
     }
-
-    linksContainer.appendChild(btn);
-    if(timer.innerText) linksContainer.appendChild(timer);
+    linksDiv.appendChild(btn);
   });
 }
 
-const pending = localStorage.getItem("pendingLink");
-if(pending !== null){
-  balance += 0.05;
-  localStorage.setItem("balance", balance);
-  localStorage.setItem(`link_${pending}`, Date.now());
+const pending=localStorage.getItem("pendingLink");
+if(pending!==null){
+  balance+=0.05;
+  localStorage.setItem("balance",balance);
+  localStorage.setItem("link_"+pending,Date.now());
   localStorage.removeItem("pendingLink");
-  balanceEl.innerText = balance.toFixed(2);
-  showToast("🎉 Tebrikler 0.05 ALGO kazandınız");
+  balanceEl.innerText=balance.toFixed(2);
+  showToast("🎉 Tebrikler! 0.05 ALGO kazandınız");
 }
 
 renderLinks();
-setInterval(renderLinks,60000);
+
+/* ===== ÇEKİM ===== */
+withdrawBtn.onclick=()=>{
+  popup.style.display="flex";
+  popupBalance.innerText=balance.toFixed(2);
+};
+
+sendWithdraw.onclick=()=>{
+  const wallet=document.getElementById("wallet").value.trim();
+  const amount=Number(document.getElementById("amount").value);
+  const algoRegex=/^[A-Z2-7]{58}$/;
+  if(!algoRegex.test(wallet)){
+    alert("Girdiğiniz adres yanlış, lütfen yalnızca Algorand adresi giriniz");
+    return;
+  }
+  if(amount<12){
+    alert("Minimum çekim 12 ALGO’dur");
+    return;
+  }
+  if(amount>balance){
+    alert("Yetersiz bakiye");
+    return;
+  }
+  alert("Çekim talebiniz alındı (demo)");
+};
 </script>
 
 </body>
