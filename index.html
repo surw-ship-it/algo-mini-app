@@ -3,323 +3,256 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Algorand Earn Bot</title>
+<title>Algorand Earn</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="//libtl.com/sdk.js"
+data-zone="10483596"
+data-sdk="show_10483596"></script>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f172a;
-  color: #fff;
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  background:#020617;
+  font-family:Inter,system-ui,Arial;
+  color:#fff;
 }
-.container {
-  max-width: 420px;
-  margin: auto;
-  padding: 15px;
-}
-.card {
-  background: #020617;
-  border-radius: 14px;
-  padding: 15px;
-  margin-bottom: 14px;
-}
-.balance-box {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.balance-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.balance-left img {
-  width: 22px;
-}
-button {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  background: #2563eb;
-  color: #fff;
-  font-size: 15px;
-  cursor: pointer;
-}
-button.small {
-  width: auto;
-  padding: 6px 12px;
-  font-size: 13px;
-}
-.section-title {
-  margin-bottom: 10px;
-  font-size: 16px;
-}
-.link-btn {
-  background: #1e293b;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 8px;
-  text-align: center;
-  cursor: pointer;
-  font-size: 14px;
-}
-.link-btn.locked {
-  opacity: 0.5;
-  pointer-events: none;
+#app{min-height:100vh;padding:16px 0 80px}
+
+.card{
+  width:92%;
+  max-width:390px;
+  margin:0 auto;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:26px;
+  padding:22px;
 }
 
-/* POPUP */
-.popup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #020617;
-  padding: 20px;
-  border-radius: 12px;
-  display: none;
-  z-index: 999;
-  text-align: center;
+.brand{display:flex;align-items:center;gap:10px;font-weight:700}
+.brand img{width:30px}
+
+/* BALANCE */
+.balance-box{
+  margin:20px 0;
+  padding:18px;
+  border-radius:18px;
+  background:rgba(255,255,255,.14);
+  text-align:center;
 }
-.popup img {
-  width: 36px;
-  margin-bottom: 8px;
+.balance-row{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+}
+.balance-amount{font-size:34px;font-weight:800}
+.withdraw-btn{
+  margin-top:12px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
 }
 
-/* MODAL */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  display: none;
-  z-index: 998;
+/* SPINNER BUTTON */
+.spinner-btn{
+  margin:14px 0;
+  background:linear-gradient(135deg,#f97316,#ea580c);
 }
-.modal-box {
-  background: #020617;
-  max-width: 360px;
-  margin: 80px auto;
-  padding: 20px;
-  border-radius: 14px;
+
+/* SECTIONS */
+.section{margin-top:18px}
+.section h3{margin:0 0 10px;font-size:15px}
+
+/* BUTTONS */
+button{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  font-size:15px;
+  color:#fff;
+  cursor:pointer;
+  background:linear-gradient(135deg,#3b82f6,#2563eb);
 }
+button:disabled{opacity:.5;cursor:not-allowed}
+
+.counter{
+  margin-top:8px;
+  font-size:13px;
+  color:#facc15;
+  text-align:center;
+}
+
+/* LINKS */
+.links{display:grid;gap:10px}
+.link-wrap{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  padding:8px;
+}
+.link-wrap button{
+  padding:10px;
+  font-size:14px;
+  border-radius:12px;
+  background:rgba(255,255,255,.08);
+}
+.timer{
+  margin-top:6px;
+  font-size:12px;
+  color:#facc15;
+  text-align:center;
+}
+
+/* POPUPS */
+.popup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+.popup-card{
+  background:#0f172a;
+  border-radius:20px;
+  padding:22px;
+  width:85%;
+  max-width:320px;
+  text-align:center;
+}
+.reward-logo{
+  width:56px;height:56px;
+  background:#fff;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 12px;
+}
+.reward-logo img{width:32px}
 
 /* SPINNER */
-.spinner-wrapper {
-  position: relative;
-  width: 260px;
-  height: 260px;
-  margin: 15px auto;
-}
-#wheel {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  border: 6px solid #020617;
-  background: conic-gradient(
-    #111 0deg 60deg,
-    #1f2937 60deg 120deg,
-    #111 120deg 180deg,
-    #1f2937 180deg 240deg,
-    #111 240deg 300deg,
-    #1f2937 300deg 360deg
+.wheel-box{position:relative;margin:10px auto;width:260px;height:260px}
+.wheel{
+  width:100%;height:100%;
+  border-radius:50%;
+  border:8px solid #1e293b;
+  background:conic-gradient(
+    #1e293b 0deg 60deg,
+    #334155 60deg 120deg,
+    #1e293b 120deg 180deg,
+    #334155 180deg 240deg,
+    #1e293b 240deg 300deg,
+    #334155 300deg 360deg
   );
-  transition: transform 4s cubic-bezier(.17,.67,.12,.99);
+  transition:transform 4s cubic-bezier(.17,.67,.32,1.02);
 }
-.pointer {
-  position: absolute;
-  top: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 12px solid transparent;
-  border-right: 12px solid transparent;
-  border-bottom: 20px solid #22c55e;
-  z-index: 10;
+.pointer{
+  position:absolute;
+  top:-6px;left:50%;
+  transform:translateX(-50%);
+  width:0;height:0;
+  border-left:14px solid transparent;
+  border-right:14px solid transparent;
+  border-bottom:24px solid #facc15;
 }
-.wheel-labels {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  pointer-events: none;
-}
-.wheel-labels span {
-  position: absolute;
-  font-size: 12px;
-  text-align: center;
-}
-.wheel-labels img {
-  width: 14px;
-  vertical-align: middle;
+.wheel-labels{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;text-align:center;
+  pointer-events:none;
 }
 </style>
 </head>
 
 <body>
+<div id="app">
+<div class="card">
 
-<div class="container">
-
-  <!-- BALANCE -->
-  <div class="card">
-    <div class="balance-box">
-      <div class="balance-left">
-        <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
-        <b><span id="balance">0.000</span> ALGO</b>
-      </div>
-      <button class="small" onclick="openWithdraw()">Çekim</button>
-    </div>
-  </div>
-
-  <!-- ADS -->
-  <div class="card">
-    <div class="section-title">🎬 Reklam İzle</div>
-    <button onclick="watchAd()">Reklam İzle (0.1 ALGO)</button>
-  </div>
-
-  <!-- LINKS -->
-  <div class="card">
-    <div class="section-title">🔗 Ödüllü Linkler</div>
-    <div id="links"></div>
-  </div>
-
-  <!-- SPINNER -->
-  <div class="card">
-    <div class="section-title">🎡 Spinner</div>
-    <button onclick="openSpinner()">Spinner Aç</button>
-  </div>
-
-</div>
-
-<!-- POPUP -->
-<div class="popup" id="popup">
+<div class="brand">
   <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
-  <div id="popupText"></div>
+  Algorand Earn
 </div>
 
-<!-- SPINNER MODAL -->
-<div class="modal" id="spinnerModal">
-  <div class="modal-box">
-    <h3>🎡 Spinner</h3>
-    <div class="spinner-wrapper">
-      <div class="pointer"></div>
-      <div id="wheel"></div>
-    </div>
-    <button onclick="spin()">0.25 ALGO ile Çevir</button><br><br>
-    <button onclick="closeSpinner()">Kapat</button>
+<div class="balance-box">
+  <div>Toplam Bakiye</div>
+  <div class="balance-row">
+    <div class="balance-amount" id="balance">0.000</div>
+    <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" width="22">
   </div>
+  <button class="withdraw-btn" id="openWithdraw">💸 Çekim Yap</button>
 </div>
 
-<!-- WITHDRAW MODAL -->
-<div class="modal" id="withdrawModal">
-  <div class="modal-box">
-    <h3>Çekim Talebi</h3>
-    <p>Mevcut bakiye: <b id="wBalance"></b> ALGO</p>
-    <p style="color:#facc15">Minimum çekim: 12 ALGO</p>
-    <input id="wallet" placeholder="Algorand adresi" style="width:100%;padding:8px"><br><br>
-    <input id="amount" type="number" placeholder="Miktar" style="width:100%;padding:8px"><br><br>
-    <button onclick="withdraw()">Gönder</button>
-    <button onclick="closeWithdraw()">İptal</button>
+<!-- SPINNER BUTTON (ÜST KISIMDA) -->
+<button class="spinner-btn" onclick="openSpinner()">🎡 Spinner (0.25 ALGO)</button>
+
+<div class="section">
+  <h3>🎬 Reklam İzleyerek Kazan</h3>
+  <button id="watchAd">Reklam İzle (+0.1 ALGO)</button>
+  <div class="counter" id="adCounter"></div>
+</div>
+
+<div class="section">
+  <h3>🔗 Ödüllü Linkler</h3>
+  <div class="links" id="links"></div>
+</div>
+
+</div>
+</div>
+
+<!-- SPINNER POPUP -->
+<div class="popup" id="spinnerPopup">
+  <div class="popup-card">
+    <h3>🎡 Spinner</h3>
+    <div class="wheel-box">
+      <div class="pointer"></div>
+      <div class="wheel" id="wheel"></div>
+    </div>
+    <button onclick="spin()">DÖNDÜR (0.25 ALGO)</button>
+    <button onclick="closeSpinner()" style="margin-top:8px;background:#334155">Kapat</button>
   </div>
 </div>
 
 <script>
-Telegram.WebApp.ready();
-Telegram.WebApp.expand();
+Telegram.WebApp.ready();Telegram.WebApp.expand();
 
-let balance = 0;
-
-const linkUrls = [
- "https://otieu.com/4/10484834",
- "https://otieu.com/4/10498410",
- "https://otieu.com/4/10498413",
- "https://otieu.com/4/10498415",
- "https://otieu.com/4/10498414",
- "https://otieu.com/4/10513346",
- "https://otieu.com/4/10513352",
- "https://otieu.com/4/10513355",
- "https://otieu.com/4/10513358",
- "https://otieu.com/4/10513360"
-];
-
-function updateBalance() {
-  document.getElementById("balance").innerText = balance.toFixed(3);
-}
-
-function showPopup(text) {
-  const p = document.getElementById("popup");
-  document.getElementById("popupText").innerText = text;
-  p.style.display = "block";
-  setTimeout(()=>p.style.display="none",3000);
-}
-
-/* ADS */
-function watchAd() {
-  balance += 0.1;
-  updateBalance();
-  showPopup("🎉 0.1 ALGO bakiyene eklendi");
-}
-
-/* LINKS */
-const linksDiv = document.getElementById("links");
-linkUrls.forEach((url,i)=>{
-  const d=document.createElement("div");
-  d.className="link-btn";
-  d.innerText="Link "+(i+1)+" (0.025 ALGO)";
-  d.onclick=()=>{
-    window.open(url,"_blank");
-    d.classList.add("locked");
-    balance+=0.025;
-    updateBalance();
-    showPopup("🎉 0.025 ALGO kazandın");
-  };
-  linksDiv.appendChild(d);
-});
+let balance=Number(localStorage.getItem("balance"))||0;
+balanceEl.innerText=balance.toFixed(3);
 
 /* SPINNER */
-function openSpinner(){ document.getElementById("spinnerModal").style.display="block"; }
-function closeSpinner(){ document.getElementById("spinnerModal").style.display="none"; }
+function openSpinner(){spinnerPopup.style.display="flex"}
+function closeSpinner(){spinnerPopup.style.display="none"}
 
 function spin(){
-  if(balance<0.25){ alert("Yetersiz bakiye"); return;}
+  if(balance<0.25){alert("Yetersiz bakiye");return;}
   balance-=0.25;
-  updateBalance();
-  const wheel=document.getElementById("wheel");
-  const deg=360*6+Math.random()*360;
+  localStorage.setItem("balance",balance);
+  balanceEl.innerText=balance.toFixed(3);
+
+  const rand=Math.random();
+  let reward=0;
+  if(rand<0.0000000001) reward=10;
+  else if(rand<0.001) reward=1;
+  else if(rand<0.02) reward=0.25;
+  else reward=0;
+
+  const deg=360*6+Math.floor(Math.random()*360);
   wheel.style.transform=`rotate(${deg}deg)`;
+
   setTimeout(()=>{
-    if(Math.random()<0.00000001){
-      balance+=10;
-      updateBalance();
-      showPopup("🎉 10 ALGO KAZANDIN!");
-    } else {
-      showPopup("😅 Yeniden dene");
+    if(reward>0){
+      balance+=reward;
+      localStorage.setItem("balance",balance);
+      balanceEl.innerText=balance.toFixed(3);
+      alert("Kazandın: "+reward+" ALGO 🎉");
+    }else{
+      alert("Yeniden Dene");
     }
   },4200);
 }
-
-/* WITHDRAW */
-function openWithdraw(){
-  document.getElementById("withdrawModal").style.display="block";
-  document.getElementById("wBalance").innerText=balance.toFixed(3);
-}
-function closeWithdraw(){ document.getElementById("withdrawModal").style.display="none"; }
-
-function withdraw(){
-  const addr=document.getElementById("wallet").value.trim();
-  const amt=parseFloat(document.getElementById("amount").value);
-  if(!addr.startsWith("A")||addr.length<50){ alert("Lütfen geçerli Algorand adresi girin"); return;}
-  if(amt<12){ alert("Minimum çekim 12 ALGO"); return;}
-  if(amt>balance){ alert("Yetersiz bakiye"); return;}
-  balance-=amt;
-  updateBalance();
-  closeWithdraw();
-  alert("Çekim talebiniz alındı");
-}
 </script>
-
 </body>
 </html>
