@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ALGORAND ADS Mini App</title>
+<title>Algorand Ads</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="//libtl.com/sdk.js"
@@ -11,121 +11,203 @@ data-zone="10483596"
 data-sdk="show_10483596"></script>
 
 <style>
+:root {
+  --bg: #0b1220;
+  --card: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.08);
+  --primary: #00f5d4;
+  --secondary: #3b82f6;
+  --danger: #ef4444;
+  --warning: #facc15;
+  --text-muted: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  padding: 0;
-  background: #0f172a;
+  height: 100vh;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  font-family: Inter, Arial, Helvetica, sans-serif;
   color: #fff;
-  font-family: Arial, Helvetica, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
 }
 
+/* CARD */
 .card {
-  width: 90%;
-  max-width: 360px;
-  background: #020617;
-  border-radius: 14px;
-  padding: 20px;
-  text-align: center;
+  width: 92%;
+  max-width: 380px;
+  background: var(--card);
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.45);
   position: relative;
 }
 
-h1 { font-size: 20px; }
-
-.balance {
-  font-size: 18px;
-  margin: 15px 0;
-  color: #22c55e;
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-button {
-  width: 100%;
-  padding: 14px;
-  font-size: 16px;
-  background: #2563eb;
-  color: #fff;
+.logo {
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+
+.withdraw-btn {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-top: 8px;
-}
-
-button:disabled {
-  background: #334155;
-  cursor: not-allowed;
-}
-
-.counter {
-  font-size: 14px;
-  margin: 10px 0;
-  color: #facc15;
-}
-
-.limit-msg {
-  font-size: 14px;
-  color: #f87171;
-  margin-top: 10px;
-}
-
-#withdrawBtn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: auto;
+  color: #fff;
   padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* BALANCE */
+.balance-box {
+  margin: 22px 0;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(0,245,212,.15), rgba(59,130,246,.15));
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.balance-box span {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.balance-value {
+  font-size: 32px;
+  font-weight: 700;
+  margin-top: 6px;
+  color: var(--primary);
+}
+
+/* INFO */
+.info {
+  text-align: center;
   font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* LIMIT */
+.counter {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(250,204,21,.12);
+  border: 1px solid rgba(250,204,21,.3);
+  text-align: center;
+  font-size: 14px;
+}
+
+/* BUTTON */
+.main-btn {
+  width: 100%;
+  margin-top: 18px;
+  padding: 15px;
+  border-radius: 16px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #020617;
+  background: linear-gradient(135deg, var(--primary), #22d3ee);
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0,245,212,.35);
+}
+
+.main-btn:disabled {
+  background: #334155;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 /* TOAST */
 #toast {
   display: none;
   position: absolute;
-  bottom: 20px;
+  bottom: -18px;
   left: 50%;
   transform: translateX(-50%);
-  background: #16a34a;
-  color: #fff;
-  padding: 10px 14px;
-  border-radius: 10px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  padding: 10px 16px;
+  border-radius: 999px;
   font-size: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.4);
 }
 
-/* WITHDRAW POPUP */
+/* POPUP */
 #withdrawPopup {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,.65);
   justify-content: center;
   align-items: center;
 }
 
 .popup {
-  background: #020617;
-  padding: 20px;
-  border-radius: 12px;
   width: 90%;
-  max-width: 300px;
+  max-width: 320px;
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  padding: 20px;
   text-align: center;
+}
+
+.popup h3 {
+  margin: 0 0 10px;
+}
+
+.popup .muted {
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 .popup input {
   width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  background: #1e293b;
-  border: 1px solid #334155;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid var(--border);
   color: #fff;
-  border-radius: 6px;
 }
 
-.min-warning {
-  font-size: 13px;
-  color: #facc15;
-  margin-bottom: 6px;
+.popup button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+}
+
+.send {
+  background: linear-gradient(135deg, var(--primary), #22d3ee);
+  color: #020617;
+  font-weight: 600;
+}
+
+.cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
 }
 </style>
 </head>
@@ -133,45 +215,39 @@ button:disabled {
 <body>
 
 <div class="card">
-  <h1>ALGORAND ADS</h1>
-  <p>Reklam izle, ALGO kazan</p>
-
-  <div class="balance">
-    Bakiye: <span id="balance">0.0</span> ALGO
+  <div class="header">
+    <div class="logo">ALGORAND ADS</div>
+    <button class="withdraw-btn" id="withdrawBtn">Çekim</button>
   </div>
+
+  <div class="balance-box">
+    <span>Toplam Bakiye</span>
+    <div class="balance-value"><span id="balance">0.0</span> ALGO</div>
+  </div>
+
+  <div class="info">Her reklam izleyişte <b>0.1 ALGO</b> kazan</div>
 
   <div id="counterBox" class="counter">
-    Günlük reklam limitiniz: <span id="counter">30</span>
+    Günlük kalan reklam hakkın: <b><span id="counter">30</span></b>
   </div>
 
-  <div id="limitMessage" class="limit-msg" style="display:none;">
-    Günlük reklam limitiniz dolmuştur.<br>Yarın tekrar deneyin.
-  </div>
+  <button id="watchAd" class="main-btn">🎬 Reklam İzle</button>
 
-  <button id="watchAd">🎬 Reklam İzle</button>
-  <button id="withdrawBtn">💰 Çekim</button>
-
-  <div id="toast">🎉 Tebrikler! 0.1 ALGO bakiyenize eklendi</div>
+  <div id="toast">🎉 0.1 ALGO bakiyene eklendi</div>
 </div>
 
-<!-- WITHDRAW POPUP -->
+<!-- POPUP -->
 <div id="withdrawPopup">
   <div class="popup">
-    <h3>Lütfen Algorand adresinizi girin</h3>
+    <h3>Çekim Talebi</h3>
+    <div class="muted">Bakiye: <b><span id="popupBalance">0.0</span> ALGO</b></div>
+    <div class="muted">Minimum çekim: 12 ALGO</div>
 
-    <div style="font-size:14px;margin-bottom:4px;">
-      Mevcut bakiye: <b><span id="popupBalance">0.0</span> ALGO</b>
-    </div>
+    <input id="wallet" placeholder="Algorand adresi">
+    <input id="amount" type="number" step="0.1" placeholder="Çekilecek miktar">
 
-    <div class="min-warning">
-      Minimum çekim: 12 ALGO
-    </div>
-
-    <input id="wallet" placeholder="Algorand cüzdan adresi">
-    <input id="amount" type="number" step="0.1" placeholder="Çekmek istediğiniz miktar">
-
-    <button id="sendWithdraw">Gönder</button>
-    <button id="closeWithdraw">İptal</button>
+    <button class="send" id="sendWithdraw">Gönder</button>
+    <button class="cancel" id="closeWithdraw">İptal</button>
   </div>
 </div>
 
@@ -179,18 +255,15 @@ button:disabled {
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
 
-/* STATE */
 let balance = 0;
 let dailyAdsLeft = 30;
 const REWARD_PER_AD = 0.1;
 const MIN_WITHDRAW = 12;
 
-/* ELEMENTS */
 const balanceEl = document.getElementById("balance");
 const popupBalanceEl = document.getElementById("popupBalance");
 const counterEl = document.getElementById("counter");
 const counterBox = document.getElementById("counterBox");
-const limitMsg = document.getElementById("limitMessage");
 const adBtn = document.getElementById("watchAd");
 const toast = document.getElementById("toast");
 
@@ -199,25 +272,18 @@ const withdrawPopup = document.getElementById("withdrawPopup");
 const closeWithdraw = document.getElementById("closeWithdraw");
 const sendWithdraw = document.getElementById("sendWithdraw");
 
-/* TOAST */
 function showToast() {
   toast.style.display = "block";
-  setTimeout(() => toast.style.display = "none", 2500);
+  setTimeout(() => toast.style.display = "none", 2200);
 }
 
-/* ALGO ADDRESS CHECK */
-function isValidAlgoAddress(address) {
-  return /^[A-Z2-7]{58}$/.test(address);
+function isValidAlgoAddress(a) {
+  return /^[A-Z2-7]{58}$/.test(a);
 }
 
-/* ADS */
 adBtn.onclick = async () => {
   if (dailyAdsLeft <= 0) return;
-
-  if (typeof show_10483596 !== "function") {
-    alert("Reklam sistemi yüklenmedi");
-    return;
-  }
+  if (typeof show_10483596 !== "function") return alert("Reklam yüklenemedi");
 
   await show_10483596();
 
@@ -229,14 +295,11 @@ adBtn.onclick = async () => {
   showToast();
 
   if (dailyAdsLeft <= 0) {
-    counterBox.style.display = "none";
-    limitMsg.style.display = "block";
+    counterBox.innerText = "Günlük limit doldu. Yarın tekrar gel 🚀";
     adBtn.disabled = true;
-    adBtn.innerText = "🚫 Günlük Limit Doldu";
   }
 };
 
-/* WITHDRAW */
 withdrawBtn.onclick = () => {
   popupBalanceEl.innerText = balance.toFixed(1);
   withdrawPopup.style.display = "flex";
@@ -247,39 +310,22 @@ closeWithdraw.onclick = () => {
 };
 
 sendWithdraw.onclick = () => {
-  const wallet = document.getElementById("wallet").value.trim();
-  const amount = parseFloat(document.getElementById("amount").value);
+  const wallet = walletInput.value.trim();
+  const amount = parseFloat(amountInput.value);
 
-  if (!wallet) {
-    alert("Algorand adresi giriniz");
-    return;
-  }
+  if (!wallet || !isValidAlgoAddress(wallet))
+    return alert("Geçerli bir Algorand adresi giriniz");
 
-  if (!isValidAlgoAddress(wallet)) {
-    alert("Girdiğiniz adres yanlış, lütfen yalnızca Algorand adresi giriniz");
-    return;
-  }
+  if (!amount || amount < MIN_WITHDRAW)
+    return alert("Minimum çekim 12 ALGO");
 
-  if (!amount || amount <= 0) {
-    alert("Geçerli bir miktar giriniz");
-    return;
-  }
-
-  if (amount < MIN_WITHDRAW) {
-    alert("Minimum çekim tutarı 12 ALGO'dur");
-    return;
-  }
-
-  if (amount > balance) {
-    alert("Bakiyeniz yetersiz");
-    return;
-  }
+  if (amount > balance)
+    return alert("Bakiyeniz yetersiz");
 
   balance -= amount;
   balanceEl.innerText = balance.toFixed(1);
-
-  alert("✅ Çekim talebiniz alındı (demo)");
   withdrawPopup.style.display = "none";
+  alert("Çekim talebi alındı (demo)");
 };
 </script>
 
