@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 <title>Algorand Earn</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -11,15 +11,16 @@ data-zone="10483596"
 data-sdk="show_10483596"></script>
 
 <style>
-*{box-sizing:border-box}
+*{box-sizing:border-box;}
 html,body{
   margin:0;
   background:#020617;
   font-family:Inter,system-ui,Arial;
   color:#fff;
+  overflow-x:hidden;
 }
 
-#app{min-height:100vh;padding:16px 0 80px}
+#app{min-height:100vh;padding:16px 0 80px;}
 
 .card{
   width:92%;
@@ -38,7 +39,7 @@ html,body{
   gap:10px;
   font-weight:700;
 }
-.brand img{width:30px}
+.brand img{width:30px;}
 
 /* BALANCE */
 .balance-box{
@@ -54,8 +55,7 @@ html,body{
   align-items:center;
   gap:8px;
 }
-.balance-amount{font-size:34px;font-weight:800}
-
+.balance-amount{font-size:34px;font-weight:800;}
 .withdraw-btn{
   margin-top:12px;
   background:linear-gradient(135deg,#22c55e,#16a34a);
@@ -76,7 +76,7 @@ button{
   cursor:pointer;
   background:linear-gradient(135deg,#3b82f6,#2563eb);
 }
-button:disabled{opacity:.5;cursor:not-allowed}
+button:disabled{opacity:.5;cursor:not-allowed;}
 
 .counter{
   margin-top:8px;
@@ -86,22 +86,19 @@ button:disabled{opacity:.5;cursor:not-allowed}
 }
 
 /* LINKS */
-.links{display:grid;gap:10px}
-
+.links{display:grid;gap:10px;}
 .link-wrap{
   background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.12);
   border-radius:12px;
   padding:8px;
 }
-
 .link-wrap button{
   padding:10px;
   font-size:14px;
   border-radius:12px;
   background:rgba(255,255,255,.08);
 }
-
 .timer{
   margin-top:6px;
   font-size:12px;
@@ -139,8 +136,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   color:#fff;
 }
 
-.popup-warn{font-size:12px;color:#facc15;margin-top:6px}
-
+.popup-warn{font-size:12px;color:#facc15;margin-top:6px;}
 .reward-logo{
   width:56px;height:56px;
   background:#fff;
@@ -150,7 +146,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   justify-content:center;
   margin:0 auto 12px;
 }
-.reward-logo img{width:32px}
+.reward-logo img{width:32px;}
 
 /* SPINNER */
 #spinnerPopup{
@@ -190,7 +186,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
   border-left:10px solid transparent;
   border-right:10px solid transparent;
   border-bottom:18px solid #facc15;
+  z-index:1000;
 }
+
 .winPopup{
   position:fixed;
   inset:0;
@@ -215,7 +213,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </head>
 
 <body>
-
 <div id="app">
 <div class="card">
 
@@ -289,15 +286,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
 
-/* ====== STATE ====== */
 let balance=Number(localStorage.getItem("balance"))||0;
 let dailyAds=Number(localStorage.getItem("dailyAds"))||30;
 let lastDay=localStorage.getItem("lastAdDay")||new Date().toDateString();
-
 const balanceEl=document.getElementById("balance");
 balanceEl.innerText=balance.toFixed(3);
 
-/* ====== ADS ====== */
+/* ===== ADS ===== */
 function resetAds(){
   const t=new Date().toDateString();
   if(t!==lastDay){
@@ -321,7 +316,7 @@ watchAd.onclick=async()=>{
   adCounter.innerText=`Günlük reklam hakkınız: ${dailyAds} / 30`;
 };
 
-/* ====== WITHDRAW ====== */
+/* ===== WITHDRAW ===== */
 openWithdraw.onclick=()=>{
   popupBalance.innerText=balance.toFixed(3)+" ALGO";
   withdrawPopup.style.display="flex";
@@ -341,77 +336,36 @@ function sendWithdraw(){
   alert("Çekim talebi alındı (demo)");
 }
 
-/* ====== LINKS ====== */
+/* ===== LINKS ===== */
 const links=[
-"https://otieu.com/4/10484834",
-"https://otieu.com/4/10498410",
-"https://otieu.com/4/10498413",
-"https://otieu.com/4/10498415",
-"https://otieu.com/4/10498414",
-"https://otieu.com/4/10513346",
-"https://otieu.com/4/10513352",
-"https://otieu.com/4/10513355",
-"https://otieu.com/4/10513358",
-"https://otieu.com/4/10513360"
-];
-
+"https://otieu.com/4/10484834","https://otieu.com/4/10498410","https://otieu.com/4/10498413",
+"https://otieu.com/4/10498415","https://otieu.com/4/10498414","https://otieu.com/4/10513346",
+"https://otieu.com/4/10513352","https://otieu.com/4/10513355","https://otieu.com/4/10513358",
+"https://otieu.com/4/10513360"];
 const linksDiv=document.getElementById("links");
 const COOLDOWN=43200000;
-
-function format(ms){
-  const t=Math.max(0,ms);
-  const h=Math.floor(t/3600000);
-  const m=Math.floor((t%3600000)/60000);
-  return `${h}sa ${m}dk`;
-}
-
+function format(ms){const t=Math.max(0,ms); const h=Math.floor(t/3600000); const m=Math.floor((t%3600000)/60000); return `${h}sa ${m}dk`;}
 function renderLinks(){
   linksDiv.innerHTML="";
   links.forEach((url,i)=>{
-    const wrap=document.createElement("div");
-    wrap.className="link-wrap";
+    const wrap=document.createElement("div"); wrap.className="link-wrap";
     const btn=document.createElement("button");
-    const timer=document.createElement("div");
-    timer.className="timer";
-
+    const timer=document.createElement("div"); timer.className="timer";
     const last=Number(localStorage.getItem("link_"+i));
     const left=last?COOLDOWN-(Date.now()-last):0;
-
     btn.innerText=`🔗 Link ${i+1} (+0.025 ALGO)`;
-
-    if(left>0){
-      btn.disabled=true;
-      timer.innerText="Kalan süre: "+format(left);
-    }else{
-      btn.onclick=()=>{
-        localStorage.setItem("link_"+i,Date.now());
-        localStorage.setItem("pendingReward",i);
-        location.href=url;
-      };
-    }
-
-    wrap.appendChild(btn);
-    if(left>0) wrap.appendChild(timer);
-    linksDiv.appendChild(wrap);
+    if(left>0){btn.disabled=true; timer.innerText="Kalan süre: "+format(left);} 
+    else {btn.onclick=()=>{localStorage.setItem("link_"+i,Date.now()); localStorage.setItem("pendingReward",i); location.href=url;};}
+    wrap.appendChild(btn); if(left>0) wrap.appendChild(timer); linksDiv.appendChild(wrap);
   });
 }
-
 setInterval(renderLinks,60000);
 renderLinks();
-
-/* LINK REWARD */
 const pending=localStorage.getItem("pendingReward");
-if(pending){
-  balance+=0.025;
-  localStorage.setItem("balance",balance);
-  balanceEl.innerText=balance.toFixed(3);
-  localStorage.removeItem("pendingReward");
-}
+if(pending){balance+=0.025; localStorage.setItem("balance",balance); balanceEl.innerText=balance.toFixed(3); localStorage.removeItem("pendingReward");}
 
 /* ===== SPINNER ===== */
-const spinCost=0.25;
-let spinning=false;
-
+const spinCost=0.25; let spinning=false;
 const prizes=[
  {label:"Yeniden Dene",amount:0,confetti:false,weight:999999},
  {label:"0.05 ALGO",amount:0.05,confetti:true,weight:800},
@@ -420,12 +374,10 @@ const prizes=[
  {label:"1 ALGO",amount:1,confetti:true,weight:5},
  {label:"10 ALGO",amount:10,confetti:true,weight:1}
 ];
-
 const canvas=document.getElementById("wheel");
 const ctx=canvas.getContext("2d");
 const slice=2*Math.PI/prizes.length;
 
-// DRAW WHEEL
 function drawWheel(){
   ctx.clearRect(0,0,260,260);
   const colors=["#1e293b","#334155","#475569","#0f172a","#1e40af","#2563eb"];
@@ -456,13 +408,11 @@ drawWheel();
 
 function weightedPrize(){
   const pool=[];
-  prizes.forEach((p,i)=>{for(let j=0;j<p.weight;j++)pool.push(i)});
+  prizes.forEach((p,i)=>{for(let j=0;j<p.weight;j++)pool.push(i);});
   return pool[Math.floor(Math.random()*pool.length)];
 }
-
 function openSpinner(){spinnerPopup.style.display="flex";}
 function closeSpinner(){spinnerPopup.style.display="none";}
-
 function spin(){
   if(spinning) return;
   if(balance < spinCost){alert("Bakiye yetersiz");return;}
@@ -470,18 +420,12 @@ function spin(){
   balance-=spinCost;
   localStorage.setItem("balance",balance);
   balanceEl.innerText=balance.toFixed(3);
-
   const index=weightedPrize();
   const deg=360*5 + (360-index*(360/prizes.length));
   canvas.style.transform=`rotate(${deg}deg)`;
-
   setTimeout(()=>{
     const p=prizes[index];
-    if(p.amount>0){
-      balance+=p.amount;
-      localStorage.setItem("balance",balance);
-      balanceEl.innerText=balance.toFixed(3);
-    }
+    if(p.amount>0){balance+=p.amount; localStorage.setItem("balance",balance); balanceEl.innerText=balance.toFixed(3);}
     winText.innerHTML=`🎉 Tebrikler <b>${p.label}</b> kazandınız`;
     winPopup.style.display="flex";
     setTimeout(()=>winPopup.style.display="none",3000);
@@ -489,6 +433,5 @@ function spin(){
   },4200);
 }
 </script>
-
 </body>
 </html>
