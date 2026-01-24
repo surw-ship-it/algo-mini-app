@@ -12,11 +12,10 @@ data-sdk="show_10483596"></script>
 
 <style>
 :root{
-  --bg:#020617;
   --glass:rgba(255,255,255,.08);
+  --glass-strong:rgba(255,255,255,.14);
   --border:rgba(255,255,255,.12);
   --muted:#94a3b8;
-  --green:#22c55e;
 }
 
 *{box-sizing:border-box}
@@ -57,15 +56,6 @@ body{
 
 .brand img{width:30px}
 
-.withdraw-btn{
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  border:none;
-  padding:7px 14px;
-  border-radius:999px;
-  color:#fff;
-  cursor:pointer;
-}
-
 .balance-box{
   margin:20px 0;
   padding:18px;
@@ -93,7 +83,6 @@ body{
 .section h3{
   margin:0 0 10px;
   font-size:15px;
-  color:#e5e7eb;
 }
 
 button.main{
@@ -116,28 +105,43 @@ button.main{
 
 .links{
   display:grid;
-  gap:10px;
+  gap:12px;
+}
+
+.link-wrap{
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px;
 }
 
 .link-btn{
-  padding:13px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:rgba(255,255,255,.06);
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  background:rgba(255,255,255,.08);
   color:#fff;
   cursor:pointer;
 }
 
 .link-btn:disabled{
-  opacity:.4;
+  opacity:.5;
   cursor:not-allowed;
 }
 
-/* ===== POPUP REWARD ===== */
+.timer{
+  margin-top:6px;
+  font-size:12px;
+  color:var(--muted);
+  text-align:center;
+}
+
+/* ===== REWARD POPUP ===== */
 #rewardPopup{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.55);
+  background:rgba(0,0,0,.6);
   display:none;
   justify-content:center;
   align-items:center;
@@ -145,29 +149,38 @@ button.main{
 }
 
 .reward-card{
-  background:#020617;
-  padding:22px;
-  border-radius:18px;
+  background:var(--glass-strong);
+  backdrop-filter:blur(20px);
+  padding:24px;
+  border-radius:20px;
   text-align:center;
   width:85%;
   max-width:300px;
+  border:1px solid var(--border);
   animation:fadeIn .4s ease;
 }
 
-.reward-card img{
-  width:42px;
-  margin-bottom:10px;
+.reward-logo{
+  width:56px;
+  height:56px;
+  background:#fff;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 12px;
+}
+
+.reward-logo img{width:32px}
+
+.fadeOut{
+  animation:fadeOut .5s ease forwards;
 }
 
 @keyframes fadeIn{
   from{opacity:0;transform:scale(.9)}
   to{opacity:1;transform:scale(1)}
 }
-
-.fadeOut{
-  animation:fadeOut .5s ease forwards;
-}
-
 @keyframes fadeOut{
   to{opacity:0;transform:scale(.9)}
 }
@@ -183,13 +196,12 @@ button.main{
       <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
       Algorand Earn
     </div>
-    <button class="withdraw-btn" id="withdrawBtn">💸 Çekim</button>
   </div>
 
   <div class="balance-box">
     <div>Toplam Bakiye</div>
     <div class="balance-row">
-      <div class="balance-amount" id="balance">0.0</div>
+      <div class="balance-amount" id="balance">0.00</div>
       <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" width="22">
     </div>
   </div>
@@ -209,12 +221,14 @@ button.main{
 
 </div>
 
-<!-- LINK ÖDÜL POPUP -->
+<!-- LINK POPUP -->
 <div id="rewardPopup">
   <div class="reward-card" id="rewardCard">
-    <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
+    <div class="reward-logo">
+      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
+    </div>
     <h3>🎉 Tebrikler</h3>
-    <p>0.05 ALGO kazandınız</p>
+    <p>0.025 ALGO kazandınız</p>
   </div>
 </div>
 
@@ -230,7 +244,7 @@ let lastAdDay = localStorage.getItem("lastAdDay") || new Date().toDateString();
 const balanceEl=document.getElementById("balance");
 const adCounter=document.getElementById("adCounter");
 
-/* ===== DAILY RESET ===== */
+/* ===== DAILY ADS RESET ===== */
 function resetDailyAds(){
   const today=new Date().toDateString();
   if(today!==lastAdDay){
@@ -242,13 +256,13 @@ function resetDailyAds(){
 }
 resetDailyAds();
 
-balanceEl.innerText=balance.toFixed(2);
+balanceEl.innerText=balance.toFixed(3);
 adCounter.innerText=`Günlük reklam hakkınız: ${dailyAds} / 30`;
 
 /* ===== REKLAM ===== */
 watchAd.onclick=async()=>{
   if(dailyAds<=0){
-    alert("Günlük reklam limitiniz dolmuştur, yarın tekrar deneyin");
+    alert("Günlük reklam limitiniz dolmuştur");
     return;
   }
   await show_10483596();
@@ -256,10 +270,8 @@ watchAd.onclick=async()=>{
   balance+=0.1;
   localStorage.setItem("balance",balance);
   localStorage.setItem("dailyAds",dailyAds);
-  balanceEl.innerText=balance.toFixed(2);
-  adCounter.innerText=dailyAds>0
-    ?`Günlük reklam hakkınız: ${dailyAds} / 30`
-    :"Günlük reklam limitiniz dolmuştur";
+  balanceEl.innerText=balance.toFixed(3);
+  adCounter.innerText=`Günlük reklam hakkınız: ${dailyAds} / 30`;
 };
 
 /* ===== LINKLER ===== */
@@ -268,40 +280,63 @@ const links=[
 "https://otieu.com/4/10498410",
 "https://otieu.com/4/10498413",
 "https://otieu.com/4/10498415",
-"https://otieu.com/4/10498414"
+"https://otieu.com/4/10498414",
+"https://otieu.com/4/10513346",
+"https://otieu.com/4/10513352",
+"https://otieu.com/4/10513355",
+"https://otieu.com/4/10513358",
+"https://otieu.com/4/10513360"
 ];
 
 const linksDiv=document.getElementById("links");
+
+function formatTime(ms){
+  const h=Math.floor(ms/3600000);
+  const m=Math.floor((ms%3600000)/60000);
+  return `${h}s ${m}dk`;
+}
 
 function renderLinks(){
   linksDiv.innerHTML="";
   links.forEach((url,i)=>{
     const key="link_"+i;
     const last=localStorage.getItem(key);
+    const wrap=document.createElement("div");
+    wrap.className="link-wrap";
+
     const btn=document.createElement("button");
     btn.className="link-btn";
+
+    const timer=document.createElement("div");
+    timer.className="timer";
+
     if(last && Date.now()-last<43200000){
+      const left=43200000-(Date.now()-last);
       btn.disabled=true;
       btn.innerText=`🔒 Link ${i+1}`;
+      timer.innerText=`Tekrar aktif: ${formatTime(left)}`;
     }else{
-      btn.innerText=`🔗 Link ${i+1} (+0.05 ALGO)`;
+      btn.innerText=`🔗 Link ${i+1} (+0.025 ALGO)`;
       btn.onclick=()=>{
         localStorage.setItem("pendingLink",i);
         location.href=url;
       };
     }
-    linksDiv.appendChild(btn);
+
+    wrap.appendChild(btn);
+    if(timer.innerText) wrap.appendChild(timer);
+    linksDiv.appendChild(wrap);
   });
 }
 
 /* ===== LINK DÖNÜŞ ===== */
 const pending=localStorage.getItem("pendingLink");
 if(pending!==null){
-  balance+=0.05;
+  balance+=0.025;
   localStorage.setItem("balance",balance);
   localStorage.setItem("link_"+pending,Date.now());
   localStorage.removeItem("pendingLink");
-  balanceEl.innerText=balance.toFixed(2);
+  balanceEl.innerText=balance.toFixed(3);
 
   const popup=document.getElementById("rewardPopup");
   const card=document.getElementById("rewardCard");
@@ -317,6 +352,7 @@ if(pending!==null){
 }
 
 renderLinks();
+setInterval(renderLinks,60000);
 </script>
 
 </body>
