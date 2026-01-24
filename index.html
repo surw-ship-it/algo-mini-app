@@ -114,6 +114,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
 
+// TAM GÜVENLİ BAŞLIK GİZLEME
+Telegram.WebApp.showBackButton(false);
+Telegram.WebApp.setHeaderColor('#020617'); // Arka plan ile aynı
+Telegram.WebApp.MainButton.hide(); // Telegram ana butonu görünmez
+
 let balance=Number(localStorage.getItem("balance"))||0;
 let dailyAds=Number(localStorage.getItem("dailyAds"))||30;
 let lastDay=localStorage.getItem("lastAdDay")||new Date().toDateString();
@@ -129,8 +134,7 @@ dailyAds=30;
 lastDay=t;
 localStorage.setItem("dailyAds",30);
 localStorage.setItem("lastAdDay",t);
-}
-}
+}}
 resetAds();
 adCounter.innerText=`Günlük reklam hakkınız: ${dailyAds} / 30`;
 
@@ -172,7 +176,6 @@ const links=[
 "https://otieu.com/4/10513352","https://otieu.com/4/10513355","https://otieu.com/4/10513358",
 "https://otieu.com/4/10513360"
 ];
-
 const linksDiv=document.getElementById("links");
 const COOLDOWN=43200000;
 
@@ -244,6 +247,7 @@ const center=130;
 const slice=2*Math.PI/prizes.length;
 
 function drawWheel(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
 prizes.forEach((p,i)=>{
 ctx.beginPath();
 ctx.moveTo(center,center);
@@ -263,16 +267,20 @@ ctx.restore();
 drawWheel();
 
 function weightedPrize(){
-const pool=[];
-prizes.forEach((p,i)=>{for(let j=0;j<p.weight;j++)pool.push(i)});
-return pool[Math.floor(Math.random()*pool.length)];
+const totalWeight = prizes.reduce((acc,p)=>acc+p.weight,0);
+let rand = Math.random()*totalWeight;
+for(let i=0;i<prizes.length;i++){
+if(rand<prizes[i].weight) return i;
+rand -= prizes[i].weight;
+}
+return prizes.length-1;
 }
 
 const spinnerPopup=document.getElementById("spinnerPopup");
 const winPopup=document.getElementById("winPopup");
 const winText=document.getElementById("winText");
 
-document.getElementById("openSpinner").onclick=function(){spinnerPopup.style.display="flex"};
+document.getElementById("openSpinner").onclick=function(){spinnerPopup.style.display="flex"; drawWheel();};
 
 function closeSpinner(){spinnerPopup.style.display="none"}
 
