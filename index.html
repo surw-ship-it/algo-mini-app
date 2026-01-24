@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>USDT ADS Mini App</title>
+<title>ALGORAND ADS Mini App</title>
 
 <!-- Telegram Mini App SDK -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -13,108 +13,65 @@
 data-zone="10483596"
 data-sdk="show_10483596"></script>
 
-<!-- Firebase SDK -->
-<script type="module">
-  // Firebase App
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCLU-wrfQ2pfPudEFEVyt0wYM-CwkojM5E",
-    authDomain: "telegram-ads-63488.firebaseapp.com",
-    projectId: "telegram-ads-63488",
-    storageBucket: "telegram-ads-63488.firebasestorage.app",
-    messagingSenderId: "859459051780",
-    appId: "1:859459051780:web:3c0db7bce5a526b1273051",
-    measurementId: "G-D4BPSC1BGS"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  // Anonymous sign-in (test için)
-  signInAnonymously(auth)
-    .then(() => {
-      console.log("Kullanıcı giriş yaptı:", auth.currentUser.uid);
-    })
-    .catch((error) => {
-      console.error("Giriş hatası:", error.code, error.message);
-    });
-</script>
-
 <style>
 body {
-margin: 0;
-padding: 0;
-background: #0f172a;
-color: #fff;
-font-family: Arial, Helvetica, sans-serif;
-display: flex;
-justify-content: center;
-align-items: center;
-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #0f172a;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 .card {
-width: 90%;
-max-width: 360px;
-background: #020617;
-border-radius: 14px;
-padding: 20px;
-text-align: center;
-position: relative;
+  width: 90%;
+  max-width: 360px;
+  background: #020617;
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  position: relative;
 }
 h1 { font-size: 20px; }
-.balance { font-size: 18px; margin: 15px 0; color: #22c55e; }
+.balance {
+  font-size: 18px;
+  margin: 15px 0;
+  color: #22c55e;
+}
 button {
-width: 100%;
-padding: 14px;
-font-size: 16px;
-background: #2563eb;
-color: #fff;
-border: none;
-border-radius: 10px;
-cursor: pointer;
-margin-top: 8px;
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 8px;
 }
 button:active { background: #1d4ed8; }
-.counter { font-size: 14px; margin: 10px 0; color: #facc15; }
-.counter-info { font-size: 13px; color: #f87171; }
+
+.counter {
+  font-size: 14px;
+  margin: 10px 0;
+  color: #facc15;
+}
+
+.limit-msg {
+  font-size: 14px;
+  color: #f87171;
+  margin-top: 10px;
+}
 
 #withdrawBtn {
-position: absolute;
-top: 10px;
-right: 10px;
-width: auto;
-padding: 6px 12px;
-font-size: 14px;
-}
-
-#withdrawPopup {
-display: none;
-position: fixed;
-inset: 0;
-background: rgba(0,0,0,0.6);
-justify-content: center;
-align-items: center;
-}
-.popup {
-background: #020617;
-padding: 20px;
-border-radius: 12px;
-width: 90%;
-max-width: 300px;
-}
-.popup input {
-width: 100%;
-padding: 10px;
-margin: 10px 0;
-background: #1e293b;
-border: 1px solid #334155;
-color: #fff;
-border-radius: 6px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: auto;
+  padding: 6px 12px;
+  font-size: 14px;
 }
 </style>
 </head>
@@ -122,29 +79,23 @@ border-radius: 6px;
 <body>
 
 <div class="card">
-<h1>USDT ADS</h1>
-<p>Reklam izle, USDT kazan</p>
+  <h1>ALGORAND ADS</h1>
+  <p>Reklam izle, ALGO kazan</p>
 
-<div class="balance">
-Bakiye: <span id="balance">0.000</span> USDT
-</div>
+  <div class="balance">
+    Bakiye: <span id="balance">0.0</span> ALGO
+  </div>
 
-<div class="counter-info">5 reklam izle → 0.005 USDT</div>
-<div class="counter">
-Reklam sayacı: <span id="counter">0</span> / 5
-</div>
+  <div id="counterBox" class="counter">
+    Günlük reklam limitiniz: <span id="counter">30</span>
+  </div>
 
-<button id="watchAd">🎬 Reklam İzle</button>
-<button id="withdrawBtn">💰 Çekim</button>
-</div>
+  <div id="limitMessage" class="limit-msg" style="display:none;">
+    Günlük reklam limitiniz dolmuştur.<br>Yarın tekrar deneyin.
+  </div>
 
-<div id="withdrawPopup">
-<div class="popup">
-<h3>Çekim Talebi</h3>
-<input id="wallet" placeholder="Cüzdan adresi">
-<button id="sendWithdraw">Gönder</button>
-<button id="closeWithdraw">İptal</button>
-</div>
+  <button id="watchAd">🎬 Reklam İzle</button>
+  <button id="withdrawBtn">💰 Çekim</button>
 </div>
 
 <script>
@@ -153,59 +104,39 @@ Telegram.WebApp.expand();
 
 /* ================== STATE ================== */
 let balance = 0;
-let counter = 0;
-const ADS_REQUIRED = 5;
-const REWARD = 0.005;
+let dailyAdsLeft = 30;
+const REWARD_PER_AD = 0.1;
 
 /* ================== ELEMENTS ================== */
 const balanceEl = document.getElementById("balance");
 const counterEl = document.getElementById("counter");
+const counterBox = document.getElementById("counterBox");
+const limitMsg = document.getElementById("limitMessage");
 const adBtn = document.getElementById("watchAd");
-const withdrawBtn = document.getElementById("withdrawBtn");
-const popup = document.getElementById("withdrawPopup");
-const sendWithdraw = document.getElementById("sendWithdraw");
-const closeWithdraw = document.getElementById("closeWithdraw");
 
 /* ================== AD BUTTON ================== */
 adBtn.onclick = async () => {
-if (typeof show_10483596 !== "function") {
-alert("Reklam sistemi yüklenmedi");
-return;
-}
+  if (dailyAdsLeft <= 0) return;
 
-await show_10483596();
+  if (typeof show_10483596 !== "function") {
+    alert("Reklam sistemi yüklenmedi");
+    return;
+  }
 
-counter++;
-if (counter >= ADS_REQUIRED) {
-balance += REWARD;
-counter = 0;
-alert("🎉 Ödül kazandın!");
-}
+  await show_10483596();
 
-balanceEl.innerText = balance.toFixed(3);
-counterEl.innerText = counter;
-};
+  dailyAdsLeft--;
+  balance += REWARD_PER_AD;
 
-/* ================== WITHDRAW ================== */
-withdrawBtn.onclick = () => {
-popup.style.display = "flex";
-};
+  balanceEl.innerText = balance.toFixed(1);
+  counterEl.innerText = dailyAdsLeft;
 
-closeWithdraw.onclick = () => {
-popup.style.display = "none";
-};
-
-sendWithdraw.onclick = () => {
-const wallet = document.getElementById("wallet").value.trim();
-if (!wallet) {
-alert("Cüzdan adresi gir");
-return;
-}
-
-alert("Çekim talebin alındı (demo)");
-balance = 0;
-balanceEl.innerText = "0.000";
-popup.style.display = "none";
+  if (dailyAdsLeft <= 0) {
+    counterBox.style.display = "none";
+    limitMsg.style.display = "block";
+    adBtn.disabled = true;
+    adBtn.innerText = "🚫 Günlük Limit Doldu";
+  }
 };
 </script>
 
