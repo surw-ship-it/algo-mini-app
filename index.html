@@ -36,9 +36,7 @@ body {
   position: relative;
 }
 
-h1 {
-  font-size: 20px;
-}
+h1 { font-size: 20px; }
 
 .balance {
   font-size: 18px;
@@ -58,9 +56,7 @@ button {
   margin-top: 8px;
 }
 
-button:active {
-  background: #1d4ed8;
-}
+button:active { background: #1d4ed8; }
 
 button:disabled {
   background: #334155;
@@ -102,6 +98,38 @@ button:disabled {
   font-size: 14px;
   box-shadow: 0 4px 10px rgba(0,0,0,.3);
 }
+
+/* WITHDRAW POPUP */
+#withdrawPopup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.popup {
+  background: #020617;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 300px;
+}
+
+.popup h3 {
+  margin-top: 0;
+}
+
+.popup input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #fff;
+  border-radius: 6px;
+}
 </style>
 </head>
 
@@ -127,8 +155,17 @@ button:disabled {
   <button id="watchAd">🎬 Reklam İzle</button>
   <button id="withdrawBtn">💰 Çekim</button>
 
-  <!-- TOAST -->
   <div id="toast">🎉 Tebrikler! 0.1 ALGO bakiyenize eklendi</div>
+</div>
+
+<!-- WITHDRAW POPUP -->
+<div id="withdrawPopup">
+  <div class="popup">
+    <h3>Çekim Talebi</h3>
+    <input id="wallet" placeholder="Algorand cüzdan adresi">
+    <button id="sendWithdraw">Gönder</button>
+    <button id="closeWithdraw">İptal</button>
+  </div>
 </div>
 
 <script>
@@ -147,6 +184,11 @@ const counterBox = document.getElementById("counterBox");
 const limitMsg = document.getElementById("limitMessage");
 const adBtn = document.getElementById("watchAd");
 const toast = document.getElementById("toast");
+
+const withdrawBtn = document.getElementById("withdrawBtn");
+const withdrawPopup = document.getElementById("withdrawPopup");
+const closeWithdraw = document.getElementById("closeWithdraw");
+const sendWithdraw = document.getElementById("sendWithdraw");
 
 /* ================== TOAST ================== */
 function showToast() {
@@ -181,6 +223,30 @@ adBtn.onclick = async () => {
     adBtn.disabled = true;
     adBtn.innerText = "🚫 Günlük Limit Doldu";
   }
+};
+
+/* ================== WITHDRAW ================== */
+withdrawBtn.onclick = () => {
+  withdrawPopup.style.display = "flex";
+};
+
+closeWithdraw.onclick = () => {
+  withdrawPopup.style.display = "none";
+};
+
+sendWithdraw.onclick = () => {
+  const wallet = document.getElementById("wallet").value.trim();
+
+  if (!wallet) {
+    alert("Lütfen Algorand cüzdan adresinizi girin");
+    return;
+  }
+
+  alert("✅ Çekim talebiniz alındı (demo)");
+
+  balance = 0;
+  balanceEl.innerText = "0.0";
+  withdrawPopup.style.display = "none";
 };
 </script>
 
