@@ -133,46 +133,43 @@ button.main{
   cursor:not-allowed;
 }
 
-.timer{
-  font-size:12px;
-  color:var(--muted);
-  margin-top:4px;
-}
-
-#toast{
-  display:none;
-  margin-top:14px;
-  text-align:center;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  padding:10px;
-  border-radius:999px;
-}
-
-#popup{
-  display:none;
+/* ===== POPUP REWARD ===== */
+#rewardPopup{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.6);
+  background:rgba(0,0,0,.55);
+  display:none;
   justify-content:center;
   align-items:center;
+  z-index:999;
 }
 
-.popup-card{
+.reward-card{
   background:#020617;
-  padding:20px;
+  padding:22px;
   border-radius:18px;
-  width:90%;
-  max-width:320px;
+  text-align:center;
+  width:85%;
+  max-width:300px;
+  animation:fadeIn .4s ease;
 }
 
-.popup-card input{
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  border-radius:8px;
-  border:1px solid var(--border);
-  background:#020617;
-  color:#fff;
+.reward-card img{
+  width:42px;
+  margin-bottom:10px;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:scale(.9)}
+  to{opacity:1;transform:scale(1)}
+}
+
+.fadeOut{
+  animation:fadeOut .5s ease forwards;
+}
+
+@keyframes fadeOut{
+  to{opacity:0;transform:scale(.9)}
 }
 </style>
 </head>
@@ -210,21 +207,14 @@ button.main{
     <div class="links" id="links"></div>
   </div>
 
-  <div id="toast"></div>
-
 </div>
 
-<!-- ÇEKİM POPUP -->
-<div id="popup">
-  <div class="popup-card">
-    <h3>Çekim Talebi</h3>
-    <div>Mevcut Bakiye: <b><span id="popupBalance"></span> ALGO</b></div>
-    <div style="color:#f87171;font-size:13px;margin-top:6px">
-      Minimum çekim 12 ALGO’dur
-    </div>
-    <input id="wallet" placeholder="Algorand adresi">
-    <input id="amount" placeholder="Çekim miktarı">
-    <button class="main" id="sendWithdraw" style="margin-top:10px">Gönder</button>
+<!-- LINK ÖDÜL POPUP -->
+<div id="rewardPopup">
+  <div class="reward-card" id="rewardCard">
+    <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
+    <h3>🎉 Tebrikler</h3>
+    <p>0.05 ALGO kazandınız</p>
   </div>
 </div>
 
@@ -237,40 +227,28 @@ let balance = Number(localStorage.getItem("balance")) || 0;
 let dailyAds = Number(localStorage.getItem("dailyAds")) || 30;
 let lastAdDay = localStorage.getItem("lastAdDay") || new Date().toDateString();
 
-/* ===== ELEMENTS ===== */
-const balanceEl = document.getElementById("balance");
-const adCounter = document.getElementById("adCounter");
-const toast = document.getElementById("toast");
+const balanceEl=document.getElementById("balance");
+const adCounter=document.getElementById("adCounter");
 
-/* ===== UTILS ===== */
-function showToast(t){
-  toast.innerText=t;
-  toast.style.display="block";
-  setTimeout(()=>toast.style.display="none",2500);
-}
-
+/* ===== DAILY RESET ===== */
 function resetDailyAds(){
-  const today = new Date().toDateString();
-  if(today !== lastAdDay){
-    dailyAds = 30;
-    lastAdDay = today;
-    localStorage.setItem("dailyAds",dailyAds);
-    localStorage.setItem("lastAdDay",lastAdDay);
+  const today=new Date().toDateString();
+  if(today!==lastAdDay){
+    dailyAds=30;
+    lastAdDay=today;
+    localStorage.setItem("dailyAds",30);
+    localStorage.setItem("lastAdDay",today);
   }
 }
-
 resetDailyAds();
-balanceEl.innerText = balance.toFixed(2);
-adCounter.innerText = `Günlük reklam hakkınız: ${dailyAds} / 30`;
+
+balanceEl.innerText=balance.toFixed(2);
+adCounter.innerText=`Günlük reklam hakkınız: ${dailyAds} / 30`;
 
 /* ===== REKLAM ===== */
-watchAd.onclick = async ()=>{
+watchAd.onclick=async()=>{
   if(dailyAds<=0){
     alert("Günlük reklam limitiniz dolmuştur, yarın tekrar deneyin");
-    return;
-  }
-  if(typeof show_10483596 !== "function"){
-    alert("Reklam yüklenemedi");
     return;
   }
   await show_10483596();
@@ -279,14 +257,13 @@ watchAd.onclick = async ()=>{
   localStorage.setItem("balance",balance);
   localStorage.setItem("dailyAds",dailyAds);
   balanceEl.innerText=balance.toFixed(2);
-  adCounter.innerText = dailyAds>0
-    ? `Günlük reklam hakkınız: ${dailyAds} / 30`
-    : "Günlük reklam limitiniz dolmuştur";
-  showToast("🎉 Tebrikler! 0.1 ALGO bakiyenize eklendi");
+  adCounter.innerText=dailyAds>0
+    ?`Günlük reklam hakkınız: ${dailyAds} / 30`
+    :"Günlük reklam limitiniz dolmuştur";
 };
 
 /* ===== LINKLER ===== */
-const linkUrls=[
+const links=[
 "https://otieu.com/4/10484834",
 "https://otieu.com/4/10498410",
 "https://otieu.com/4/10498413",
@@ -298,13 +275,12 @@ const linksDiv=document.getElementById("links");
 
 function renderLinks(){
   linksDiv.innerHTML="";
-  linkUrls.forEach((url,i)=>{
+  links.forEach((url,i)=>{
     const key="link_"+i;
     const last=localStorage.getItem(key);
-    const now=Date.now();
     const btn=document.createElement("button");
     btn.className="link-btn";
-    if(last && now-last<43200000){
+    if(last && Date.now()-last<43200000){
       btn.disabled=true;
       btn.innerText=`🔒 Link ${i+1}`;
     }else{
@@ -318,6 +294,7 @@ function renderLinks(){
   });
 }
 
+/* ===== LINK DÖNÜŞ ===== */
 const pending=localStorage.getItem("pendingLink");
 if(pending!==null){
   balance+=0.05;
@@ -325,35 +302,21 @@ if(pending!==null){
   localStorage.setItem("link_"+pending,Date.now());
   localStorage.removeItem("pendingLink");
   balanceEl.innerText=balance.toFixed(2);
-  showToast("🎉 Tebrikler! 0.05 ALGO kazandınız");
+
+  const popup=document.getElementById("rewardPopup");
+  const card=document.getElementById("rewardCard");
+  popup.style.display="flex";
+
+  setTimeout(()=>{
+    card.classList.add("fadeOut");
+    setTimeout(()=>{
+      popup.style.display="none";
+      card.classList.remove("fadeOut");
+    },500);
+  },3000);
 }
 
 renderLinks();
-
-/* ===== ÇEKİM ===== */
-withdrawBtn.onclick=()=>{
-  popup.style.display="flex";
-  popupBalance.innerText=balance.toFixed(2);
-};
-
-sendWithdraw.onclick=()=>{
-  const wallet=document.getElementById("wallet").value.trim();
-  const amount=Number(document.getElementById("amount").value);
-  const algoRegex=/^[A-Z2-7]{58}$/;
-  if(!algoRegex.test(wallet)){
-    alert("Girdiğiniz adres yanlış, lütfen yalnızca Algorand adresi giriniz");
-    return;
-  }
-  if(amount<12){
-    alert("Minimum çekim 12 ALGO’dur");
-    return;
-  }
-  if(amount>balance){
-    alert("Yetersiz bakiye");
-    return;
-  }
-  alert("Çekim talebiniz alındı (demo)");
-};
 </script>
 
 </body>
