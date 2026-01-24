@@ -22,13 +22,15 @@ data-sdk="show_10483596"></script>
 
 body{
   margin:0;
-  height:100vh;
+  min-height:100vh;
   background:radial-gradient(circle at top,#0f172a,#020617);
   font-family:Inter,system-ui,Arial;
   color:#fff;
   display:flex;
   justify-content:center;
-  align-items:center;
+  align-items:flex-start;
+  padding:20px 0 80px;
+  overflow-y:auto;
 }
 
 .card{
@@ -41,21 +43,18 @@ body{
   padding:22px;
 }
 
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
+/* HEADER */
 .brand{
   display:flex;
   align-items:center;
   gap:10px;
   font-weight:700;
+  font-size:16px;
 }
 
 .brand img{width:30px}
 
+/* BALANCE */
 .balance-box{
   margin:20px 0;
   padding:18px;
@@ -76,6 +75,7 @@ body{
   font-weight:800;
 }
 
+/* SECTIONS */
 .section{
   margin-top:18px;
 }
@@ -85,15 +85,21 @@ body{
   font-size:15px;
 }
 
-button.main{
+/* BUTTONS */
+button{
   width:100%;
   padding:14px;
   border-radius:14px;
   border:none;
-  font-size:16px;
+  font-size:15px;
   background:linear-gradient(135deg,#3b82f6,#2563eb);
   color:#fff;
   cursor:pointer;
+}
+
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
 }
 
 .counter{
@@ -103,6 +109,7 @@ button.main{
   text-align:center;
 }
 
+/* LINKS */
 .links{
   display:grid;
   gap:12px;
@@ -116,18 +123,7 @@ button.main{
 }
 
 .link-btn{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:none;
   background:rgba(255,255,255,.08);
-  color:#fff;
-  cursor:pointer;
-}
-
-.link-btn:disabled{
-  opacity:.5;
-  cursor:not-allowed;
 }
 
 .timer{
@@ -137,7 +133,7 @@ button.main{
   text-align:center;
 }
 
-/* ===== REWARD POPUP ===== */
+/* POPUP */
 #rewardPopup{
   position:fixed;
   inset:0;
@@ -145,18 +141,17 @@ button.main{
   display:none;
   justify-content:center;
   align-items:center;
-  z-index:999;
+  z-index:9999;
 }
 
 .reward-card{
-  background:var(--glass-strong);
-  backdrop-filter:blur(20px);
-  padding:24px;
+  background:#0f172a;
+  border:1px solid var(--border);
   border-radius:20px;
-  text-align:center;
+  padding:24px;
   width:85%;
   max-width:300px;
-  border:1px solid var(--border);
+  text-align:center;
   animation:fadeIn .4s ease;
 }
 
@@ -173,9 +168,7 @@ button.main{
 
 .reward-logo img{width:32px}
 
-.fadeOut{
-  animation:fadeOut .5s ease forwards;
-}
+.fadeOut{animation:fadeOut .5s ease forwards}
 
 @keyframes fadeIn{
   from{opacity:0;transform:scale(.9)}
@@ -191,37 +184,43 @@ button.main{
 
 <div class="card">
 
-  <div class="header">
-    <div class="brand">
-      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
-      Algorand Earn
-    </div>
+  <!-- HEADER -->
+  <div class="brand">
+    <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
+    Algorand Earn
   </div>
 
+  <!-- BALANCE -->
   <div class="balance-box">
     <div>Toplam Bakiye</div>
     <div class="balance-row">
-      <div class="balance-amount" id="balance">0.00</div>
+      <div class="balance-amount" id="balance">0.000</div>
       <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" width="22">
     </div>
   </div>
 
-  <!-- REKLAM -->
+  <!-- ADS -->
   <div class="section">
     <h3>🎬 Reklam İzleyerek Kazan</h3>
-    <button class="main" id="watchAd">Reklam İzle (+0.1 ALGO)</button>
+    <button id="watchAd">Reklam İzle (+0.1 ALGO)</button>
     <div class="counter" id="adCounter"></div>
   </div>
 
-  <!-- LINKLER -->
+  <!-- LINKS -->
   <div class="section">
     <h3>🔗 Ödüllü Linkler</h3>
     <div class="links" id="links"></div>
   </div>
 
+  <!-- WITHDRAW (şimdilik demo) -->
+  <div class="section">
+    <h3>💸 Çekim</h3>
+    <button onclick="alert('Çekim paneli demo')">Çekim Yap</button>
+  </div>
+
 </div>
 
-<!-- LINK POPUP -->
+<!-- POPUP -->
 <div id="rewardPopup">
   <div class="reward-card" id="rewardCard">
     <div class="reward-logo">
@@ -236,35 +235,28 @@ button.main{
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
 
-/* ===== STATE ===== */
-let balance = Number(localStorage.getItem("balance")) || 0;
-let dailyAds = Number(localStorage.getItem("dailyAds")) || 30;
-let lastAdDay = localStorage.getItem("lastAdDay") || new Date().toDateString();
+let balance=Number(localStorage.getItem("balance"))||0;
+let dailyAds=Number(localStorage.getItem("dailyAds"))||30;
+let lastDay=localStorage.getItem("lastAdDay")||new Date().toDateString();
 
 const balanceEl=document.getElementById("balance");
 const adCounter=document.getElementById("adCounter");
+balanceEl.innerText=balance.toFixed(3);
 
-/* ===== DAILY ADS RESET ===== */
-function resetDailyAds(){
-  const today=new Date().toDateString();
-  if(today!==lastAdDay){
+function resetAds(){
+  const t=new Date().toDateString();
+  if(t!==lastDay){
     dailyAds=30;
-    lastAdDay=today;
+    lastDay=t;
     localStorage.setItem("dailyAds",30);
-    localStorage.setItem("lastAdDay",today);
+    localStorage.setItem("lastAdDay",t);
   }
 }
-resetDailyAds();
-
-balanceEl.innerText=balance.toFixed(3);
+resetAds();
 adCounter.innerText=`Günlük reklam hakkınız: ${dailyAds} / 30`;
 
-/* ===== REKLAM ===== */
 watchAd.onclick=async()=>{
-  if(dailyAds<=0){
-    alert("Günlük reklam limitiniz dolmuştur");
-    return;
-  }
+  if(dailyAds<=0){alert("Günlük limit doldu");return;}
   await show_10483596();
   dailyAds--;
   balance+=0.1;
@@ -274,7 +266,6 @@ watchAd.onclick=async()=>{
   adCounter.innerText=`Günlük reklam hakkınız: ${dailyAds} / 30`;
 };
 
-/* ===== LINKLER ===== */
 const links=[
 "https://otieu.com/4/10484834",
 "https://otieu.com/4/10498410",
@@ -290,7 +281,7 @@ const links=[
 
 const linksDiv=document.getElementById("links");
 
-function formatTime(ms){
+function fmt(ms){
   const h=Math.floor(ms/3600000);
   const m=Math.floor((ms%3600000)/60000);
   return `${h}s ${m}dk`;
@@ -298,15 +289,12 @@ function formatTime(ms){
 
 function renderLinks(){
   linksDiv.innerHTML="";
-  links.forEach((url,i)=>{
-    const key="link_"+i;
-    const last=localStorage.getItem(key);
+  links.forEach((u,i)=>{
+    const last=localStorage.getItem("link_"+i);
     const wrap=document.createElement("div");
     wrap.className="link-wrap";
-
     const btn=document.createElement("button");
     btn.className="link-btn";
-
     const timer=document.createElement("div");
     timer.className="timer";
 
@@ -314,22 +302,20 @@ function renderLinks(){
       const left=43200000-(Date.now()-last);
       btn.disabled=true;
       btn.innerText=`🔒 Link ${i+1}`;
-      timer.innerText=`Tekrar aktif: ${formatTime(left)}`;
+      timer.innerText=fmt(left);
     }else{
       btn.innerText=`🔗 Link ${i+1} (+0.025 ALGO)`;
       btn.onclick=()=>{
         localStorage.setItem("pendingLink",i);
-        location.href=url;
+        location.href=u;
       };
     }
-
     wrap.appendChild(btn);
-    if(timer.innerText) wrap.appendChild(timer);
+    if(timer.innerText)wrap.appendChild(timer);
     linksDiv.appendChild(wrap);
   });
 }
 
-/* ===== LINK DÖNÜŞ ===== */
 const pending=localStorage.getItem("pendingLink");
 if(pending!==null){
   balance+=0.025;
@@ -341,7 +327,6 @@ if(pending!==null){
   const popup=document.getElementById("rewardPopup");
   const card=document.getElementById("rewardCard");
   popup.style.display="flex";
-
   setTimeout(()=>{
     card.classList.add("fadeOut");
     setTimeout(()=>{
