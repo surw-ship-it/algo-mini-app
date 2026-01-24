@@ -15,7 +15,6 @@ data-sdk="show_10483596"></script>
   --bg:#020617;
   --card:rgba(255,255,255,.06);
   --border:rgba(255,255,255,.08);
-  --primary:#ffffff;
   --muted:#94a3b8;
 }
 
@@ -40,8 +39,6 @@ body{
   border:1px solid var(--border);
   border-radius:24px;
   padding:22px;
-  box-shadow:0 30px 60px rgba(0,0,0,.5);
-  position:relative;
 }
 
 .header{
@@ -53,14 +50,11 @@ body{
 .brand{
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:10px;
   font-weight:700;
 }
 
-.brand img{
-  width:30px;
-  height:30px;
-}
+.brand img{width:30px}
 
 .withdraw-btn{
   background:linear-gradient(135deg,#22c55e,#16a34a);
@@ -68,121 +62,59 @@ body{
   padding:7px 14px;
   border-radius:999px;
   color:#fff;
-  font-size:13px;
   cursor:pointer;
 }
 
 .balance-box{
-  margin:22px 0;
-  padding:20px;
-  border-radius:20px;
-  background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(59,130,246,.18));
-  border:1px solid var(--border);
+  margin:20px 0;
+  padding:18px;
+  border-radius:18px;
+  background:rgba(255,255,255,.08);
   text-align:center;
-}
-
-.balance-title{
-  font-size:13px;
-  color:var(--muted);
 }
 
 .balance-row{
-  margin-top:8px;
   display:flex;
   justify-content:center;
   align-items:center;
+  gap:8px;
+}
+
+.balance-amount{font-size:32px;font-weight:700}
+
+.links{
+  margin-top:16px;
+  display:grid;
   gap:10px;
 }
 
-.balance-amount{
-  font-size:34px;
-  font-weight:700;
-}
-
-.algo-unit{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  font-size:16px;
-  font-weight:600;
-}
-
-.algo-unit img{
-  width:22px;
-  height:22px;
-}
-
-.counter{
-  margin-top:14px;
-  padding:12px;
-  border-radius:16px;
-  background:rgba(250,204,21,.12);
-  border:1px solid rgba(250,204,21,.3);
-  text-align:center;
-}
-
-.main-btn{
-  width:100%;
-  margin-top:18px;
-  padding:16px;
-  border-radius:18px;
-  border:none;
-  font-size:16px;
-  font-weight:600;
-  background:linear-gradient(135deg,#ffffff,#e5e7eb);
-  color:#020617;
+.link-btn{
+  padding:14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.06);
+  color:#fff;
   cursor:pointer;
+}
+
+.link-btn:disabled{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+.timer{
+  font-size:12px;
+  color:#94a3b8;
+  margin-top:4px;
 }
 
 #toast{
   display:none;
-  position:absolute;
-  bottom:-18px;
-  left:50%;
-  transform:translateX(-50%);
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  padding:10px 18px;
-  border-radius:999px;
-  font-size:14px;
-}
-
-/* POPUP */
-#withdrawPopup{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.7);
-  justify-content:center;
-  align-items:center;
-}
-
-.popup{
-  width:90%;
-  max-width:330px;
-  background:var(--card);
-  backdrop-filter:blur(20px);
-  border-radius:22px;
-  border:1px solid var(--border);
-  padding:22px;
+  margin-top:14px;
   text-align:center;
-}
-
-.popup input{
-  width:100%;
-  margin-top:10px;
-  padding:12px;
-  border-radius:14px;
-  background:rgba(255,255,255,.08);
-  border:1px solid var(--border);
-  color:#fff;
-}
-
-.popup button{
-  width:100%;
-  margin-top:10px;
-  padding:12px;
-  border-radius:14px;
-  border:none;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  padding:10px;
+  border-radius:999px;
 }
 </style>
 </head>
@@ -193,90 +125,100 @@ body{
 
   <div class="header">
     <div class="brand">
-      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" alt="Algorand">
+      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
       Algorand Ads
     </div>
-
-    <button class="withdraw-btn" id="withdrawBtn">💸 Çekim</button>
+    <button class="withdraw-btn">💸 Çekim</button>
   </div>
 
   <div class="balance-box">
-    <div class="balance-title">Toplam Bakiye</div>
-
+    <div>Toplam Bakiye</div>
     <div class="balance-row">
       <div class="balance-amount" id="balance">0.0</div>
-      <div class="algo-unit">
-        <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" alt="ALGO">
-        ALGO
-      </div>
+      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" width="22">
     </div>
   </div>
 
-  <div class="counter">
-    Günlük kalan reklam: <b><span id="counter">30</span></b>
-  </div>
+  <div class="links" id="links"></div>
 
-  <button id="watchAd" class="main-btn">▶ Reklam İzle</button>
-  <div id="toast">🎉 0.1 ALGO bakiyene eklendi</div>
-</div>
+  <div id="toast"></div>
 
-<!-- WITHDRAW POPUP -->
-<div id="withdrawPopup">
-  <div class="popup">
-    <h3>💸 Çekim Talebi</h3>
-    <div style="font-size:13px;color:#94a3b8;">
-      Mevcut bakiye: <b><span id="popupBalance">0.0</span> ALGO</b><br>
-      ⚠ Minimum çekim: 12 ALGO
-    </div>
-
-    <input id="walletInput" placeholder="Algorand adresi">
-    <input id="amountInput" type="number" step="0.1" placeholder="Çekilecek miktar">
-
-    <button id="sendWithdraw">Gönder</button>
-    <button id="closeWithdraw">İptal</button>
-  </div>
 </div>
 
 <script>
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
 
-let balance = 0;
-let dailyAdsLeft = 30;
-
+let balance = Number(localStorage.getItem("balance")) || 0;
 const balanceEl = document.getElementById("balance");
-const popupBalance = document.getElementById("popupBalance");
-const counterEl = document.getElementById("counter");
+balanceEl.innerText = balance.toFixed(2);
+
+const linksData = [
+  "https://otieu.com/4/10484834",
+  "https://otieu.com/4/10498410",
+  "https://otieu.com/4/10498413",
+  "https://otieu.com/4/10498415",
+  "https://otieu.com/4/10498414"
+];
+
+const linksContainer = document.getElementById("links");
 const toast = document.getElementById("toast");
 
-const withdrawBtn = document.getElementById("withdrawBtn");
-const withdrawPopup = document.getElementById("withdrawPopup");
-const closeWithdraw = document.getElementById("closeWithdraw");
-
-function showToast(){
+function showToast(text){
+  toast.innerText = text;
   toast.style.display="block";
-  setTimeout(()=>toast.style.display="none",2200);
+  setTimeout(()=>toast.style.display="none",2500);
 }
 
-watchAd.onclick = async()=>{
-  if(dailyAdsLeft<=0) return;
-  await show_10483596();
-  dailyAdsLeft--;
-  balance+=0.1;
-  balanceEl.innerText=balance.toFixed(1);
-  popupBalance.innerText=balance.toFixed(1);
-  counterEl.innerText=dailyAdsLeft;
-  showToast();
-};
+function formatTime(ms){
+  const h = Math.floor(ms/3600000);
+  const m = Math.floor(ms%3600000/60000);
+  return `${h}s ${m}dk`;
+}
 
-withdrawBtn.onclick = () => {
-  popupBalance.innerText = balance.toFixed(1);
-  withdrawPopup.style.display = "flex";
-};
+function renderLinks(){
+  linksContainer.innerHTML = "";
+  linksData.forEach((url,i)=>{
+    const key = `link_${i}`;
+    const last = localStorage.getItem(key);
+    const now = Date.now();
 
-closeWithdraw.onclick = () => {
-  withdrawPopup.style.display = "none";
-};
+    const btn = document.createElement("button");
+    btn.className="link-btn";
+
+    const timer = document.createElement("div");
+    timer.className="timer";
+
+    if(last && now - last < 12*60*60*1000){
+      const left = 12*60*60*1000 - (now-last);
+      btn.disabled = true;
+      btn.innerText = `🔒 Link ${i+1}`;
+      timer.innerText = `Tekrar: ${formatTime(left)}`;
+    }else{
+      btn.innerText = `🔗 Link ${i+1} (+0.05 ALGO)`;
+      btn.onclick = ()=>{
+        localStorage.setItem("pendingLink", i);
+        window.location.href = url;
+      };
+    }
+
+    linksContainer.appendChild(btn);
+    if(timer.innerText) linksContainer.appendChild(timer);
+  });
+}
+
+const pending = localStorage.getItem("pendingLink");
+if(pending !== null){
+  balance += 0.05;
+  localStorage.setItem("balance", balance);
+  localStorage.setItem(`link_${pending}`, Date.now());
+  localStorage.removeItem("pendingLink");
+  balanceEl.innerText = balance.toFixed(2);
+  showToast("🎉 Tebrikler 0.05 ALGO kazandınız");
+}
+
+renderLinks();
+setInterval(renderLinks,60000);
 </script>
 
 </body>
