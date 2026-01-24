@@ -205,6 +205,11 @@ function showToast() {
   setTimeout(() => toast.style.display = "none", 2500);
 }
 
+/* ALGO ADDRESS CHECK */
+function isValidAlgoAddress(address) {
+  return /^[A-Z2-7]{58}$/.test(address);
+}
+
 /* ADS */
 adBtn.onclick = async () => {
   if (dailyAdsLeft <= 0) return;
@@ -247,6 +252,11 @@ sendWithdraw.onclick = () => {
 
   if (!wallet) {
     alert("Algorand adresi giriniz");
+    return;
+  }
+
+  if (!isValidAlgoAddress(wallet)) {
+    alert("Girdiğiniz adres yanlış, lütfen yalnızca Algorand adresi giriniz");
     return;
   }
 
