@@ -121,6 +121,12 @@ button:disabled {
   color: #fff;
   border-radius: 6px;
 }
+
+.min-warning {
+  font-size: 13px;
+  color: #facc15;
+  margin-bottom: 6px;
+}
 </style>
 </head>
 
@@ -153,8 +159,12 @@ button:disabled {
   <div class="popup">
     <h3>Lütfen Algorand adresinizi girin</h3>
 
-    <div style="font-size:14px;margin-bottom:6px;">
+    <div style="font-size:14px;margin-bottom:4px;">
       Mevcut bakiye: <b><span id="popupBalance">0.0</span> ALGO</b>
+    </div>
+
+    <div class="min-warning">
+      Minimum çekim: 12 ALGO
     </div>
 
     <input id="wallet" placeholder="Algorand cüzdan adresi">
@@ -173,6 +183,7 @@ Telegram.WebApp.expand();
 let balance = 0;
 let dailyAdsLeft = 30;
 const REWARD_PER_AD = 0.1;
+const MIN_WITHDRAW = 12;
 
 /* ELEMENTS */
 const balanceEl = document.getElementById("balance");
@@ -241,6 +252,11 @@ sendWithdraw.onclick = () => {
 
   if (!amount || amount <= 0) {
     alert("Geçerli bir miktar giriniz");
+    return;
+  }
+
+  if (amount < MIN_WITHDRAW) {
+    alert("Minimum çekim tutarı 12 ALGO'dur");
     return;
   }
 
