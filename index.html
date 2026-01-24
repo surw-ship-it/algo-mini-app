@@ -16,10 +16,6 @@ data-sdk="show_10483596"></script>
   --card:rgba(255,255,255,.06);
   --border:rgba(255,255,255,.08);
   --primary:#ffffff;
-  --secondary:#3b82f6;
-  --success:#22c55e;
-  --danger:#ef4444;
-  --warning:#facc15;
   --muted:#94a3b8;
 }
 
@@ -36,7 +32,6 @@ body{
   align-items:center;
 }
 
-/* CARD */
 .card{
   width:92%;
   max-width:380px;
@@ -49,11 +44,10 @@ body{
   position:relative;
 }
 
-/* HEADER */
 .header{
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
 }
 
 .brand{
@@ -61,14 +55,11 @@ body{
   align-items:center;
   gap:12px;
   font-weight:700;
-  letter-spacing:.4px;
-  font-size:16px;
 }
 
-.brand svg{
+.brand img{
   width:30px;
   height:30px;
-  fill:#fff;
 }
 
 .withdraw-btn{
@@ -79,12 +70,8 @@ body{
   color:#fff;
   font-size:13px;
   cursor:pointer;
-  box-shadow:0 6px 18px rgba(34,197,94,.35);
-  transition:.2s;
 }
-.withdraw-btn:hover{transform:scale(1.05)}
 
-/* BALANCE */
 .balance-box{
   margin:22px 0;
   padding:20px;
@@ -94,26 +81,37 @@ body{
   text-align:center;
 }
 
-.balance-box span{
-  display:block;
+.balance-title{
   font-size:13px;
   color:var(--muted);
 }
 
-.balance{
+.balance-row{
+  margin-top:8px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+}
+
+.balance-amount{
   font-size:34px;
   font-weight:700;
-  margin-top:6px;
 }
 
-/* INFO */
-.info{
-  text-align:center;
-  font-size:14px;
-  color:var(--muted);
+.algo-unit{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:16px;
+  font-weight:600;
 }
 
-/* COUNTER */
+.algo-unit img{
+  width:22px;
+  height:22px;
+}
+
 .counter{
   margin-top:14px;
   padding:12px;
@@ -121,10 +119,8 @@ body{
   background:rgba(250,204,21,.12);
   border:1px solid rgba(250,204,21,.3);
   text-align:center;
-  font-size:14px;
 }
 
-/* MAIN BUTTON */
 .main-btn{
   width:100%;
   margin-top:18px;
@@ -136,17 +132,8 @@ body{
   background:linear-gradient(135deg,#ffffff,#e5e7eb);
   color:#020617;
   cursor:pointer;
-  box-shadow:0 12px 30px rgba(255,255,255,.25);
-  transition:.2s;
-}
-.main-btn:hover{transform:translateY(-2px)}
-.main-btn:disabled{
-  background:#334155;
-  color:var(--muted);
-  box-shadow:none;
 }
 
-/* TOAST */
 #toast{
   display:none;
   position:absolute;
@@ -157,67 +144,6 @@ body{
   padding:10px 18px;
   border-radius:999px;
   font-size:14px;
-  box-shadow:0 10px 24px rgba(0,0,0,.45);
-}
-
-/* POPUP */
-#withdrawPopup{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.7);
-  justify-content:center;
-  align-items:center;
-}
-
-.popup{
-  width:90%;
-  max-width:330px;
-  background:var(--card);
-  backdrop-filter:blur(20px);
-  border-radius:22px;
-  border:1px solid var(--border);
-  padding:22px;
-  text-align:center;
-}
-
-.popup h3{margin:0 0 10px}
-
-.popup .muted{
-  font-size:13px;
-  color:var(--muted);
-  margin-bottom:4px;
-}
-
-.popup input{
-  width:100%;
-  margin-top:10px;
-  padding:12px;
-  border-radius:14px;
-  background:rgba(255,255,255,.08);
-  border:1px solid var(--border);
-  color:#fff;
-}
-
-.popup button{
-  width:100%;
-  margin-top:10px;
-  padding:12px;
-  border-radius:14px;
-  border:none;
-  cursor:pointer;
-}
-
-.send{
-  background:linear-gradient(135deg,#ffffff,#e5e7eb);
-  color:#020617;
-  font-weight:600;
-}
-
-.cancel{
-  background:transparent;
-  border:1px solid var(--border);
-  color:var(--muted);
 }
 </style>
 </head>
@@ -228,45 +154,34 @@ body{
 
   <div class="header">
     <div class="brand">
-      <!-- OFFICIAL ALGORAND LOGO (SVG) -->
-      <svg viewBox="0 0 512 512">
-        <path d="M256 0C114.62 0 0 114.62 0 256s114.62 256 256 256 256-114.62 256-256S397.38 0 256 0zm68.63 382.59h-42.94l-24.7-56.45h-52.97l-24.7 56.45h-41.66l96.63-203.19h38.08l96.26 203.19zm-92.94-89.64h27.14l-13.57-31.68z"/>
-      </svg>
+      <!-- ALGOrand logo -->
+      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" alt="Algorand">
       Algorand Ads
     </div>
 
-    <button class="withdraw-btn" id="withdrawBtn">💸 Çekim</button>
+    <button class="withdraw-btn">💸 Çekim</button>
   </div>
 
+  <!-- BALANCE -->
   <div class="balance-box">
-    <span>Toplam Bakiye</span>
-    <div class="balance"><span id="balance">0.0</span> ALGO</div>
+    <div class="balance-title">Toplam Bakiye</div>
+
+    <div class="balance-row">
+      <div class="balance-amount" id="balance">0.0</div>
+
+      <div class="algo-unit">
+        <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" alt="ALGO">
+        ALGO
+      </div>
+    </div>
   </div>
 
-  <div class="info">🎬 Her reklam izleyişte <b>0.1 ALGO</b> kazan</div>
-
-  <div id="counterBox" class="counter">
-    ⏳ Günlük kalan reklam: <b><span id="counter">30</span></b>
+  <div class="counter">
+    Günlük kalan reklam: <b><span id="counter">30</span></b>
   </div>
 
   <button id="watchAd" class="main-btn">▶ Reklam İzle</button>
-
   <div id="toast">🎉 0.1 ALGO bakiyene eklendi</div>
-</div>
-
-<!-- WITHDRAW POPUP -->
-<div id="withdrawPopup">
-  <div class="popup">
-    <h3>💸 Çekim Talebi</h3>
-    <div class="muted">Mevcut Bakiye: <b><span id="popupBalance">0.0</span> ALGO</b></div>
-    <div class="muted">⚠ Minimum çekim: 12 ALGO</div>
-
-    <input id="walletInput" placeholder="Algorand adresi">
-    <input id="amountInput" type="number" step="0.1" placeholder="Çekilecek miktar">
-
-    <button class="send" id="sendWithdraw">Gönder</button>
-    <button class="cancel" id="closeWithdraw">İptal</button>
-  </div>
 </div>
 
 <script>
@@ -275,73 +190,24 @@ Telegram.WebApp.expand();
 
 let balance = 0;
 let dailyAdsLeft = 30;
-const REWARD = 0.1;
-const MIN_WITHDRAW = 12;
 
 const balanceEl = document.getElementById("balance");
-const popupBalance = document.getElementById("popupBalance");
 const counterEl = document.getElementById("counter");
-const counterBox = document.getElementById("counterBox");
-const adBtn = document.getElementById("watchAd");
 const toast = document.getElementById("toast");
-
-const withdrawBtn = document.getElementById("withdrawBtn");
-const popup = document.getElementById("withdrawPopup");
-const closeBtn = document.getElementById("closeWithdraw");
-const sendBtn = document.getElementById("sendWithdraw");
 
 function showToast(){
   toast.style.display="block";
   setTimeout(()=>toast.style.display="none",2200);
 }
 
-function isValidAlgoAddress(addr){
-  return /^[A-Z2-7]{58}$/.test(addr);
-}
-
-adBtn.onclick = async()=>{
+watchAd.onclick = async()=>{
   if(dailyAdsLeft<=0) return;
-  if(typeof show_10483596!=="function") return alert("Reklam yüklenemedi");
-
   await show_10483596();
-
   dailyAdsLeft--;
-  balance+=REWARD;
-
+  balance+=0.1;
   balanceEl.innerText=balance.toFixed(1);
   counterEl.innerText=dailyAdsLeft;
   showToast();
-
-  if(dailyAdsLeft<=0){
-    counterBox.innerText="🚫 Günlük limit doldu";
-    adBtn.disabled=true;
-  }
-};
-
-withdrawBtn.onclick=()=>{
-  popupBalance.innerText=balance.toFixed(1);
-  popup.style.display="flex";
-};
-
-closeBtn.onclick=()=>popup.style.display="none";
-
-sendBtn.onclick=()=>{
-  const wallet=walletInput.value.trim();
-  const amount=parseFloat(amountInput.value);
-
-  if(!isValidAlgoAddress(wallet))
-    return alert("Girdiğiniz adres yanlış. Lütfen yalnızca Algorand adresi giriniz.");
-
-  if(!amount||amount<MIN_WITHDRAW)
-    return alert("Minimum çekim 12 ALGO");
-
-  if(amount>balance)
-    return alert("Bakiyeniz yetersiz");
-
-  balance-=amount;
-  balanceEl.innerText=balance.toFixed(1);
-  popup.style.display="none";
-  alert("Çekim talebi alındı (demo)");
 };
 </script>
 
