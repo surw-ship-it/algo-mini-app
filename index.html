@@ -151,9 +151,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
   <button class="withdraw-btn" id="openWithdraw">💸 Çekim Yap</button>
 </div>
 
-<!-- 🔵 SPINNER BUTONU (SADECE EKLENDİ) -->
+<!-- SPINNER BUTONU -->
 <div class="section">
-  <button onclick="spin()">🎡 Spinner (0.25 ALGO)</button>
+  <button onclick="openSpinner()">🎡 Spinner</button>
 </div>
 
 <div class="section">
@@ -183,6 +183,15 @@ button:disabled{opacity:.5;cursor:not-allowed}
   <div class="popup-warn">Minimum çekim: 12 ALGO</div>
   <button onclick="sendWithdraw()">Gönder</button>
   <button onclick="closeWithdraw()" style="margin-top:8px;background:#334155">İptal</button>
+</div>
+</div>
+
+<!-- SPINNER POPUP -->
+<div class="popup" id="spinnerPopup">
+<div class="popup-card">
+  <h3>🎡 Spinner</h3>
+  <button onclick="spin()">Çevir</button>
+  <button onclick="closeSpinner()" style="margin-top:8px;background:#334155">Kapat</button>
 </div>
 </div>
 
@@ -308,33 +317,31 @@ if(pending){
 }
 
 /* SPINNER */
+function openSpinner(){
+  spinnerPopup.style.display="flex";
+}
+function closeSpinner(){
+  spinnerPopup.style.display="none";
+}
+
 function spin(){
-  if(balance<0.25){alert("Yetersiz bakiye");return;}
+  if(balance<0.25){
+    alert("Bakiye yetersiz (0.25 ALGO gerekli)");
+    return;
+  }
+
   balance-=0.25;
   localStorage.setItem("balance",balance);
   balanceEl.innerText=balance.toFixed(3);
 
-  const pool=[
-    {v:0,t:"Yeniden Dene"},
-    {v:0},
-    {v:0.1},
-    {v:0.2},
-    {v:0.5},
-    {v:1},
-    {v:10,p:0.00000001}
-  ];
+  const rewards=[0,0,0.1,0.2,0.5,1,10];
+  const win=rewards[Math.floor(Math.random()*rewards.length)];
 
-  let r=Math.random(),sum=0,win=pool[0];
-  pool.forEach(o=>{
-    sum+=(o.p||0.1);
-    if(r<=sum && !win) win=o;
-  });
-
-  if(win.v){
-    balance+=win.v;
+  if(win>0){
+    balance+=win;
     localStorage.setItem("balance",balance);
     balanceEl.innerText=balance.toFixed(3);
-    alert("Kazandın: "+win.v+" ALGO 🎉");
+    alert("Kazandın: "+win+" ALGO 🎉");
   }else{
     alert("Yeniden dene");
   }
