@@ -25,6 +25,7 @@ body {
   align-items: center;
   height: 100vh;
 }
+
 .card {
   width: 90%;
   max-width: 360px;
@@ -34,12 +35,17 @@ body {
   text-align: center;
   position: relative;
 }
-h1 { font-size: 20px; }
+
+h1 {
+  font-size: 20px;
+}
+
 .balance {
   font-size: 18px;
   margin: 15px 0;
   color: #22c55e;
 }
+
 button {
   width: 100%;
   padding: 14px;
@@ -51,7 +57,15 @@ button {
   cursor: pointer;
   margin-top: 8px;
 }
-button:active { background: #1d4ed8; }
+
+button:active {
+  background: #1d4ed8;
+}
+
+button:disabled {
+  background: #334155;
+  cursor: not-allowed;
+}
 
 .counter {
   font-size: 14px;
@@ -73,6 +87,21 @@ button:active { background: #1d4ed8; }
   padding: 6px 12px;
   font-size: 14px;
 }
+
+/* TOAST */
+#toast {
+  display: none;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #16a34a;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.3);
+}
 </style>
 </head>
 
@@ -91,11 +120,15 @@ button:active { background: #1d4ed8; }
   </div>
 
   <div id="limitMessage" class="limit-msg" style="display:none;">
-    Günlük reklam limitiniz dolmuştur.<br>Yarın tekrar deneyin.
+    Günlük reklam limitiniz dolmuştur.<br>
+    Yarın tekrar deneyin.
   </div>
 
   <button id="watchAd">🎬 Reklam İzle</button>
   <button id="withdrawBtn">💰 Çekim</button>
+
+  <!-- TOAST -->
+  <div id="toast">🎉 Tebrikler! 0.1 ALGO bakiyenize eklendi</div>
 </div>
 
 <script>
@@ -113,6 +146,15 @@ const counterEl = document.getElementById("counter");
 const counterBox = document.getElementById("counterBox");
 const limitMsg = document.getElementById("limitMessage");
 const adBtn = document.getElementById("watchAd");
+const toast = document.getElementById("toast");
+
+/* ================== TOAST ================== */
+function showToast() {
+  toast.style.display = "block";
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 2500);
+}
 
 /* ================== AD BUTTON ================== */
 adBtn.onclick = async () => {
@@ -130,6 +172,8 @@ adBtn.onclick = async () => {
 
   balanceEl.innerText = balance.toFixed(1);
   counterEl.innerText = dailyAdsLeft;
+
+  showToast();
 
   if (dailyAdsLeft <= 0) {
     counterBox.style.display = "none";
