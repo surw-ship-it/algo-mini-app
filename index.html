@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Algorand Ads</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -11,203 +11,218 @@ data-zone="10483596"
 data-sdk="show_10483596"></script>
 
 <style>
-:root {
-  --bg: #0b1220;
-  --card: rgba(255,255,255,0.06);
-  --border: rgba(255,255,255,0.08);
-  --primary: #00f5d4;
-  --secondary: #3b82f6;
-  --danger: #ef4444;
-  --warning: #facc15;
-  --text-muted: #94a3b8;
+:root{
+  --bg:#020617;
+  --card:rgba(255,255,255,.06);
+  --border:rgba(255,255,255,.08);
+  --primary:#00f5d4;
+  --secondary:#3b82f6;
+  --success:#22c55e;
+  --danger:#ef4444;
+  --warning:#facc15;
+  --muted:#94a3b8;
 }
 
-* {
-  box-sizing: border-box;
-}
+*{box-sizing:border-box}
 
-body {
-  margin: 0;
-  height: 100vh;
-  background: radial-gradient(circle at top, #0f172a, #020617);
-  font-family: Inter, Arial, Helvetica, sans-serif;
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+body{
+  margin:0;
+  height:100vh;
+  background:radial-gradient(circle at top,#0f172a,#020617);
+  font-family:Inter,system-ui,Arial;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 
 /* CARD */
-.card {
-  width: 92%;
-  max-width: 380px;
-  background: var(--card);
-  backdrop-filter: blur(18px);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  padding: 22px;
-  box-shadow: 0 20px 40px rgba(0,0,0,.45);
-  position: relative;
+.card{
+  width:92%;
+  max-width:380px;
+  background:var(--card);
+  backdrop-filter:blur(18px);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:22px;
+  box-shadow:0 30px 60px rgba(0,0,0,.5);
+  position:relative;
 }
 
 /* HEADER */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 }
 
-.logo {
-  font-weight: 700;
-  letter-spacing: .5px;
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:700;
+  letter-spacing:.4px;
 }
 
-.withdraw-btn {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  border: none;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 13px;
-  cursor: pointer;
+.brand svg{
+  width:28px;
+  height:28px;
+  fill:var(--primary);
+  filter:drop-shadow(0 0 8px rgba(0,245,212,.5));
 }
+
+.withdraw-btn{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  border:none;
+  padding:7px 14px;
+  border-radius:999px;
+  color:#fff;
+  font-size:13px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(34,197,94,.35);
+  transition:.2s;
+}
+.withdraw-btn:hover{transform:scale(1.05)}
 
 /* BALANCE */
-.balance-box {
-  margin: 22px 0;
-  padding: 18px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(0,245,212,.15), rgba(59,130,246,.15));
-  border: 1px solid var(--border);
-  text-align: center;
+.balance-box{
+  margin:22px 0;
+  padding:20px;
+  border-radius:20px;
+  background:linear-gradient(135deg,rgba(0,245,212,.18),rgba(59,130,246,.18));
+  border:1px solid var(--border);
+  text-align:center;
 }
 
-.balance-box span {
-  display: block;
-  font-size: 13px;
-  color: var(--text-muted);
+.balance-box .icon{
+  font-size:22px;
 }
 
-.balance-value {
-  font-size: 32px;
-  font-weight: 700;
-  margin-top: 6px;
-  color: var(--primary);
+.balance-box span{
+  display:block;
+  font-size:13px;
+  color:var(--muted);
+}
+
+.balance{
+  font-size:34px;
+  font-weight:700;
+  margin-top:6px;
+  color:var(--primary);
 }
 
 /* INFO */
-.info {
-  text-align: center;
-  font-size: 14px;
-  color: var(--text-muted);
+.info{
+  text-align:center;
+  font-size:14px;
+  color:var(--muted);
 }
 
-/* LIMIT */
-.counter {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(250,204,21,.12);
-  border: 1px solid rgba(250,204,21,.3);
-  text-align: center;
-  font-size: 14px;
+/* COUNTER */
+.counter{
+  margin-top:14px;
+  padding:12px;
+  border-radius:16px;
+  background:rgba(250,204,21,.12);
+  border:1px solid rgba(250,204,21,.3);
+  text-align:center;
+  font-size:14px;
 }
 
-/* BUTTON */
-.main-btn {
-  width: 100%;
-  margin-top: 18px;
-  padding: 15px;
-  border-radius: 16px;
-  border: none;
-  font-size: 16px;
-  font-weight: 600;
-  color: #020617;
-  background: linear-gradient(135deg, var(--primary), #22d3ee);
-  cursor: pointer;
-  box-shadow: 0 10px 25px rgba(0,245,212,.35);
+/* MAIN BUTTON */
+.main-btn{
+  width:100%;
+  margin-top:18px;
+  padding:16px;
+  border-radius:18px;
+  border:none;
+  font-size:16px;
+  font-weight:600;
+  background:linear-gradient(135deg,var(--primary),#22d3ee);
+  color:#020617;
+  cursor:pointer;
+  box-shadow:0 12px 30px rgba(0,245,212,.4);
+  transition:.2s;
 }
-
-.main-btn:disabled {
-  background: #334155;
-  color: #94a3b8;
-  box-shadow: none;
-  cursor: not-allowed;
+.main-btn:hover{transform:translateY(-2px)}
+.main-btn:disabled{
+  background:#334155;
+  color:var(--muted);
+  box-shadow:none;
 }
 
 /* TOAST */
-#toast {
-  display: none;
-  position: absolute;
-  bottom: -18px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  padding: 10px 16px;
-  border-radius: 999px;
-  font-size: 14px;
-  box-shadow: 0 8px 20px rgba(0,0,0,.4);
+#toast{
+  display:none;
+  position:absolute;
+  bottom:-18px;
+  left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  padding:10px 18px;
+  border-radius:999px;
+  font-size:14px;
+  box-shadow:0 10px 24px rgba(0,0,0,.45);
 }
 
 /* POPUP */
-#withdrawPopup {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.65);
-  justify-content: center;
-  align-items: center;
+#withdrawPopup{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  justify-content:center;
+  align-items:center;
 }
 
-.popup {
-  width: 90%;
-  max-width: 320px;
-  background: var(--card);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  padding: 20px;
-  text-align: center;
+.popup{
+  width:90%;
+  max-width:330px;
+  background:var(--card);
+  backdrop-filter:blur(20px);
+  border-radius:22px;
+  border:1px solid var(--border);
+  padding:22px;
+  text-align:center;
 }
 
-.popup h3 {
-  margin: 0 0 10px;
+.popup h3{margin:0 0 10px}
+
+.popup .muted{
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:4px;
 }
 
-.popup .muted {
-  font-size: 13px;
-  color: var(--text-muted);
+.popup input{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.08);
+  border:1px solid var(--border);
+  color:#fff;
 }
 
-.popup input {
-  width: 100%;
-  margin-top: 10px;
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid var(--border);
-  color: #fff;
+.popup button{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  border-radius:14px;
+  border:none;
+  cursor:pointer;
 }
 
-.popup button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 12px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
+.send{
+  background:linear-gradient(135deg,var(--primary),#22d3ee);
+  color:#020617;
+  font-weight:600;
 }
 
-.send {
-  background: linear-gradient(135deg, var(--primary), #22d3ee);
-  color: #020617;
-  font-weight: 600;
-}
-
-.cancel {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-muted);
+.cancel{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--muted);
 }
 </style>
 </head>
@@ -215,36 +230,45 @@ body {
 <body>
 
 <div class="card">
+
   <div class="header">
-    <div class="logo">ALGORAND ADS</div>
-    <button class="withdraw-btn" id="withdrawBtn">Çekim</button>
+    <div class="brand">
+      <!-- Algorand Logo SVG -->
+      <svg viewBox="0 0 512 512">
+        <path d="M256 0C114.62 0 0 114.62 0 256s114.62 256 256 256 256-114.62 256-256S397.38 0 256 0zm47.92 382.46l-33.3-71.3H221.1l-33.28 71.3h-37.4l96.5-203.06h38.7l96.5 203.06zm-68.9-102.2h21.96l-11-23.63z"/>
+      </svg>
+      ALGOrand Ads
+    </div>
+
+    <button class="withdraw-btn" id="withdrawBtn">💸 Çekim</button>
   </div>
 
   <div class="balance-box">
+    <div class="icon">🪙</div>
     <span>Toplam Bakiye</span>
-    <div class="balance-value"><span id="balance">0.0</span> ALGO</div>
+    <div class="balance"><span id="balance">0.0</span> ALGO</div>
   </div>
 
-  <div class="info">Her reklam izleyişte <b>0.1 ALGO</b> kazan</div>
+  <div class="info">🎬 Her reklam izleyişte <b>0.1 ALGO</b> kazan</div>
 
   <div id="counterBox" class="counter">
-    Günlük kalan reklam hakkın: <b><span id="counter">30</span></b>
+    ⏳ Günlük kalan reklam: <b><span id="counter">30</span></b>
   </div>
 
-  <button id="watchAd" class="main-btn">🎬 Reklam İzle</button>
+  <button id="watchAd" class="main-btn">▶ Reklam İzle</button>
 
   <div id="toast">🎉 0.1 ALGO bakiyene eklendi</div>
 </div>
 
-<!-- POPUP -->
+<!-- WITHDRAW POPUP -->
 <div id="withdrawPopup">
   <div class="popup">
-    <h3>Çekim Talebi</h3>
-    <div class="muted">Bakiye: <b><span id="popupBalance">0.0</span> ALGO</b></div>
-    <div class="muted">Minimum çekim: 12 ALGO</div>
+    <h3>💸 Çekim Talebi</h3>
+    <div class="muted">Mevcut Bakiye: <b><span id="popupBalance">0.0</span> ALGO</b></div>
+    <div class="muted">⚠ Minimum çekim: 12 ALGO</div>
 
-    <input id="wallet" placeholder="Algorand adresi">
-    <input id="amount" type="number" step="0.1" placeholder="Çekilecek miktar">
+    <input id="walletInput" placeholder="Algorand adresi">
+    <input id="amountInput" type="number" step="0.1" placeholder="Çekilecek miktar">
 
     <button class="send" id="sendWithdraw">Gönder</button>
     <button class="cancel" id="closeWithdraw">İptal</button>
@@ -257,74 +281,72 @@ Telegram.WebApp.expand();
 
 let balance = 0;
 let dailyAdsLeft = 30;
-const REWARD_PER_AD = 0.1;
+const REWARD = 0.1;
 const MIN_WITHDRAW = 12;
 
 const balanceEl = document.getElementById("balance");
-const popupBalanceEl = document.getElementById("popupBalance");
+const popupBalance = document.getElementById("popupBalance");
 const counterEl = document.getElementById("counter");
 const counterBox = document.getElementById("counterBox");
 const adBtn = document.getElementById("watchAd");
 const toast = document.getElementById("toast");
 
 const withdrawBtn = document.getElementById("withdrawBtn");
-const withdrawPopup = document.getElementById("withdrawPopup");
-const closeWithdraw = document.getElementById("closeWithdraw");
-const sendWithdraw = document.getElementById("sendWithdraw");
+const popup = document.getElementById("withdrawPopup");
+const closeBtn = document.getElementById("closeWithdraw");
+const sendBtn = document.getElementById("sendWithdraw");
 
-function showToast() {
-  toast.style.display = "block";
-  setTimeout(() => toast.style.display = "none", 2200);
+function showToast(){
+  toast.style.display="block";
+  setTimeout(()=>toast.style.display="none",2200);
 }
 
-function isValidAlgoAddress(a) {
-  return /^[A-Z2-7]{58}$/.test(a);
+function isValidAlgoAddress(addr){
+  return /^[A-Z2-7]{58}$/.test(addr);
 }
 
-adBtn.onclick = async () => {
-  if (dailyAdsLeft <= 0) return;
-  if (typeof show_10483596 !== "function") return alert("Reklam yüklenemedi");
+adBtn.onclick = async()=>{
+  if(dailyAdsLeft<=0) return;
+  if(typeof show_10483596!=="function") return alert("Reklam yüklenemedi");
 
   await show_10483596();
 
   dailyAdsLeft--;
-  balance += REWARD_PER_AD;
+  balance+=REWARD;
 
-  balanceEl.innerText = balance.toFixed(1);
-  counterEl.innerText = dailyAdsLeft;
+  balanceEl.innerText=balance.toFixed(1);
+  counterEl.innerText=dailyAdsLeft;
   showToast();
 
-  if (dailyAdsLeft <= 0) {
-    counterBox.innerText = "Günlük limit doldu. Yarın tekrar gel 🚀";
-    adBtn.disabled = true;
+  if(dailyAdsLeft<=0){
+    counterBox.innerText="🚫 Günlük limit doldu";
+    adBtn.disabled=true;
   }
 };
 
-withdrawBtn.onclick = () => {
-  popupBalanceEl.innerText = balance.toFixed(1);
-  withdrawPopup.style.display = "flex";
+withdrawBtn.onclick=()=>{
+  popupBalance.innerText=balance.toFixed(1);
+  popup.style.display="flex";
 };
 
-closeWithdraw.onclick = () => {
-  withdrawPopup.style.display = "none";
-};
+closeBtn.onclick=()=>popup.style.display="none";
 
-sendWithdraw.onclick = () => {
-  const wallet = walletInput.value.trim();
-  const amount = parseFloat(amountInput.value);
+sendBtn.onclick=()=>{
+  const wallet=walletInput.value.trim();
+  const amount=parseFloat(amountInput.value);
 
-  if (!wallet || !isValidAlgoAddress(wallet))
-    return alert("Geçerli bir Algorand adresi giriniz");
+  if(!isValidAlgoAddress(wallet))
+    return alert("Girdiğiniz adres yanlış. Lütfen yalnızca Algorand adresi giriniz.");
 
-  if (!amount || amount < MIN_WITHDRAW)
+  if(!amount||amount<MIN_WITHDRAW)
     return alert("Minimum çekim 12 ALGO");
 
-  if (amount > balance)
+  if(amount>balance)
     return alert("Bakiyeniz yetersiz");
 
-  balance -= amount;
-  balanceEl.innerText = balance.toFixed(1);
-  withdrawPopup.style.display = "none";
+  balance-=amount;
+  balanceEl.innerText=balance.toFixed(1);
+  popup.style.display="none";
   alert("Çekim talebi alındı (demo)");
 };
 </script>
