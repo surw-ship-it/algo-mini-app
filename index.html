@@ -2,73 +2,70 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Algorand Earn Bot</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #0b0f14;
+  background: #0f172a;
   color: #fff;
 }
-
 .container {
   max-width: 420px;
   margin: auto;
-  padding: 20px;
-}
-
-/* BALANCE */
-.balance-box {
-  background: #121826;
   padding: 15px;
-  border-radius: 12px;
+}
+.card {
+  background: #020617;
+  border-radius: 14px;
+  padding: 15px;
+  margin-bottom: 14px;
+}
+.balance-box {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .balance-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
-
 .balance-left img {
   width: 22px;
 }
-
 button {
-  background: #00ffae;
+  width: 100%;
+  padding: 12px;
   border: none;
-  padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 15px;
   cursor: pointer;
-  font-weight: bold;
 }
-
-/* SECTIONS */
-.section {
-  background: #121826;
-  margin-top: 16px;
-  padding: 15px;
-  border-radius: 12px;
+button.small {
+  width: auto;
+  padding: 6px 12px;
+  font-size: 13px;
 }
-
-.section h3 {
-  margin-top: 0;
+.section-title {
+  margin-bottom: 10px;
+  font-size: 16px;
 }
-
-/* LINKS */
 .link-btn {
-  background: #1b2233;
-  margin-bottom: 8px;
+  background: #1e293b;
   padding: 10px;
   border-radius: 8px;
-  cursor: pointer;
+  margin-bottom: 8px;
   text-align: center;
+  cursor: pointer;
+  font-size: 14px;
 }
-
 .link-btn.locked {
   opacity: 0.5;
   pointer-events: none;
@@ -80,16 +77,16 @@ button {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #121826;
+  background: #020617;
   padding: 20px;
   border-radius: 12px;
   display: none;
-  z-index: 1000;
+  z-index: 999;
   text-align: center;
 }
-
 .popup img {
-  width: 40px;
+  width: 36px;
+  margin-bottom: 8px;
 }
 
 /* MODAL */
@@ -98,11 +95,10 @@ button {
   inset: 0;
   background: rgba(0,0,0,0.7);
   display: none;
-  z-index: 999;
+  z-index: 998;
 }
-
 .modal-box {
-  background: #121826;
+  background: #020617;
   max-width: 360px;
   margin: 80px auto;
   padding: 20px;
@@ -114,37 +110,52 @@ button {
   position: relative;
   width: 260px;
   height: 260px;
-  margin: 20px auto;
+  margin: 15px auto;
 }
-
 #wheel {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 6px solid #000;
+  border: 6px solid #020617;
   background: conic-gradient(
-    #111 0deg 72deg,
-    #1a1a1a 72deg 144deg,
-    #222 144deg 216deg,
-    #1a1a1a 216deg 288deg,
-    #000 288deg 360deg
+    #111 0deg 60deg,
+    #1f2937 60deg 120deg,
+    #111 120deg 180deg,
+    #1f2937 180deg 240deg,
+    #111 240deg 300deg,
+    #1f2937 300deg 360deg
   );
-  transition: transform 4s cubic-bezier(0.17,0.67,0.12,0.99);
+  transition: transform 4s cubic-bezier(.17,.67,.12,.99);
 }
-
 .pointer {
   position: absolute;
-  top: -12px;
+  top: -14px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
   border-left: 12px solid transparent;
   border-right: 12px solid transparent;
-  border-bottom: 20px solid #00ffae;
+  border-bottom: 20px solid #22c55e;
   z-index: 10;
 }
-
+.wheel-labels {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+.wheel-labels span {
+  position: absolute;
+  font-size: 12px;
+  text-align: center;
+}
+.wheel-labels img {
+  width: 14px;
+  vertical-align: middle;
+}
 </style>
 </head>
 
@@ -153,29 +164,31 @@ button {
 <div class="container">
 
   <!-- BALANCE -->
-  <div class="balance-box">
-    <div class="balance-left">
-      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
-      <span><b id="balance">0.00</b> ALGO</span>
+  <div class="card">
+    <div class="balance-box">
+      <div class="balance-left">
+        <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
+        <b><span id="balance">0.000</span> ALGO</b>
+      </div>
+      <button class="small" onclick="openWithdraw()">Çekim</button>
     </div>
-    <button onclick="openWithdraw()">Çekim</button>
   </div>
 
   <!-- ADS -->
-  <div class="section">
-    <h3>🎬 Reklam İzle</h3>
+  <div class="card">
+    <div class="section-title">🎬 Reklam İzle</div>
     <button onclick="watchAd()">Reklam İzle (0.1 ALGO)</button>
   </div>
 
   <!-- LINKS -->
-  <div class="section">
-    <h3>🔗 Ödüllü Linkler</h3>
+  <div class="card">
+    <div class="section-title">🔗 Ödüllü Linkler</div>
     <div id="links"></div>
   </div>
 
   <!-- SPINNER -->
-  <div class="section">
-    <h3>🎡 Spinner</h3>
+  <div class="card">
+    <div class="section-title">🎡 Spinner</div>
     <button onclick="openSpinner()">Spinner Aç</button>
   </div>
 
@@ -183,20 +196,18 @@ button {
 
 <!-- POPUP -->
 <div class="popup" id="popup">
-  <img src="https://cryptologos.cc/logos/algorand-algo-logo.png"><br><br>
-  <span id="popupText"></span>
+  <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
+  <div id="popupText"></div>
 </div>
 
 <!-- SPINNER MODAL -->
 <div class="modal" id="spinnerModal">
   <div class="modal-box">
     <h3>🎡 Spinner</h3>
-
     <div class="spinner-wrapper">
       <div class="pointer"></div>
       <div id="wheel"></div>
     </div>
-
     <button onclick="spin()">0.25 ALGO ile Çevir</button><br><br>
     <button onclick="closeSpinner()">Kapat</button>
   </div>
@@ -205,20 +216,23 @@ button {
 <!-- WITHDRAW MODAL -->
 <div class="modal" id="withdrawModal">
   <div class="modal-box">
-    <h3>Çekim</h3>
+    <h3>Çekim Talebi</h3>
     <p>Mevcut bakiye: <b id="wBalance"></b> ALGO</p>
-    <p style="color:#ffcc00">Minimum çekim: 12 ALGO</p>
+    <p style="color:#facc15">Minimum çekim: 12 ALGO</p>
     <input id="wallet" placeholder="Algorand adresi" style="width:100%;padding:8px"><br><br>
-    <input id="amount" placeholder="Miktar" type="number" style="width:100%;padding:8px"><br><br>
-    <button onclick="withdraw()">Onayla</button>
-    <button onclick="closeWithdraw()">Kapat</button>
+    <input id="amount" type="number" placeholder="Miktar" style="width:100%;padding:8px"><br><br>
+    <button onclick="withdraw()">Gönder</button>
+    <button onclick="closeWithdraw()">İptal</button>
   </div>
 </div>
 
 <script>
-let balance = 1.0;
+Telegram.WebApp.ready();
+Telegram.WebApp.expand();
 
-const linkData = [
+let balance = 0;
+
+const linkUrls = [
  "https://otieu.com/4/10484834",
  "https://otieu.com/4/10498410",
  "https://otieu.com/4/10498413",
@@ -234,9 +248,7 @@ const linkData = [
 function updateBalance() {
   document.getElementById("balance").innerText = balance.toFixed(3);
 }
-updateBalance();
 
-/* POPUP */
 function showPopup(text) {
   const p = document.getElementById("popup");
   document.getElementById("popupText").innerText = text;
@@ -248,13 +260,13 @@ function showPopup(text) {
 function watchAd() {
   balance += 0.1;
   updateBalance();
-  showPopup("🎉 0.1 ALGO kazandın");
+  showPopup("🎉 0.1 ALGO bakiyene eklendi");
 }
 
 /* LINKS */
 const linksDiv = document.getElementById("links");
-linkData.forEach((url,i)=>{
-  const d = document.createElement("div");
+linkUrls.forEach((url,i)=>{
+  const d=document.createElement("div");
   d.className="link-btn";
   d.innerText="Link "+(i+1)+" (0.025 ALGO)";
   d.onclick=()=>{
@@ -272,17 +284,17 @@ function openSpinner(){ document.getElementById("spinnerModal").style.display="b
 function closeSpinner(){ document.getElementById("spinnerModal").style.display="none"; }
 
 function spin(){
-  if(balance<0.25){ alert("Yetersiz bakiye"); return; }
+  if(balance<0.25){ alert("Yetersiz bakiye"); return;}
   balance-=0.25;
   updateBalance();
   const wheel=document.getElementById("wheel");
-  const rot=360*6+Math.random()*360;
-  wheel.style.transform=`rotate(${rot}deg)`;
+  const deg=360*6+Math.random()*360;
+  wheel.style.transform=`rotate(${deg}deg)`;
   setTimeout(()=>{
     if(Math.random()<0.00000001){
       balance+=10;
       updateBalance();
-      showPopup("🎉 10 ALGO!");
+      showPopup("🎉 10 ALGO KAZANDIN!");
     } else {
       showPopup("😅 Yeniden dene");
     }
@@ -297,15 +309,15 @@ function openWithdraw(){
 function closeWithdraw(){ document.getElementById("withdrawModal").style.display="none"; }
 
 function withdraw(){
-  const addr=document.getElementById("wallet").value;
+  const addr=document.getElementById("wallet").value.trim();
   const amt=parseFloat(document.getElementById("amount").value);
-  if(!addr.startsWith("A")||addr.length<50){ alert("Geçersiz Algorand adresi"); return;}
+  if(!addr.startsWith("A")||addr.length<50){ alert("Lütfen geçerli Algorand adresi girin"); return;}
   if(amt<12){ alert("Minimum çekim 12 ALGO"); return;}
   if(amt>balance){ alert("Yetersiz bakiye"); return;}
   balance-=amt;
   updateBalance();
   closeWithdraw();
-  alert("Çekim talebi alındı");
+  alert("Çekim talebiniz alındı");
 }
 </script>
 
