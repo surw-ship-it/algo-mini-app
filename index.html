@@ -145,6 +145,45 @@ body{
   border-radius:999px;
   font-size:14px;
 }
+
+/* POPUP */
+#withdrawPopup{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  justify-content:center;
+  align-items:center;
+}
+
+.popup{
+  width:90%;
+  max-width:330px;
+  background:var(--card);
+  backdrop-filter:blur(20px);
+  border-radius:22px;
+  border:1px solid var(--border);
+  padding:22px;
+  text-align:center;
+}
+
+.popup input{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.08);
+  border:1px solid var(--border);
+  color:#fff;
+}
+
+.popup button{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  border-radius:14px;
+  border:none;
+}
 </style>
 </head>
 
@@ -154,21 +193,18 @@ body{
 
   <div class="header">
     <div class="brand">
-      <!-- ALGOrand logo -->
       <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" alt="Algorand">
       Algorand Ads
     </div>
 
-    <button class="withdraw-btn">💸 Çekim</button>
+    <button class="withdraw-btn" id="withdrawBtn">💸 Çekim</button>
   </div>
 
-  <!-- BALANCE -->
   <div class="balance-box">
     <div class="balance-title">Toplam Bakiye</div>
 
     <div class="balance-row">
       <div class="balance-amount" id="balance">0.0</div>
-
       <div class="algo-unit">
         <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" alt="ALGO">
         ALGO
@@ -184,6 +220,23 @@ body{
   <div id="toast">🎉 0.1 ALGO bakiyene eklendi</div>
 </div>
 
+<!-- WITHDRAW POPUP -->
+<div id="withdrawPopup">
+  <div class="popup">
+    <h3>💸 Çekim Talebi</h3>
+    <div style="font-size:13px;color:#94a3b8;">
+      Mevcut bakiye: <b><span id="popupBalance">0.0</span> ALGO</b><br>
+      ⚠ Minimum çekim: 12 ALGO
+    </div>
+
+    <input id="walletInput" placeholder="Algorand adresi">
+    <input id="amountInput" type="number" step="0.1" placeholder="Çekilecek miktar">
+
+    <button id="sendWithdraw">Gönder</button>
+    <button id="closeWithdraw">İptal</button>
+  </div>
+</div>
+
 <script>
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
@@ -192,8 +245,13 @@ let balance = 0;
 let dailyAdsLeft = 30;
 
 const balanceEl = document.getElementById("balance");
+const popupBalance = document.getElementById("popupBalance");
 const counterEl = document.getElementById("counter");
 const toast = document.getElementById("toast");
+
+const withdrawBtn = document.getElementById("withdrawBtn");
+const withdrawPopup = document.getElementById("withdrawPopup");
+const closeWithdraw = document.getElementById("closeWithdraw");
 
 function showToast(){
   toast.style.display="block";
@@ -206,8 +264,18 @@ watchAd.onclick = async()=>{
   dailyAdsLeft--;
   balance+=0.1;
   balanceEl.innerText=balance.toFixed(1);
+  popupBalance.innerText=balance.toFixed(1);
   counterEl.innerText=dailyAdsLeft;
   showToast();
+};
+
+withdrawBtn.onclick = () => {
+  popupBalance.innerText = balance.toFixed(1);
+  withdrawPopup.style.display = "flex";
+};
+
+closeWithdraw.onclick = () => {
+  withdrawPopup.style.display = "none";
 };
 </script>
 
