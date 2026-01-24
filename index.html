@@ -12,22 +12,18 @@ data-sdk="show_10483596"></script>
 
 <style>
 *{box-sizing:border-box}
-
 html,body{
   margin:0;
-  padding:0;
   background:#020617;
   font-family:Inter,system-ui,Arial;
   color:#fff;
 }
 
-/* TELEGRAM SAFE WRAPPER */
 #app{
   min-height:100vh;
   padding:16px 0 80px;
 }
 
-/* CARD */
 .card{
   width:92%;
   max-width:390px;
@@ -39,7 +35,6 @@ html,body{
   padding:22px;
 }
 
-/* HEADER */
 .brand{
   display:flex;
   align-items:center;
@@ -67,20 +62,24 @@ html,body{
   font-weight:800;
 }
 
+.withdraw-btn{
+  margin-top:12px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+}
+
 /* SECTIONS */
 .section{margin-top:18px}
 .section h3{margin:0 0 10px;font-size:15px}
 
-/* BUTTONS */
 button{
   width:100%;
   padding:14px;
   border-radius:14px;
   border:none;
   font-size:15px;
-  background:linear-gradient(135deg,#3b82f6,#2563eb);
   color:#fff;
   cursor:pointer;
+  background:linear-gradient(135deg,#3b82f6,#2563eb);
 }
 button:disabled{
   opacity:.5;
@@ -109,8 +108,8 @@ button:disabled{
   text-align:center;
 }
 
-/* POPUP */
-#rewardPopup{
+/* POPUPS */
+.popup{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,.65);
@@ -119,15 +118,32 @@ button:disabled{
   align-items:center;
   z-index:9999;
 }
-.reward-card{
+
+.popup-card{
   background:#0f172a;
   border-radius:20px;
-  padding:24px;
+  padding:22px;
   width:85%;
-  max-width:300px;
+  max-width:320px;
   text-align:center;
-  animation:pop .3s ease;
 }
+
+.popup-card input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.2);
+  background:#020617;
+  color:#fff;
+}
+
+.popup-warn{
+  font-size:12px;
+  color:#facc15;
+  margin-top:6px;
+}
+
 .reward-logo{
   width:56px;
   height:56px;
@@ -139,66 +155,64 @@ button:disabled{
   margin:0 auto 12px;
 }
 .reward-logo img{width:32px}
-
-@keyframes pop{
-  from{transform:scale(.9);opacity:0}
-  to{transform:scale(1);opacity:1}
-}
 </style>
 </head>
 
 <body>
 
 <div id="app">
-  <div class="card">
+<div class="card">
 
-    <div class="brand">
-      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
-      Algorand Earn
-    </div>
-
-    <div class="balance-box">
-      <div>Toplam Bakiye</div>
-      <div class="balance-row">
-        <div class="balance-amount" id="balance">0.000</div>
-        <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" width="22">
-      </div>
-    </div>
-
-    <div class="section">
-      <h3>🎬 Reklam İzleyerek Kazan</h3>
-      <button id="watchAd">Reklam İzle (+0.1 ALGO)</button>
-      <div class="counter" id="adCounter"></div>
-    </div>
-
-    <div class="section">
-      <h3>🔗 Ödüllü Linkler</h3>
-      <div class="links" id="links"></div>
-    </div>
-
-    <div class="section">
-      <h3>💸 Çekim</h3>
-      <button onclick="alert('Çekim sistemi demo')">Çekim Yap</button>
-    </div>
-
+  <div class="brand">
+    <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
+    Algorand Earn
   </div>
+
+  <!-- BALANCE -->
+  <div class="balance-box">
+    <div>Toplam Bakiye</div>
+    <div class="balance-row">
+      <div class="balance-amount" id="balance">0.000</div>
+      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" width="22">
+    </div>
+    <button class="withdraw-btn" id="openWithdraw">💸 Çekim Yap</button>
+  </div>
+
+  <!-- ADS -->
+  <div class="section">
+    <h3>🎬 Reklam İzleyerek Kazan</h3>
+    <button id="watchAd">Reklam İzle (+0.1 ALGO)</button>
+    <div class="counter" id="adCounter"></div>
+  </div>
+
+  <!-- LINKS -->
+  <div class="section">
+    <h3>🔗 Ödüllü Linkler</h3>
+    <div class="links" id="links"></div>
+  </div>
+
+</div>
 </div>
 
-<div id="rewardPopup">
-  <div class="reward-card">
+<!-- WITHDRAW POPUP -->
+<div class="popup" id="withdrawPopup">
+  <div class="popup-card">
     <div class="reward-logo">
       <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
     </div>
-    <h3>🎉 Tebrikler</h3>
-    <p>0.025 ALGO kazandınız</p>
+    <h3>Çekim Talebi</h3>
+    <p>Mevcut bakiye: <b id="popupBalance">0.000 ALGO</b></p>
+    <input id="wallet" placeholder="Algorand cüzdan adresi">
+    <input id="amount" type="number" step="0.001" placeholder="Çekilecek miktar">
+    <div class="popup-warn">Minimum çekim: 12 ALGO</div>
+    <button onclick="sendWithdraw()">Gönder</button>
+    <button onclick="closeWithdraw()" style="margin-top:8px;background:#334155">İptal</button>
   </div>
 </div>
 
 <script>
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
-Telegram.WebApp.setBackgroundColor("#020617");
-Telegram.WebApp.setHeaderColor("#020617");
 
 let balance=Number(localStorage.getItem("balance"))||0;
 let dailyAds=Number(localStorage.getItem("dailyAds"))||30;
@@ -208,6 +222,7 @@ const balanceEl=document.getElementById("balance");
 const adCounter=document.getElementById("adCounter");
 balanceEl.innerText=balance.toFixed(3);
 
+/* ADS */
 function resetAds(){
   const t=new Date().toDateString();
   if(t!==lastDay){
@@ -231,6 +246,43 @@ watchAd.onclick=async()=>{
   adCounter.innerText=`Günlük reklam hakkınız: ${dailyAds} / 30`;
 };
 
+/* WITHDRAW */
+const withdrawPopup=document.getElementById("withdrawPopup");
+openWithdraw.onclick=()=>{
+  document.getElementById("popupBalance").innerText=balance.toFixed(3)+" ALGO";
+  withdrawPopup.style.display="flex";
+};
+function closeWithdraw(){withdrawPopup.style.display="none";}
+
+function isAlgorandAddress(addr){
+  return /^[A-Z2-7]{58}$/.test(addr);
+}
+
+function sendWithdraw(){
+  const wallet=document.getElementById("wallet").value.trim();
+  const amount=parseFloat(document.getElementById("amount").value);
+
+  if(!isAlgorandAddress(wallet)){
+    alert("Girdiğiniz adres yanlış, lütfen yalnızca Algorand adresi giriniz");
+    return;
+  }
+  if(isNaN(amount) || amount<12){
+    alert("Minimum çekim 12 ALGO'dur");
+    return;
+  }
+  if(amount>balance){
+    alert("Yetersiz bakiye");
+    return;
+  }
+
+  alert("Çekim talebiniz alındı (demo)");
+  balance-=amount;
+  localStorage.setItem("balance",balance);
+  balanceEl.innerText=balance.toFixed(3);
+  closeWithdraw();
+}
+
+/* LINKS */
 const links=[
 "https://otieu.com/4/10484834",
 "https://otieu.com/4/10498410",
@@ -245,7 +297,6 @@ const links=[
 ];
 
 const linksDiv=document.getElementById("links");
-
 function renderLinks(){
   linksDiv.innerHTML="";
   links.forEach((u,i)=>{
@@ -253,7 +304,7 @@ function renderLinks(){
     const wrap=document.createElement("div");
     wrap.className="link-wrap";
     const btn=document.createElement("button");
-    btn.textContent=`🔗 Link ${i+1} (+0.025 ALGO)`;
+    btn.innerText=`🔗 Link ${i+1} (+0.025 ALGO)`;
 
     if(last && Date.now()-last<43200000){
       btn.disabled=true;
@@ -267,20 +318,6 @@ function renderLinks(){
     linksDiv.appendChild(wrap);
   });
 }
-
-const pending=localStorage.getItem("pendingLink");
-if(pending!==null){
-  balance+=0.025;
-  localStorage.setItem("balance",balance);
-  localStorage.setItem("link_"+pending,Date.now());
-  localStorage.removeItem("pendingLink");
-  balanceEl.innerText=balance.toFixed(3);
-
-  const popup=document.getElementById("rewardPopup");
-  popup.style.display="flex";
-  setTimeout(()=>popup.style.display="none",3000);
-}
-
 renderLinks();
 </script>
 
