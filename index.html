@@ -11,34 +11,30 @@ data-zone="10483596"
 data-sdk="show_10483596"></script>
 
 <style>
-:root{
-  --glass:rgba(255,255,255,.08);
-  --glass-strong:rgba(255,255,255,.14);
-  --border:rgba(255,255,255,.12);
-  --muted:#94a3b8;
-}
-
 *{box-sizing:border-box}
 
-body{
+html,body{
   margin:0;
-  min-height:100vh;
-  background:radial-gradient(circle at top,#0f172a,#020617);
+  padding:0;
+  background:#020617;
   font-family:Inter,system-ui,Arial;
   color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  padding:20px 0 80px;
-  overflow-y:auto;
 }
 
+/* TELEGRAM SAFE WRAPPER */
+#app{
+  min-height:100vh;
+  padding:16px 0 80px;
+}
+
+/* CARD */
 .card{
   width:92%;
   max-width:390px;
-  background:var(--glass);
+  margin:0 auto;
+  background:rgba(255,255,255,.08);
   backdrop-filter:blur(18px);
-  border:1px solid var(--border);
+  border:1px solid rgba(255,255,255,.12);
   border-radius:26px;
   padding:22px;
 }
@@ -49,9 +45,7 @@ body{
   align-items:center;
   gap:10px;
   font-weight:700;
-  font-size:16px;
 }
-
 .brand img{width:30px}
 
 /* BALANCE */
@@ -59,31 +53,23 @@ body{
   margin:20px 0;
   padding:18px;
   border-radius:18px;
-  background:rgba(255,255,255,.12);
+  background:rgba(255,255,255,.14);
   text-align:center;
 }
-
 .balance-row{
   display:flex;
   justify-content:center;
   align-items:center;
   gap:8px;
 }
-
 .balance-amount{
   font-size:34px;
   font-weight:800;
 }
 
 /* SECTIONS */
-.section{
-  margin-top:18px;
-}
-
-.section h3{
-  margin:0 0 10px;
-  font-size:15px;
-}
+.section{margin-top:18px}
+.section h3{margin:0 0 10px;font-size:15px}
 
 /* BUTTONS */
 button{
@@ -96,7 +82,6 @@ button{
   color:#fff;
   cursor:pointer;
 }
-
 button:disabled{
   opacity:.5;
   cursor:not-allowed;
@@ -110,26 +95,17 @@ button:disabled{
 }
 
 /* LINKS */
-.links{
-  display:grid;
-  gap:12px;
-}
-
+.links{display:grid;gap:12px}
 .link-wrap{
   background:rgba(255,255,255,.05);
-  border:1px solid var(--border);
+  border:1px solid rgba(255,255,255,.12);
   border-radius:14px;
   padding:10px;
 }
-
-.link-btn{
-  background:rgba(255,255,255,.08);
-}
-
 .timer{
   margin-top:6px;
   font-size:12px;
-  color:var(--muted);
+  color:#94a3b8;
   text-align:center;
 }
 
@@ -137,24 +113,21 @@ button:disabled{
 #rewardPopup{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.6);
+  background:rgba(0,0,0,.65);
   display:none;
   justify-content:center;
   align-items:center;
   z-index:9999;
 }
-
 .reward-card{
   background:#0f172a;
-  border:1px solid var(--border);
   border-radius:20px;
   padding:24px;
   width:85%;
   max-width:300px;
   text-align:center;
-  animation:fadeIn .4s ease;
+  animation:pop .3s ease;
 }
-
 .reward-logo{
   width:56px;
   height:56px;
@@ -165,64 +138,54 @@ button:disabled{
   justify-content:center;
   margin:0 auto 12px;
 }
-
 .reward-logo img{width:32px}
 
-.fadeOut{animation:fadeOut .5s ease forwards}
-
-@keyframes fadeIn{
-  from{opacity:0;transform:scale(.9)}
-  to{opacity:1;transform:scale(1)}
-}
-@keyframes fadeOut{
-  to{opacity:0;transform:scale(.9)}
+@keyframes pop{
+  from{transform:scale(.9);opacity:0}
+  to{transform:scale(1);opacity:1}
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div id="app">
+  <div class="card">
 
-  <!-- HEADER -->
-  <div class="brand">
-    <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
-    Algorand Earn
-  </div>
-
-  <!-- BALANCE -->
-  <div class="balance-box">
-    <div>Toplam Bakiye</div>
-    <div class="balance-row">
-      <div class="balance-amount" id="balance">0.000</div>
-      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" width="22">
+    <div class="brand">
+      <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
+      Algorand Earn
     </div>
-  </div>
 
-  <!-- ADS -->
-  <div class="section">
-    <h3>🎬 Reklam İzleyerek Kazan</h3>
-    <button id="watchAd">Reklam İzle (+0.1 ALGO)</button>
-    <div class="counter" id="adCounter"></div>
-  </div>
+    <div class="balance-box">
+      <div>Toplam Bakiye</div>
+      <div class="balance-row">
+        <div class="balance-amount" id="balance">0.000</div>
+        <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" width="22">
+      </div>
+    </div>
 
-  <!-- LINKS -->
-  <div class="section">
-    <h3>🔗 Ödüllü Linkler</h3>
-    <div class="links" id="links"></div>
-  </div>
+    <div class="section">
+      <h3>🎬 Reklam İzleyerek Kazan</h3>
+      <button id="watchAd">Reklam İzle (+0.1 ALGO)</button>
+      <div class="counter" id="adCounter"></div>
+    </div>
 
-  <!-- WITHDRAW (şimdilik demo) -->
-  <div class="section">
-    <h3>💸 Çekim</h3>
-    <button onclick="alert('Çekim paneli demo')">Çekim Yap</button>
-  </div>
+    <div class="section">
+      <h3>🔗 Ödüllü Linkler</h3>
+      <div class="links" id="links"></div>
+    </div>
 
+    <div class="section">
+      <h3>💸 Çekim</h3>
+      <button onclick="alert('Çekim sistemi demo')">Çekim Yap</button>
+    </div>
+
+  </div>
 </div>
 
-<!-- POPUP -->
 <div id="rewardPopup">
-  <div class="reward-card" id="rewardCard">
+  <div class="reward-card">
     <div class="reward-logo">
       <img src="https://cryptologos.cc/logos/algorand-algo-logo.png">
     </div>
@@ -234,6 +197,8 @@ button:disabled{
 <script>
 Telegram.WebApp.ready();
 Telegram.WebApp.expand();
+Telegram.WebApp.setBackgroundColor("#020617");
+Telegram.WebApp.setHeaderColor("#020617");
 
 let balance=Number(localStorage.getItem("balance"))||0;
 let dailyAds=Number(localStorage.getItem("dailyAds"))||30;
@@ -281,12 +246,6 @@ const links=[
 
 const linksDiv=document.getElementById("links");
 
-function fmt(ms){
-  const h=Math.floor(ms/3600000);
-  const m=Math.floor((ms%3600000)/60000);
-  return `${h}s ${m}dk`;
-}
-
 function renderLinks(){
   linksDiv.innerHTML="";
   links.forEach((u,i)=>{
@@ -294,24 +253,17 @@ function renderLinks(){
     const wrap=document.createElement("div");
     wrap.className="link-wrap";
     const btn=document.createElement("button");
-    btn.className="link-btn";
-    const timer=document.createElement("div");
-    timer.className="timer";
+    btn.textContent=`🔗 Link ${i+1} (+0.025 ALGO)`;
 
     if(last && Date.now()-last<43200000){
-      const left=43200000-(Date.now()-last);
       btn.disabled=true;
-      btn.innerText=`🔒 Link ${i+1}`;
-      timer.innerText=fmt(left);
     }else{
-      btn.innerText=`🔗 Link ${i+1} (+0.025 ALGO)`;
       btn.onclick=()=>{
         localStorage.setItem("pendingLink",i);
         location.href=u;
       };
     }
     wrap.appendChild(btn);
-    if(timer.innerText)wrap.appendChild(timer);
     linksDiv.appendChild(wrap);
   });
 }
@@ -325,19 +277,11 @@ if(pending!==null){
   balanceEl.innerText=balance.toFixed(3);
 
   const popup=document.getElementById("rewardPopup");
-  const card=document.getElementById("rewardCard");
   popup.style.display="flex";
-  setTimeout(()=>{
-    card.classList.add("fadeOut");
-    setTimeout(()=>{
-      popup.style.display="none";
-      card.classList.remove("fadeOut");
-    },500);
-  },3000);
+  setTimeout(()=>popup.style.display="none",3000);
 }
 
 renderLinks();
-setInterval(renderLinks,60000);
 </script>
 
 </body>
