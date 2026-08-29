@@ -15,10 +15,14 @@ html,body{margin:0;padding:0;background:#020617;font-family:Inter,system-ui,Aria
 .brand{display:flex;align-items:center;gap:10px;font-weight:700}.brand img{width:30px}
 .balance-box{margin:20px 0;padding:18px;border-radius:18px;background:rgba(255,255,255,.14);text-align:center;}
 .balance-row{display:flex;justify-content:center;align-items:center;gap:8px}.balance-amount{font-size:34px;font-weight:800}
-.withdraw-btn,.spinner-btn{margin-top:12px;padding:14px;width:100%;border:none;border-radius:14px;color:#fff;font-size:15px;cursor:pointer;transition: opacity 0.2s}
-.withdraw-btn:active, .spinner-btn:active{opacity: 0.8}
+
+/* Butonlar */
+.action-btn {margin-top:12px;padding:14px;width:100%;border:none;border-radius:14px;color:#fff;font-size:15px;cursor:pointer;transition: opacity 0.2s}
+.action-btn:active {opacity: 0.8}
 .withdraw-btn{background:linear-gradient(135deg,#22c55e,#16a34a)}
 .spinner-btn{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.history-btn{background:linear-gradient(135deg,#475569,#334155); margin-top:8px;}
+
 .section{margin-top:18px}.section h3{margin:0 0 10px;font-size:15px}
 button{width:100%;padding:14px;border-radius:14px;border:none;font-size:15px;color:#fff;cursor:pointer;background:linear-gradient(135deg,#3b82f6,#2563eb);transition: opacity 0.2s}
 button:disabled{opacity:.5;cursor:not-allowed}
@@ -35,6 +39,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .popup-warn{font-size:12px;color:#facc15;margin-top:6px;margin-bottom:10px}
 .reward-logo{width:56px;height:56px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
 .reward-logo img{width:32px}
+
+/* GEÇMİŞ LİSTESİ */
+.history-list {max-height: 250px; overflow-y: auto; text-align: left; margin-top: 15px;}
+.history-item {background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.1);}
+.history-item div {margin-bottom: 4px; font-size: 13px;}
+.status-pending {color: #facc15; font-weight: 700; font-size: 12px;}
 
 /* SPINNER */
 #spinnerPopup{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;justify-content:center;align-items:center;z-index:99999;backdrop-filter:blur(4px)}
@@ -61,8 +71,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
         <div class="balance-amount" id="balance">0.000</div>
         <img src="https://cryptologos.cc/logos/algorand-algo-logo.png" width="22">
       </div>
-      <button class="withdraw-btn" id="openWithdraw">💸 Çekim Yap</button>
-      <button class="spinner-btn" id="openSpinner">🎡 0.25 ALGO karşılığında şansını dene!</button>
+      <button class="action-btn withdraw-btn" id="openWithdraw">💸 Çekim Yap</button>
+      <button class="action-btn spinner-btn" id="openSpinner">🎡 0.25 ALGO ile Şansını Dene</button>
+      <button class="action-btn history-btn" id="openHistory">📜 Çekim Geçmişi</button>
     </div>
 
     <div class="section">
@@ -78,6 +89,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 </div>
 
+<!-- ÇEKİM TALEBİ POPUP -->
 <div class="popup" id="withdrawPopup">
   <div class="popup-card">
     <div class="reward-logo">
@@ -93,6 +105,18 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 </div>
 
+<!-- ÇEKİM GEÇMİŞİ POPUP -->
+<div class="popup" id="historyPopup">
+  <div class="popup-card">
+    <h3 style="margin-top:0;">📜 Çekim Geçmişi</h3>
+    <div class="history-list" id="historyList">
+      <!-- Veriler buraya eklenecek -->
+    </div>
+    <button id="closeHistoryBtn" style="margin-top:12px;background:#334155">Kapat</button>
+  </div>
+</div>
+
+<!-- ÇARK POPUP -->
 <div id="spinnerPopup">
   <div class="spinner-card">
     <h3 style="margin-top:0;">🎡 Şans Çarkı</h3>
@@ -121,6 +145,9 @@ document.addEventListener("DOMContentLoaded", function(){
   let balance = Number(localStorage.getItem("balance")) || 0;
   let dailyAds = Number(localStorage.getItem("dailyAds"));
   if (isNaN(dailyAds)) dailyAds = 30;
+  
+  // Çekim Geçmişi Array'i
+  let withdrawHistory = JSON.parse(localStorage.getItem("withdrawHistory")) || [];
   
   let lastDay = localStorage.getItem("lastAdDay") || new Date().toDateString();
 
@@ -173,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   });
 
-  /* WITHDRAW */
+  /* WITHDRAW - ÇEKİM YAPMA */
   const openWithdraw = document.getElementById("openWithdraw");
   const withdrawPopup = document.getElementById("withdrawPopup");
   const closeWithdrawBtn = document.getElementById("closeWithdrawBtn");
@@ -198,9 +225,53 @@ document.addEventListener("DOMContentLoaded", function(){
     if(a > balance){ alert("Yetersiz bakiye."); return; }
     
     updateBalance(balance - a);
+    
+    // Geçmişe ekle
+    const dateStr = new Date().toLocaleString("tr-TR");
+    withdrawHistory.push({
+      date: dateStr,
+      amount: a.toFixed(3),
+      wallet: w,
+      status: "⏳ Bekliyor"
+    });
+    localStorage.setItem("withdrawHistory", JSON.stringify(withdrawHistory));
+
     withdrawPopup.style.display = "none";
-    alert(`Başarılı! ${a} ALGO çekim talebiniz işleme alındı.\n(Adres: ${w.substring(0,6)}...${w.slice(-4)})`);
+    alert(`Başarılı! ${a} ALGO çekim talebiniz işleme alındı.`);
   });
+
+  /* HISTORY - ÇEKİM GEÇMİŞİ EKRANI */
+  const openHistory = document.getElementById("openHistory");
+  const historyPopup = document.getElementById("historyPopup");
+  const closeHistoryBtn = document.getElementById("closeHistoryBtn");
+  const historyList = document.getElementById("historyList");
+
+  openHistory.addEventListener("click", () => {
+    historyList.innerHTML = "";
+    
+    if(withdrawHistory.length === 0){
+      historyList.innerHTML = `<div style="text-align:center; color:#94a3b8; padding: 20px 0;">Henüz çekim talebiniz bulunmuyor.</div>`;
+    } else {
+      // En son talep en üstte çıksın diye listeyi ters çeviriyoruz (reverse)
+      [...withdrawHistory].reverse().forEach(req => {
+        const shortWallet = req.wallet.substring(0, 8) + "..." + req.wallet.slice(-6);
+        const item = document.createElement("div");
+        item.className = "history-item";
+        item.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b style="font-size:15px; color:#fff;">${req.amount} ALGO</b>
+            <span class="status-pending">${req.status}</span>
+          </div>
+          <div style="color:#94a3b8; margin-top:4px;">Cüzdan: <span style="color:#cbd5e1">${shortWallet}</span></div>
+          <div style="color:#64748b; font-size:11px;">Tarih: ${req.date}</div>
+        `;
+        historyList.appendChild(item);
+      });
+    }
+    historyPopup.style.display = "flex";
+  });
+
+  closeHistoryBtn.addEventListener("click", () => { historyPopup.style.display = "none"; });
 
   /* LINKS */
   const links = [
@@ -257,7 +328,7 @@ document.addEventListener("DOMContentLoaded", function(){
   setInterval(renderLinks, 1000);
   renderLinks();
 
-  /* ===== SPINNER MODÜLÜ ===== */
+  /* ===== SPINNER MODÜLÜ (PSİKOLOJİK HİLELİ) ===== */
   const spinCost = 0.25;
   let spinning = false;
   let currentRotation = 0;
@@ -336,7 +407,6 @@ document.addEventListener("DOMContentLoaded", function(){
     const index = weightedPrize();
     
     // AŞAMA 1: Gerilimli Sınırda Durma
-    // Dilimin tam ortası 0.5'tir. Biz 0.03 veya 0.97 kullanarak sınırında durduruyoruz.
     let edge = Math.random() > 0.5 ? 0.03 : 0.97; 
     let edgeDeg = (index + edge) * sliceDeg;
     
@@ -363,13 +433,11 @@ document.addEventListener("DOMContentLoaded", function(){
       let snapRemainder = currentRotation % 360;
       let snapStep = exactCenterTarget - snapRemainder;
       
-      // En kısa yoldan merkeze çekmek için (geri veya ileri hareket)
       if (snapStep > 180) snapStep -= 360;
       if (snapStep < -180) snapStep += 360;
       
       currentRotation += snapStep;
 
-      // Yaylı bir "tık" hissi veren kilitlenme animasyonu
       canvas.style.transition = "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)"; 
       canvas.style.transform = `rotate(${currentRotation}deg)`;
 
@@ -390,7 +458,7 @@ document.addEventListener("DOMContentLoaded", function(){
         spinning = false;
       }, 500);
 
-    }, 5500); // İlk dönüş süresi
+    }, 5500); 
   });
 });
 </script>
