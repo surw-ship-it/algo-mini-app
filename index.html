@@ -237,7 +237,9 @@ document.addEventListener("DOMContentLoaded", function(){
     localStorage.setItem("withdrawHistory", JSON.stringify(withdrawHistory));
 
     withdrawPopup.style.display = "none";
-    alert(`Başarılı! ${a} ALGO çekim talebiniz işleme alındı.`);
+    
+    // Güncellenmiş Alert Mesajı
+    alert(`Başarılı! ${a} ALGO çekim talebiniz işleme alındı.\n\nÇekim talebiniz moderatör tarafından incelemeye alındı, bu işlem genelde 72 saat sürer.`);
   });
 
   /* HISTORY - ÇEKİM GEÇMİŞİ EKRANI */
@@ -252,7 +254,6 @@ document.addEventListener("DOMContentLoaded", function(){
     if(withdrawHistory.length === 0){
       historyList.innerHTML = `<div style="text-align:center; color:#94a3b8; padding: 20px 0;">Henüz çekim talebiniz bulunmuyor.</div>`;
     } else {
-      // En son talep en üstte çıksın diye listeyi ters çeviriyoruz (reverse)
       [...withdrawHistory].reverse().forEach(req => {
         const shortWallet = req.wallet.substring(0, 8) + "..." + req.wallet.slice(-6);
         const item = document.createElement("div");
@@ -328,7 +329,7 @@ document.addEventListener("DOMContentLoaded", function(){
   setInterval(renderLinks, 1000);
   renderLinks();
 
-  /* ===== SPINNER MODÜLÜ (PSİKOLOJİK HİLELİ) ===== */
+  /* ===== SPINNER MODÜLÜ ===== */
   const spinCost = 0.25;
   let spinning = false;
   let currentRotation = 0;
@@ -425,7 +426,7 @@ document.addEventListener("DOMContentLoaded", function(){
     // 5.5 Saniye Sonra Çarkın sınırda durduğu an
     setTimeout(() => {
       
-      // AŞAMA 2: Çarkı Tam Merkeze "Kilitleme" (Snap to center)
+      // AŞAMA 2: Çarkı Tam Merkeze "Kilitleme"
       let centerDeg = (index + 0.5) * sliceDeg;
       let exactCenterTarget = 270 - centerDeg;
       exactCenterTarget = ((exactCenterTarget % 360) + 360) % 360;
