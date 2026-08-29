@@ -262,13 +262,14 @@ document.addEventListener("DOMContentLoaded", function(){
   let spinning = false;
   let currentRotation = 0;
   
+  // Olasılıklar test amaçlı dengelendi (Weight'ler düşürüldü)
   const prizes = [
-    {label:"Yeniden Dene", amount:0, weight:999999},
-    {label:"0.05 ALGO", amount:0.05, weight:800},
-    {label:"0.1 ALGO", amount:0.1, weight:150},
-    {label:"0.25 ALGO", amount:0.25, weight:40},
-    {label:"1 ALGO", amount:1, weight:5},
-    {label:"10 ALGO", amount:10, weight:1}
+    {label:"Yeniden Dene", amount:0, weight: 40}, 
+    {label:"0.05 ALGO", amount:0.05, weight: 30},
+    {label:"0.1 ALGO", amount:0.1, weight: 15},  
+    {label:"0.25 ALGO", amount:0.25, weight: 10},
+    {label:"1 ALGO", amount:1, weight: 4},       
+    {label:"10 ALGO", amount:10, weight: 1}      
   ];
   
   const canvas = document.getElementById("wheel");
@@ -323,17 +324,15 @@ document.addEventListener("DOMContentLoaded", function(){
     
     const index = weightedPrize();
     
-    // Doğru Rotasyon Matematiği:
-    // Canvas başlangıç açısı 3 yönü (0 derece), ok ise 12 yönünde (270 derece).
-    // Dilimin merkeze (270 dereceye) gelmesi için gereken baz dereceyi hesaplıyoruz.
+    // Doğru Rotasyon Matematiği
     let targetDeg = 240 - (index * 60); 
-    targetDeg = ((targetDeg % 360) + 360) % 360; // 0-359 arasına sabitle
+    targetDeg = ((targetDeg % 360) + 360) % 360; 
     
     const remainder = currentRotation % 360;
     let step = targetDeg - remainder;
-    if (step <= 0) step += 360; // Çarkın her zaman ileri doğru dönmesini sağla
+    if (step <= 0) step += 360; 
     
-    currentRotation += step + (360 * 5); // Hedef açı + 5 tam tur
+    currentRotation += step + (360 * 5); 
 
     canvas.style.transition = "transform 4s cubic-bezier(0.15, 0.75, 0.2, 1.05)";
     canvas.style.transform = `rotate(${currentRotation}deg)`;
