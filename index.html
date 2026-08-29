@@ -17,9 +17,9 @@ html,body{margin:0;padding:0;background:#020617;font-family:Inter,system-ui,Aria
 .header-top {display:flex; justify-content:space-between; align-items:center;}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700}.brand img{width:30px}
 .lang-switcher {display:flex; gap:6px;}
-.lang-switcher button {width:32px; height:32px; padding:0; border-radius:8px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); font-size:16px; cursor:pointer; display:flex; justify-content:center; align-items:center; transition:background 0.2s;}
-.lang-switcher button:active {background:rgba(255,255,255,0.3);}
-.lang-switcher button.active {background:rgba(59, 130, 246, 0.5); border-color:#3b82f6;}
+.lang-btn {width:32px; height:32px; padding:0; border-radius:8px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); font-size:16px; cursor:pointer; display:flex; justify-content:center; align-items:center; transition:background 0.2s;}
+.lang-btn:active {background:rgba(255,255,255,0.3);}
+.lang-btn.active {background:rgba(59, 130, 246, 0.5); border-color:#3b82f6;}
 
 .balance-box{margin:20px 0;padding:18px;border-radius:18px;background:rgba(255,255,255,.14);text-align:center;}
 .balance-row{display:flex;justify-content:center;align-items:center;gap:8px}.balance-amount{font-size:34px;font-weight:800}
@@ -66,7 +66,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 /* RTL (Arapça) Desteği */
 [dir="rtl"] .history-list {text-align: right;}
+[dir="rtl"] .history-item {text-align: right;}
 [dir="rtl"] .brand {flex-direction: row-reverse;}
+[dir="rtl"] .balance-row {flex-direction: row-reverse;}
 </style>
 </head>
 
@@ -74,18 +76,20 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <div id="app">
   <div class="card">
     
+    <!-- Dil Seçimi -->
     <div class="header-top">
       <div class="brand">
         <img src="https://cryptologos.cc/logos/algorand-algo-logo.png"> Algorand Earn
       </div>
       <div class="lang-switcher">
-        <button id="lang-en" onclick="setLanguage('en')">🇬🇧</button>
-        <button id="lang-tr" onclick="setLanguage('tr')">🇹🇷</button>
-        <button id="lang-ar" onclick="setLanguage('ar')">🇸🇦</button>
-        <button id="lang-ru" onclick="setLanguage('ru')">🇷🇺</button>
+        <button class="lang-btn" data-lang="en">🇬🇧</button>
+        <button class="lang-btn" data-lang="tr">🇹🇷</button>
+        <button class="lang-btn" data-lang="ar">🇸🇦</button>
+        <button class="lang-btn" data-lang="ru">🇷🇺</button>
       </div>
     </div>
 
+    <!-- Bakiye -->
     <div class="balance-box">
       <div data-i18n="totalBalance">Total Balance</div>
       <div class="balance-row">
@@ -97,12 +101,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <button class="action-btn history-btn" id="openHistory" data-i18n="btnHistory">📜 Withdraw History</button>
     </div>
 
+    <!-- Reklam -->
     <div class="section">
       <h3 data-i18n="adTitle">🎬 Watch Ads & Earn</h3>
       <button id="watchAd" style="margin-bottom: 8px;" data-i18n="btnWatchAd">Watch Ad (+0.1 ALGO)</button>
       <div class="counter" id="adCounter"></div>
     </div>
 
+    <!-- Linkler -->
     <div class="section">
       <h3 data-i18n="linksTitle">🔗 Rewarded Links</h3>
       <div class="links" id="links"></div>
@@ -154,212 +160,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </div>
 
 <script>
-/* ================= ÇEVİRİ (i18n) SİSTEMİ ================= */
-const translations = {
-  en: {
-    totalBalance: "Total Balance",
-    btnWithdraw: "💸 Withdraw",
-    btnSpinner: "🎡 Try your luck (0.25 ALGO)",
-    btnHistory: "📜 Withdraw History",
-    adTitle: "🎬 Watch Ads & Earn",
-    btnWatchAd: "Watch Ad (+0.1 ALGO)",
-    adCounter: "Daily ad limit: {N} / 30",
-    linksTitle: "🔗 Rewarded Links",
-    linkBtn: "🔗 Link {N} (+0.025 ALGO)",
-    linkTimer: "Time left: {TIME}",
-    withdrawTitle: "Withdraw Request",
-    currentBalance: "Current balance: ",
-    walletPlaceholder: "Algorand wallet address",
-    amountPlaceholder: "Amount to withdraw",
-    minWithdraw: "Minimum withdrawal: 12 ALGO",
-    btnSend: "Send",
-    btnCancel: "Cancel",
-    btnClose: "Close",
-    historyTitle: "📜 Withdraw History",
-    historyEmpty: "No withdrawal requests yet.",
-    historyWallet: "Wallet: ",
-    historyDate: "Date: ",
-    statusPending: "⏳ Under Review",
-    spinnerTitle: "🎡 Lucky Wheel",
-    spinnerDesc: "Each spin costs 0.25 ALGO.",
-    btnSpin: "Spin (0.25 ALGO)",
-    msgAdLimit: "Daily limit reached!",
-    msgAdError: "Error loading ad.",
-    msgInvalidWallet: "Please enter a valid Algorand (ALGO) address.",
-    msgMinWithdraw: "Minimum withdrawal is 12 ALGO.",
-    msgNoBalance: "Insufficient balance.",
-    msgWithdrawSuccess: "Success! {AMOUNT} ALGO withdrawal request received.\n\nYour request is under review by a moderator, this process usually takes 72 hours.",
-    msgSpinWin: "🎉 Congratulations! You won <b>{PRIZE}</b>.",
-    msgSpinLose: "😔 Unlucky. Please try again.",
-    prizeTryAgain: "Try Again",
-    timeH: "h",
-    timeM: "m",
-    timeS: "s"
-  },
-  tr: {
-    totalBalance: "Toplam Bakiye",
-    btnWithdraw: "💸 Çekim Yap",
-    btnSpinner: "🎡 0.25 ALGO ile Şansını Dene",
-    btnHistory: "📜 Çekim Geçmişi",
-    adTitle: "🎬 Reklam İzleyerek Kazan",
-    btnWatchAd: "Reklam İzle (+0.1 ALGO)",
-    adCounter: "Günlük reklam hakkınız: {N} / 30",
-    linksTitle: "🔗 Ödüllü Linkler",
-    linkBtn: "🔗 Link {N} (+0.025 ALGO)",
-    linkTimer: "Kalan süre: {TIME}",
-    withdrawTitle: "Çekim Talebi",
-    currentBalance: "Mevcut bakiye: ",
-    walletPlaceholder: "Algorand cüzdan adresi",
-    amountPlaceholder: "Çekilecek miktar",
-    minWithdraw: "Minimum çekim: 12 ALGO",
-    btnSend: "Gönder",
-    btnCancel: "İptal",
-    btnClose: "Kapat",
-    historyTitle: "📜 Çekim Geçmişi",
-    historyEmpty: "Henüz çekim talebiniz bulunmuyor.",
-    historyWallet: "Cüzdan: ",
-    historyDate: "Tarih: ",
-    statusPending: "⏳ İncelemeye Alındı",
-    spinnerTitle: "🎡 Şans Çarkı",
-    spinnerDesc: "Her çevirme 0.25 ALGO değerindedir.",
-    btnSpin: "Çevir (0.25 ALGO)",
-    msgAdLimit: "Günlük limit doldu!",
-    msgAdError: "Reklam yüklenirken hata oluştu.",
-    msgInvalidWallet: "Lütfen geçerli bir Algorand (ALGO) adresi giriniz.",
-    msgMinWithdraw: "Minimum çekim miktarı 12 ALGO'dur.",
-    msgNoBalance: "Yetersiz bakiye.",
-    msgWithdrawSuccess: "Başarılı! {AMOUNT} ALGO çekim talebiniz işleme alındı.\n\nÇekim talebiniz moderatör tarafından incelemeye alındı, bu işlem genelde 72 saat sürer.",
-    msgSpinWin: "🎉 Tebrikler! <b>{PRIZE}</b> kazandınız.",
-    msgSpinLose: "😔 Maalesef boş. Lütfen tekrar deneyin.",
-    prizeTryAgain: "Yeniden Dene",
-    timeH: "sa",
-    timeM: "dk",
-    timeS: "sn"
-  },
-  ar: {
-    totalBalance: "إجمالي الرصيد",
-    btnWithdraw: "💸 سحب",
-    btnSpinner: "🎡 جرب حظك (0.25 ALGO)",
-    btnHistory: "📜 سجل السحوبات",
-    adTitle: "🎬 شاهد الإعلانات واربح",
-    btnWatchAd: "شاهد الإعلان (+0.1 ALGO)",
-    adCounter: "الحد اليومي للإعلانات: {N} / 30",
-    linksTitle: "🔗 روابط المكافآت",
-    linkBtn: "🔗 رابط {N} (+0.025 ALGO)",
-    linkTimer: "الوقت المتبقي: {TIME}",
-    withdrawTitle: "طلب سحب",
-    currentBalance: "الرصيد الحالي: ",
-    walletPlaceholder: "عنوان محفظة Algorand",
-    amountPlaceholder: "المبلغ المراد سحبه",
-    minWithdraw: "الحد الأدنى للسحب: 12 ALGO",
-    btnSend: "إرسال",
-    btnCancel: "إلغاء",
-    btnClose: "إغلاق",
-    historyTitle: "📜 سجل السحوبات",
-    historyEmpty: "لا توجد طلبات سحب حتى الآن.",
-    historyWallet: "المحفظة: ",
-    historyDate: "التاريخ: ",
-    statusPending: "⏳ قيد المراجعة",
-    spinnerTitle: "🎡 عجلة الحظ",
-    spinnerDesc: "كل لفة تكلف 0.25 ALGO.",
-    btnSpin: "لف العجلة (0.25 ALGO)",
-    msgAdLimit: "تم الوصول للحد اليومي!",
-    msgAdError: "حدث خطأ أثناء تحميل الإعلان.",
-    msgInvalidWallet: "يرجى إدخال عنوان Algorand (ALGO) صحيح.",
-    msgMinWithdraw: "الحد الأدنى للسحب هو 12 ALGO.",
-    msgNoBalance: "رصيد غير كافٍ.",
-    msgWithdrawSuccess: "نجاح! تم استلام طلب سحب {AMOUNT} ALGO.\n\nطلبك قيد المراجعة من قبل المشرف، تستغرق هذه العملية عادة 72 ساعة.",
-    msgSpinWin: "🎉 تهانينا! لقد ربحت <b>{PRIZE}</b>.",
-    msgSpinLose: "😔 للأسف فارغة. يرجى المحاولة مرة أخرى.",
-    prizeTryAgain: "حاول مرة أخرى",
-    timeH: "س",
-    timeM: "د",
-    timeS: "ث"
-  },
-  ru: {
-    totalBalance: "Общий баланс",
-    btnWithdraw: "💸 Вывод средств",
-    btnSpinner: "🎡 Испытай удачу (0.25 ALGO)",
-    btnHistory: "📜 История выводов",
-    adTitle: "🎬 Смотри рекламу",
-    btnWatchAd: "Смотреть рекламу (+0.1 ALGO)",
-    adCounter: "Ежедневный лимит: {N} / 30",
-    linksTitle: "🔗 Бонусные ссылки",
-    linkBtn: "🔗 Ссылка {N} (+0.025 ALGO)",
-    linkTimer: "Осталось: {TIME}",
-    withdrawTitle: "Запрос на вывод",
-    currentBalance: "Текущий баланс: ",
-    walletPlaceholder: "Адрес кошелька Algorand",
-    amountPlaceholder: "Сумма",
-    minWithdraw: "Минимум для вывода: 12 ALGO",
-    btnSend: "Отправить",
-    btnCancel: "Отмена",
-    btnClose: "Закрыть",
-    historyTitle: "📜 История выводов",
-    historyEmpty: "Пока нет запросов.",
-    historyWallet: "Кошелек: ",
-    historyDate: "Дата: ",
-    statusPending: "⏳ На рассмотрении",
-    spinnerTitle: "🎡 Колесо удачи",
-    spinnerDesc: "Вращение стоит 0.25 ALGO.",
-    btnSpin: "Крутить (0.25 ALGO)",
-    msgAdLimit: "Лимит исчерпан!",
-    msgAdError: "Ошибка загрузки.",
-    msgInvalidWallet: "Введите правильный адрес Algorand (ALGO).",
-    msgMinWithdraw: "Минимальная сумма 12 ALGO.",
-    msgNoBalance: "Недостаточно средств.",
-    msgWithdrawSuccess: "Успешно! Запрос на {AMOUNT} ALGO принят.\n\nВаш запрос рассматривается, обычно это занимает 72 часа.",
-    msgSpinWin: "🎉 Поздравляем! Вы выиграли <b>{PRIZE}</b>.",
-    msgSpinLose: "😔 Пусто. Попробуйте еще раз.",
-    prizeTryAgain: "Попробуй еще раз",
-    timeH: "ч",
-    timeM: "м",
-    timeS: "с"
-  }
-};
-
-let currentLang = localStorage.getItem("appLang") || "en";
-
-function t(key, replacements = {}) {
-  let text = translations[currentLang][key] || key;
-  for (const [k, v] of Object.entries(replacements)) {
-    text = text.replace(`{${k}}`, v);
-  }
-  return text;
-}
-
-function updateUITexts() {
-  document.querySelectorAll("[data-i18n]").forEach(el => {
-    el.innerHTML = t(el.getAttribute("data-i18n"));
-  });
-  document.querySelectorAll("[data-i18n-ph]").forEach(el => {
-    el.placeholder = t(el.getAttribute("data-i18n-ph"));
-  });
-  
-  // RTL Support
-  document.documentElement.setAttribute("dir", currentLang === "ar" ? "rtl" : "ltr");
-  document.documentElement.lang = currentLang;
-
-  // Buton aktif durumu
-  document.querySelectorAll(".lang-switcher button").forEach(b => b.classList.remove("active"));
-  document.getElementById("lang-" + currentLang).classList.add("active");
-}
-
-window.setLanguage = function(lang) {
-  currentLang = lang;
-  localStorage.setItem("appLang", lang);
-  updateUITexts();
-  updateAdCounterUI();
-  renderLinks();
-  if(document.getElementById("historyPopup").style.display === "flex") openHistoryUI();
-  if(typeof drawWheel === "function") drawWheel();
-};
-
-/* ================= ANA UYGULAMA MANTIĞI ================= */
-let balance, dailyAds, lastDay, withdrawHistory;
-const balanceEl = document.getElementById("balance");
-const adCounter = document.getElementById("adCounter");
-
 document.addEventListener("DOMContentLoaded", function(){
 
   if(window.Telegram && window.Telegram.WebApp) {
@@ -367,21 +167,249 @@ document.addEventListener("DOMContentLoaded", function(){
     Telegram.WebApp.expand();
   }
 
-  balance = Number(localStorage.getItem("balance")) || 0;
-  dailyAds = Number(localStorage.getItem("dailyAds"));
+  /* ================= ÇEVİRİ SİSTEMİ ================= */
+  const translations = {
+    en: {
+      totalBalance: "Total Balance",
+      btnWithdraw: "💸 Withdraw",
+      btnSpinner: "🎡 Try your luck (0.25 ALGO)",
+      btnHistory: "📜 Withdraw History",
+      adTitle: "🎬 Watch Ads & Earn",
+      btnWatchAd: "Watch Ad (+0.1 ALGO)",
+      adCounter: "Daily ad limit: {N} / 30",
+      linksTitle: "🔗 Rewarded Links",
+      linkBtn: "🔗 Link {N} (+0.025 ALGO)",
+      linkTimer: "Time left: {TIME}",
+      withdrawTitle: "Withdraw Request",
+      currentBalance: "Current balance: ",
+      walletPlaceholder: "Algorand wallet address",
+      amountPlaceholder: "Amount to withdraw",
+      minWithdraw: "Minimum withdrawal: 12 ALGO",
+      btnSend: "Send",
+      btnCancel: "Cancel",
+      btnClose: "Close",
+      historyTitle: "📜 Withdraw History",
+      historyEmpty: "No withdrawal requests yet.",
+      historyWallet: "Wallet: ",
+      historyDate: "Date: ",
+      statusPending: "⏳ Under Review",
+      spinnerTitle: "🎡 Lucky Wheel",
+      spinnerDesc: "Each spin costs 0.25 ALGO.",
+      btnSpin: "Spin (0.25 ALGO)",
+      msgAdLimit: "Daily limit reached!",
+      msgAdError: "Error loading ad.",
+      msgInvalidWallet: "Please enter a valid Algorand (ALGO) address.",
+      msgMinWithdraw: "Minimum withdrawal is 12 ALGO.",
+      msgNoBalance: "Insufficient balance.",
+      msgWithdrawSuccess: "Success! {AMOUNT} ALGO withdrawal request received.\n\nYour request is under review by a moderator, this process usually takes 72 hours.",
+      msgSpinWin: "🎉 Congratulations! You won <b>{PRIZE}</b>.",
+      msgSpinLose: "😔 Unlucky. Please try again.",
+      prizeTryAgain: "Try Again",
+      timeH: "h",
+      timeM: "m",
+      timeS: "s"
+    },
+    tr: {
+      totalBalance: "Toplam Bakiye",
+      btnWithdraw: "💸 Çekim Yap",
+      btnSpinner: "🎡 0.25 ALGO ile Şansını Dene",
+      btnHistory: "📜 Çekim Geçmişi",
+      adTitle: "🎬 Reklam İzleyerek Kazan",
+      btnWatchAd: "Reklam İzle (+0.1 ALGO)",
+      adCounter: "Günlük reklam hakkınız: {N} / 30",
+      linksTitle: "🔗 Ödüllü Linkler",
+      linkBtn: "🔗 Link {N} (+0.025 ALGO)",
+      linkTimer: "Kalan süre: {TIME}",
+      withdrawTitle: "Çekim Talebi",
+      currentBalance: "Mevcut bakiye: ",
+      walletPlaceholder: "Algorand cüzdan adresi",
+      amountPlaceholder: "Çekilecek miktar",
+      minWithdraw: "Minimum çekim: 12 ALGO",
+      btnSend: "Gönder",
+      btnCancel: "İptal",
+      btnClose: "Kapat",
+      historyTitle: "📜 Çekim Geçmişi",
+      historyEmpty: "Henüz çekim talebiniz bulunmuyor.",
+      historyWallet: "Cüzdan: ",
+      historyDate: "Tarih: ",
+      statusPending: "⏳ İncelemeye Alındı",
+      spinnerTitle: "🎡 Şans Çarkı",
+      spinnerDesc: "Her çevirme 0.25 ALGO değerindedir.",
+      btnSpin: "Çevir (0.25 ALGO)",
+      msgAdLimit: "Günlük limit doldu!",
+      msgAdError: "Reklam yüklenirken hata oluştu.",
+      msgInvalidWallet: "Lütfen geçerli bir Algorand (ALGO) adresi giriniz.",
+      msgMinWithdraw: "Minimum çekim miktarı 12 ALGO'dur.",
+      msgNoBalance: "Yetersiz bakiye.",
+      msgWithdrawSuccess: "Başarılı! {AMOUNT} ALGO çekim talebiniz işleme alındı.\n\nÇekim talebiniz moderatör tarafından incelemeye alındı, bu işlem genelde 72 saat sürer.",
+      msgSpinWin: "🎉 Tebrikler! <b>{PRIZE}</b> kazandınız.",
+      msgSpinLose: "😔 Maalesef boş. Lütfen tekrar deneyin.",
+      prizeTryAgain: "Yeniden Dene",
+      timeH: "sa",
+      timeM: "dk",
+      timeS: "sn"
+    },
+    ar: {
+      totalBalance: "إجمالي الرصيد",
+      btnWithdraw: "💸 سحب",
+      btnSpinner: "🎡 جرب حظك (0.25 ALGO)",
+      btnHistory: "📜 سجل السحوبات",
+      adTitle: "🎬 شاهد الإعلانات واربح",
+      btnWatchAd: "شاهد الإعلان (+0.1 ALGO)",
+      adCounter: "الحد اليومي للإعلانات: {N} / 30",
+      linksTitle: "🔗 روابط المكافآت",
+      linkBtn: "🔗 رابط {N} (+0.025 ALGO)",
+      linkTimer: "الوقت المتبقي: {TIME}",
+      withdrawTitle: "طلب سحب",
+      currentBalance: "الرصيد الحالي: ",
+      walletPlaceholder: "عنوان محفظة Algorand",
+      amountPlaceholder: "المبلغ المراد سحبه",
+      minWithdraw: "الحد الأدنى للسحب: 12 ALGO",
+      btnSend: "إرسال",
+      btnCancel: "إلغاء",
+      btnClose: "إغلاق",
+      historyTitle: "📜 سجل السحوبات",
+      historyEmpty: "لا توجد طلبات سحب حتى الآن.",
+      historyWallet: "المحفظة: ",
+      historyDate: "التاريخ: ",
+      statusPending: "⏳ قيد المراجعة",
+      spinnerTitle: "🎡 عجلة الحظ",
+      spinnerDesc: "كل لفة تكلف 0.25 ALGO.",
+      btnSpin: "لف العجلة (0.25 ALGO)",
+      msgAdLimit: "تم الوصول للحد اليومي!",
+      msgAdError: "حدث خطأ أثناء تحميل الإعلان.",
+      msgInvalidWallet: "يرجى إدخال عنوان Algorand (ALGO) صحيح.",
+      msgMinWithdraw: "الحد الأدنى للسحب هو 12 ALGO.",
+      msgNoBalance: "رصيد غير كافٍ.",
+      msgWithdrawSuccess: "نجاح! تم استلام طلب سحب {AMOUNT} ALGO.\n\nطلبك قيد المراجعة من قبل المشرف، تستغرق هذه العملية عادة 72 ساعة.",
+      msgSpinWin: "🎉 تهانينا! لقد ربحت <b>{PRIZE}</b>.",
+      msgSpinLose: "😔 للأسف فارغة. يرجى المحاولة مرة أخرى.",
+      prizeTryAgain: "حاول مرة أخرى",
+      timeH: "س",
+      timeM: "د",
+      timeS: "ث"
+    },
+    ru: {
+      totalBalance: "Общий баланс",
+      btnWithdraw: "💸 Вывод средств",
+      btnSpinner: "🎡 Испытай удачу (0.25 ALGO)",
+      btnHistory: "📜 История выводов",
+      adTitle: "🎬 Смотри рекламу",
+      btnWatchAd: "Смотреть рекламу (+0.1 ALGO)",
+      adCounter: "Ежедневный лимит: {N} / 30",
+      linksTitle: "🔗 Бонусные ссылки",
+      linkBtn: "🔗 Ссылка {N} (+0.025 ALGO)",
+      linkTimer: "Осталось: {TIME}",
+      withdrawTitle: "Запрос на вывод",
+      currentBalance: "Текущий баланс: ",
+      walletPlaceholder: "Адрес кошелька Algorand",
+      amountPlaceholder: "Сумма",
+      minWithdraw: "Минимум для вывода: 12 ALGO",
+      btnSend: "Отправить",
+      btnCancel: "Отмена",
+      btnClose: "Закрыть",
+      historyTitle: "📜 История выводов",
+      historyEmpty: "Пока нет запросов.",
+      historyWallet: "Кошелек: ",
+      historyDate: "Дата: ",
+      statusPending: "⏳ На рассмотрении",
+      spinnerTitle: "🎡 Колесо удачи",
+      spinnerDesc: "Вращение стоит 0.25 ALGO.",
+      btnSpin: "Крутить (0.25 ALGO)",
+      msgAdLimit: "Лимит исчерпан!",
+      msgAdError: "Ошибка загрузки.",
+      msgInvalidWallet: "Введите правильный адрес Algorand (ALGO).",
+      msgMinWithdraw: "Минимальная сумма 12 ALGO.",
+      msgNoBalance: "Недостаточно средств.",
+      msgWithdrawSuccess: "Успешно! Запрос на {AMOUNT} ALGO принят.\n\nВаш запрос рассматривается, обычно это занимает 72 часа.",
+      msgSpinWin: "🎉 Поздравляем! Вы выиграли <b>{PRIZE}</b>.",
+      msgSpinLose: "😔 Пусто. Попробуйте еще раз.",
+      prizeTryAgain: "Попробуй еще раз",
+      timeH: "ч",
+      timeM: "м",
+      timeS: "с"
+    }
+  };
+
+  // Dil ayarını güvenli okuma
+  let currentLang = localStorage.getItem("appLang");
+  if (!['en', 'tr', 'ar', 'ru'].includes(currentLang)) {
+    currentLang = 'en'; // Default
+  }
+
+  function t(key, replacements = {}) {
+    let text = translations[currentLang][key] || key;
+    for (const [k, v] of Object.entries(replacements)) {
+      text = text.replace(`{${k}}`, v);
+    }
+    return text;
+  }
+
+  function updateUITexts() {
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      el.innerHTML = t(el.getAttribute("data-i18n"));
+    });
+    document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+      el.placeholder = t(el.getAttribute("data-i18n-ph"));
+    });
+    
+    // RTL (Sağdan Sola) ve Lang etiketleri ayarı
+    document.documentElement.setAttribute("dir", currentLang === "ar" ? "rtl" : "ltr");
+    document.documentElement.lang = currentLang;
+
+    // Bayrak aktif class değişimi
+    document.querySelectorAll(".lang-btn").forEach(b => b.classList.remove("active"));
+    const activeBtn = document.querySelector(`.lang-btn[data-lang="${currentLang}"]`);
+    if(activeBtn) activeBtn.classList.add("active");
+  }
+
+  // Bayraklara tıklandığında dili değiştirme eventleri
+  document.querySelectorAll(".lang-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      currentLang = e.currentTarget.getAttribute("data-lang");
+      localStorage.setItem("appLang", currentLang);
+      
+      updateUITexts();
+      updateAdCounterUI();
+      renderLinks();
+      drawWheel();
+      
+      if(document.getElementById("historyPopup").style.display === "flex") {
+        renderHistoryList();
+      }
+    });
+  });
+
+  /* ================= VERİ GÜVENLİĞİ VE YÜKLEME ================= */
+  let balance = parseFloat(localStorage.getItem("balance"));
+  if (isNaN(balance)) balance = 0;
+
+  let dailyAds = parseInt(localStorage.getItem("dailyAds"));
   if (isNaN(dailyAds)) dailyAds = 30;
   
-  withdrawHistory = JSON.parse(localStorage.getItem("withdrawHistory")) || [];
-  lastDay = localStorage.getItem("lastAdDay") || new Date().toDateString();
+  // JSON çökme koruması eklendi (Önceki bozuk verilerden korur)
+  let withdrawHistory = [];
+  try {
+    const rawHistory = localStorage.getItem("withdrawHistory");
+    if(rawHistory) withdrawHistory = JSON.parse(rawHistory);
+    if(!Array.isArray(withdrawHistory)) withdrawHistory = [];
+  } catch (error) {
+    withdrawHistory = []; 
+  }
 
-  updateUITexts();
+  let lastDay = localStorage.getItem("lastAdDay") || new Date().toDateString();
+
+  const balanceEl = document.getElementById("balance");
+  const adCounter = document.getElementById("adCounter");
 
   function updateBalance(newAmount) {
     balance = newAmount;
     localStorage.setItem("balance", balance.toString());
     balanceEl.innerText = balance.toFixed(3);
   }
-  updateBalance(balance);
+  
+  updateUITexts(); // İlk Yüklemede Dil Ayarı
+  updateBalance(balance); // İlk Yüklemede Bakiye Ayarı
 
   /* ADS */
   function resetAds(){
@@ -394,10 +422,10 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   }
   resetAds();
-  
-  window.updateAdCounterUI = function() {
+
+  function updateAdCounterUI() {
     adCounter.innerText = t("adCounter", {N: dailyAds});
-  };
+  }
   updateAdCounterUI();
 
   document.getElementById("watchAd").addEventListener("click", async (e) => {
@@ -424,50 +452,20 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 
   /* WITHDRAW */
-  const openWithdraw = document.getElementById("openWithdraw");
   const withdrawPopup = document.getElementById("withdrawPopup");
-  const closeWithdrawBtn = document.getElementById("closeWithdrawBtn");
-  const sendWithdrawBtn = document.getElementById("sendWithdrawBtn");
   const popupBalance = document.getElementById("popupBalance");
 
-  openWithdraw.addEventListener("click", () => {
+  document.getElementById("openWithdraw").addEventListener("click", () => {
     popupBalance.innerText = balance.toFixed(3) + " ALGO";
     document.getElementById("wallet").value = "";
     document.getElementById("amount").value = "";
     withdrawPopup.style.display = "flex";
   });
   
-  closeWithdrawBtn.addEventListener("click", () => { withdrawPopup.style.display = "none"; });
-  
-  sendWithdrawBtn.addEventListener("click", () => {
-    const w = document.getElementById("wallet").value.trim();
-    const a = parseFloat(document.getElementById("amount").value);
-    
-    if(!/^[A-Z2-7]{58}$/.test(w)){ alert(t("msgInvalidWallet")); return; }
-    if(isNaN(a) || a < 12){ alert(t("msgMinWithdraw")); return; }
-    if(a > balance){ alert(t("msgNoBalance")); return; }
-    
-    updateBalance(balance - a);
-    
-    // Geçmişe raw 'pending' kaydet, dilden bağımsız olsun
-    const dateStr = new Date().toLocaleString(currentLang === 'tr' ? "tr-TR" : "en-US");
-    withdrawHistory.push({
-      date: dateStr,
-      amount: a.toFixed(3),
-      wallet: w,
-      status: "pending"
-    });
-    localStorage.setItem("withdrawHistory", JSON.stringify(withdrawHistory));
-
-    withdrawPopup.style.display = "none";
-    alert(t("msgWithdrawSuccess", {AMOUNT: a.toFixed(3)}));
+  document.getElementById("closeWithdrawBtn").addEventListener("click", () => { 
+    withdrawPopup.style.display = "none"; 
   });
-
-  /* HISTORY */
-  const historyPopup = document.getElementById("historyPopup");
-  const historyList = document.getElementById("historyList");
   
-  window.openHistoryUI = function() {
-    historyList.innerHTML = "";
-    if(withdrawHistory.length === 0){
-      historyList.innerHTML = `<div style="text-align:center; color:#94a3b8; padding: 20px 0;">${t("historyEmpt
+  document.getElementById("sendWithdrawBtn").addEventListener("click", () => {
+    const w = document.getElementById("wallet").value.trim();
+    const a = parseFloat(document.getElem
