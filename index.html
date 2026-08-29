@@ -257,30 +257,30 @@ document.addEventListener("DOMContentLoaded", function(){
   setInterval(renderLinks, 1000);
   renderLinks();
 
-  /* ===== SPINNER MODÜLÜ ===== */
+  /* ===== SPINNER MODÜLÜ (PSİKOLOJİK HİLELİ) ===== */
   const spinCost = 0.25;
   let spinning = false;
   let currentRotation = 0;
   
-  // Yüksek ödüller eklendi ama weight (ağırlık) 0 olduğu için gelmesi "imkansız" yapıldı.
+  // Ödül dizilimi değiştirildi: İmkansız ödüller (weight: 0) ile 
+  // sık çıkan ödüller kasten yan yana koyuldu.
   const prizes = [
-    {label:"Yeniden Dene", amount:0, weight: 40}, 
+    {label:"1000 ALGO", amount:1000, weight: 0},
+    {label:"Yeniden Dene", amount:0, weight: 40},
+    {label:"250 ALGO", amount:250, weight: 0},
     {label:"0.05 ALGO", amount:0.05, weight: 30},
-    {label:"0.1 ALGO", amount:0.1, weight: 15},  
+    {label:"500 ALGO", amount:500, weight: 0},
+    {label:"0.1 ALGO", amount:0.1, weight: 15},
+    {label:"100 ALGO", amount:100, weight: 0},
     {label:"0.25 ALGO", amount:0.25, weight: 10},
-    {label:"1 ALGO", amount:1, weight: 4},       
     {label:"10 ALGO", amount:10, weight: 1},
-    {label:"100 ALGO", amount:100, weight: 0},   // %0 İhtimal (Görsel Yem)
-    {label:"250 ALGO", amount:250, weight: 0},   // %0 İhtimal (Görsel Yem)
-    {label:"500 ALGO", amount:500, weight: 0},   // %0 İhtimal (Görsel Yem)
-    {label:"1000 ALGO", amount:1000, weight: 0}  // %0 İhtimal (Görsel Yem)
+    {label:"1 ALGO", amount:1, weight: 4}
   ];
   
   const canvas = document.getElementById("wheel");
   const ctx = canvas.getContext("2d");
   const center = 130;
   
-  // Dinamik dilim açıları (Artık sabit 60 derece değil)
   const sliceDeg = 360 / prizes.length; 
   const sliceAngle = 2 * Math.PI / prizes.length;
 
@@ -290,13 +290,18 @@ document.addEventListener("DOMContentLoaded", function(){
       ctx.beginPath();
       ctx.moveTo(center, center);
       
-      // Renk tonları dinamik olarak ayarlandı
-      ctx.fillStyle = `hsl(${i * sliceDeg}, 75%, 25%)`; 
+      // Psikolojik Renk Hilesi: İmkansız olan büyük ödüller çok daha parlak ve çekici,
+      // düşük ihtimaller ise bir tık daha mat renklere sahip.
+      const isImpossible = p.weight === 0;
+      ctx.fillStyle = isImpossible 
+        ? `hsl(${i * sliceDeg}, 85%, 45%)` 
+        : `hsl(${i * sliceDeg}, 50%, 25%)`; 
+      
       ctx.arc(center, center, center, i * sliceAngle, (i + 1) * sliceAngle);
       ctx.fill();
       
       ctx.lineWidth = 1;
-      ctx.strokeStyle = "rgba(255,255,255,0.2)";
+      ctx.strokeStyle = "rgba(255,255,255,0.3)";
       ctx.stroke();
 
       ctx.save();
@@ -305,7 +310,6 @@ document.addEventListener("DOMContentLoaded", function(){
       ctx.textAlign = "right";
       ctx.fillStyle = "#fff";
       
-      // Yazı fontu dilimler daraldığı için biraz küçültüldü
       ctx.font = "bold 11px Arial";
       ctx.fillText(p.label, 115, 4);
       ctx.restore();
@@ -313,7 +317,6 @@ document.addEventListener("DOMContentLoaded", function(){
   }
   drawWheel();
 
-  // Ağırlığı (weight) 0 olanlar bu havuza hiç girmeyeceği için imkansızdır.
   function weightedPrize(){
     const pool = [];
     prizes.forEach((p, i) => { for(let j=0; j<p.weight; j++) pool.push(i); });
@@ -336,18 +339,25 @@ document.addEventListener("DOMContentLoaded", function(){
     
     const index = weightedPrize();
     
-    // Doğru Rotasyon Matematiği (Dinamik Dilimlere Göre Uyarlanmış)
-    // Ok 270 derecede durduğu için merkezleme formülü:
-    let targetDeg = (270 - (sliceDeg / 2)) - (index * sliceDeg); 
+    // SİNİR BOZUCU "KIL PAYI" MATEMATİĞİ
+    // Çark artık asla dilimin tam ortasında durmaz. 
+    // Ya %2'sinde durup (az önce büyük ödülü kaçırdı),
+    // Ya da %98'inde durup (tam büyük ödüle girecekken son milimetrede durdu) hissi yaratır.
+    let edge = Math.random() > 0.5 ? 0.02 : 0.98; 
+    let P = (index + edge) * sliceDeg;
+    
+    let targetDeg = 270 - P; 
     targetDeg = ((targetDeg % 360) + 360) % 360; 
     
     const remainder = currentRotation % 360;
     let step = targetDeg - remainder;
     if (step <= 0) step += 360; 
     
-    currentRotation += step + (360 * 5); 
+    // Animasyonu daha sinir bozucu yapmak için +6 tam tur
+    currentRotation += step + (360 * 6); 
 
-    canvas.style.transition = "transform 4s cubic-bezier(0.15, 0.75, 0.2, 1.05)";
+    // Zamanlama 5.5 saniyeye uzatıldı ve çok daha yavaş bir bitiş ivmesi eklendi
+    canvas.style.transition = "transform 5.5s cubic-bezier(0.1, 0.85, 0.15, 1)";
     canvas.style.transform = `rotate(${currentRotation}deg)`;
     
     setTimeout(() => {
@@ -364,7 +374,7 @@ document.addEventListener("DOMContentLoaded", function(){
       
       setTimeout(() => { winPopup.style.display = "none"; }, 3000);
       spinning = false;
-    }, 4200);
+    }, 5700); // 5.5 saniye + 200ms pay
   });
 });
 </script>
