@@ -41,7 +41,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .spinner-card{background:#0f172a;width:320px;padding:20px;border-radius:22px;text-align:center}
 #wheelWrap{position:relative;width:260px;height:260px;margin:10px auto;overflow:hidden;border-radius:50%;border:4px solid #334155}
 #wheel{width:100%;height:100%;border-radius:50%;}
-#pointer{position:absolute;top:-2px;left:50%;transform:translateX(-50%) rotate(180deg);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:24px solid #facc15;z-index:10;filter:drop-shadow(0 -2px 4px rgba(0,0,0,0.5))}
+#pointer{position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:24px solid #facc15;z-index:10;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))}
 .winPopup{position:fixed;inset:0;display:none;justify-content:center;align-items:center;background:rgba(0,0,0,.4);z-index:100000}
 .winCard{background:#020617;padding:20px 26px;border-radius:18px;animation:fadeOut 3s forwards;text-align:center;font-weight:700;font-size:16px;color:#fff;border:1px solid rgba(255,255,255,0.2)}
 @keyframes fadeOut{0%{opacity:1}70%{opacity:1}100%{opacity:0}}
@@ -118,10 +118,9 @@ document.addEventListener("DOMContentLoaded", function(){
     Telegram.WebApp.expand();
   }
 
-  // State Management - Merkezi kontrol
   let balance = Number(localStorage.getItem("balance")) || 0;
   let dailyAds = Number(localStorage.getItem("dailyAds"));
-  if (isNaN(dailyAds)) dailyAds = 30; // İlk giriş
+  if (isNaN(dailyAds)) dailyAds = 30;
   
   let lastDay = localStorage.getItem("lastAdDay") || new Date().toDateString();
 
@@ -134,9 +133,9 @@ document.addEventListener("DOMContentLoaded", function(){
     balanceEl.innerText = balance.toFixed(3);
   }
   
-  updateBalance(balance); // İlk yüklemede arayüzü eşitle
+  updateBalance(balance);
 
-  /* ADS - Reklam Modülü */
+  /* ADS */
   function resetAds(){
     const t = new Date().toDateString();
     if(t !== lastDay){
@@ -155,11 +154,10 @@ document.addEventListener("DOMContentLoaded", function(){
     btn.disabled = true;
     
     try {
-      // AdBlock Koruması
       if (typeof show_10483596 === "function") {
         await show_10483596();
       } else {
-        console.warn("Reklam SDK bulunamadı (Adblock?). Offline test modunda simüle ediliyor...");
+        console.warn("Offline test: SDK simüle ediliyor.");
         await new Promise(res => setTimeout(res, 1000)); 
       }
       
@@ -175,7 +173,7 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   });
 
-  /* WITHDRAW - Çekim Modülü */
+  /* WITHDRAW */
   const openWithdraw = document.getElementById("openWithdraw");
   const withdrawPopup = document.getElementById("withdrawPopup");
   const closeWithdrawBtn = document.getElementById("closeWithdrawBtn");
@@ -195,7 +193,6 @@ document.addEventListener("DOMContentLoaded", function(){
     const w = document.getElementById("wallet").value.trim();
     const a = parseFloat(document.getElementById("amount").value);
     
-    // Algorand adresi doğrulama regex'i
     if(!/^[A-Z2-7]{58}$/.test(w)){ alert("Lütfen geçerli bir Algorand (ALGO) adresi giriniz."); return; }
     if(isNaN(a) || a < 12){ alert("Minimum çekim miktarı 12 ALGO'dur."); return; }
     if(a > balance){ alert("Yetersiz bakiye."); return; }
@@ -205,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function(){
     alert(`Başarılı! ${a} ALGO çekim talebiniz işleme alındı.\n(Adres: ${w.substring(0,6)}...${w.slice(-4)})`);
   });
 
-  /* LINKS - Link Modülü */
+  /* LINKS */
   const links = [
     "https://otieu.com/4/10484834", "https://otieu.com/4/10498410", "https://otieu.com/4/10498413",
     "https://otieu.com/4/10498415", "https://otieu.com/4/10498414", "https://otieu.com/4/10513346",
@@ -213,14 +210,13 @@ document.addEventListener("DOMContentLoaded", function(){
     "https://otieu.com/4/10513360"
   ];
   const linksDiv = document.getElementById("links");
-  const COOLDOWN = 43200000; // 12 saat
+  const COOLDOWN = 43200000;
 
   function format(ms){
     const t = Math.max(0, ms);
     const h = Math.floor(t / 3600000);
     const m = Math.floor((t % 3600000) / 60000);
-    const s = Math.floor((t % 60000) / 1000); // Saniye eklendi
-    
+    const s = Math.floor((t % 60000) / 1000);
     if (h > 0) return `${h}sa ${m}dk`;
     return `${m}dk ${s}sn`;
   }
@@ -232,7 +228,6 @@ document.addEventListener("DOMContentLoaded", function(){
     links.forEach((url, i) => {
       const wrap = document.createElement("div");
       wrap.className = "link-wrap";
-      
       const btn = document.createElement("button");
       const timer = document.createElement("div");
       timer.className = "timer";
@@ -247,28 +242,25 @@ document.addEventListener("DOMContentLoaded", function(){
         timer.innerText = "Kalan süre: " + format(left);
       } else {
         btn.addEventListener("click", () => {
-          // Ödülü hemen ver, hileyi önle ve yeni sekmede aç
           localStorage.setItem("link_" + i, Date.now());
           updateBalance(balance + 0.025);
           window.open(url, '_blank');
           renderLinks(); 
         });
       }
-      
       wrap.appendChild(btn);
       if(left > 0) wrap.appendChild(timer);
       linksDiv.appendChild(wrap);
     });
   }
   
-  // Sayaç akıcılığı için interval 1 saniyeye çekildi
   setInterval(renderLinks, 1000);
   renderLinks();
 
-  /* ===== SPINNER (ÇARK) MODÜLÜ ===== */
+  /* ===== SPINNER MODÜLÜ ===== */
   const spinCost = 0.25;
   let spinning = false;
-  let currentRotation = 0; // Animasyon bug'ı için tutulan derece
+  let currentRotation = 0;
   
   const prizes = [
     {label:"Yeniden Dene", amount:0, weight:999999},
@@ -284,17 +276,15 @@ document.addEventListener("DOMContentLoaded", function(){
   const center = 130;
   const sliceAngle = 2 * Math.PI / prizes.length;
 
-  // Çarkı Çiz
   function drawWheel(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     prizes.forEach((p, i) => {
       ctx.beginPath();
       ctx.moveTo(center, center);
-      ctx.fillStyle = `hsl(${i * 60}, 75%, 25%)`; // Renkler biraz daha koyulaştırıldı
+      ctx.fillStyle = `hsl(${i * 60}, 75%, 25%)`; 
       ctx.arc(center, center, center, i * sliceAngle, (i + 1) * sliceAngle);
       ctx.fill();
       
-      // Çizgiler eklendi
       ctx.lineWidth = 1;
       ctx.strokeStyle = "rgba(255,255,255,0.2)";
       ctx.stroke();
@@ -333,22 +323,19 @@ document.addEventListener("DOMContentLoaded", function(){
     
     const index = weightedPrize();
     
-    // YENİ ANİMASYON MANTIĞI:
-    // Hangi dilimin geleceğini hesapla (derece cinsinden)
-    const sliceDeg = 360 / prizes.length;
-    // Çarkın en tepesi (pointer) 270 derecedir (veya CSS'in duruşuna göre 0 varsayılır). 
-    // Matematiksel olarak hedef dilimin merkez açısı:
-    const targetAngle = (index * sliceDeg) + (sliceDeg / 2);
+    // Doğru Rotasyon Matematiği:
+    // Canvas başlangıç açısı 3 yönü (0 derece), ok ise 12 yönünde (270 derece).
+    // Dilimin merkeze (270 dereceye) gelmesi için gereken baz dereceyi hesaplıyoruz.
+    let targetDeg = 240 - (index * 60); 
+    targetDeg = ((targetDeg % 360) + 360) % 360; // 0-359 arasına sabitle
     
-    // Çarkın gelmesi gereken açı: (360 - targetAngle). Ayrıca tam dönme hissi için ekstra turlar (+360 * 5) ekliyoruz.
-    const spinAmount = (360 - targetAngle) + (360 * 5); 
+    const remainder = currentRotation % 360;
+    let step = targetDeg - remainder;
+    if (step <= 0) step += 360; // Çarkın her zaman ileri doğru dönmesini sağla
     
-    // Bir önceki dönüşün üzerine ekliyoruz ki animasyon geri sarmasın!
-    // Sadece artık dereceleri (mod 360) sıfırlayarak bir sonraki dönüşü hizalıyoruz.
-    const currentMod = currentRotation % 360;
-    currentRotation += (360 - currentMod) + spinAmount - targetAngle;
+    currentRotation += step + (360 * 5); // Hedef açı + 5 tam tur
 
-    canvas.style.transition = "transform 4s cubic-bezier(0.15, 0.75, 0.2, 1.05)"; // Daha tok bir durma hissi
+    canvas.style.transition = "transform 4s cubic-bezier(0.15, 0.75, 0.2, 1.05)";
     canvas.style.transform = `rotate(${currentRotation}deg)`;
     
     setTimeout(() => {
